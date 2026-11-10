@@ -13,7 +13,8 @@ renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.98;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+renderer.shadowMap.autoUpdate = false; // bóng chỉ dựng lại mỗi vài khung hình (xem frame()) để lia chuột không bị đơ
 
 const scene = new THREE.Scene();
 const SKY = 0x7fa6cc;
@@ -3605,6 +3606,9 @@ addEventListener("resize", resize); resize();
 
 let last = performance.now(), lastZone = "";
 const fwd = new THREE.Vector3(), head = new THREE.Vector3();
+let shadowTick = 0, slowN = 0, fastN = 0;
+const DPR_MAX = renderer.getPixelRatio();
+let dprNow = DPR_MAX;
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   const t = now / 1000;
@@ -3747,6 +3751,15 @@ function frame(now) {
     } else pr.hidden = true;
     const zone = zoneName(player.x, player.z, player.base);
     if (zone !== lastZone) { $("room").textContent = zone; lastZone = zone; if (!$("people-panel").hidden) scheduleRenderPeople(); }
+  }
+
+  // Bóng: cảnh gần như tĩnh nên chỉ dựng lại bản đồ bóng mỗi 3 khung hình (~1800 vật thể đổ bóng)
+  if ((shadowTick++ % 3) === 0) renderer.shadowMap.needsUpdate = true;
+  // Độ phân giải thích ứng: máy yếu / lia nhanh bị chậm thì tự hạ pixel ratio, ổn định lại thì nâng dần
+  if (dt < 0.25) {
+    if (dt > 0.026) { slowN++; fastN = 0; } else if (dt < 0.019) { fastN++; slowN = 0; } else { slowN = fastN = 0; }
+    if (slowN > 15 && dprNow > 0.75) { dprNow = Math.max(0.75, dprNow - 0.25); renderer.setPixelRatio(dprNow); renderer.setSize(innerWidth, innerHeight, false); slowN = 0; }
+    else if (fastN > 240 && dprNow < DPR_MAX) { dprNow = Math.min(DPR_MAX, dprNow + 0.25); renderer.setPixelRatio(dprNow); renderer.setSize(innerWidth, innerHeight, false); fastN = 0; }
   }
 
   renderer.render(scene, camera);
