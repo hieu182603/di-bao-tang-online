@@ -1643,7 +1643,7 @@ function buildTank(x, z, ry) {
     url: tankUrl,
     x, z, ry,
     targetLength: 7.2,
-    rotationOffset: -H2,
+    rotationOffset: H2,
     yOffset: 0.02,
     ex: TANK_EX,
     fallback: () => buildProceduralTank(TANK_EX),
@@ -1654,9 +1654,9 @@ function buildTank(x, z, ry) {
       const numMat = new THREE.MeshStandardMaterial({ map: nt, roughness: 0.5 });
       for (const s of [-1, 1]) {
         const p = new THREE.Mesh(new THREE.PlaneGeometry(0.76, 0.38), numMat);
-        p.position.set(-0.25, 1.82, s * 1.38); p.rotation.y = s > 0 ? 0 : PI; p.rotation.x = -0.22;
+        p.position.set(0.25, 1.82, s * 1.38); p.rotation.y = s > 0 ? 0 : PI; p.rotation.x = -0.22;
         const st = new THREE.Mesh(new THREE.CircleGeometry(0.22, 24), vpaStarMat);
-        st.position.set(-0.85, 1.84, s * 1.36); st.rotation.y = s > 0 ? 0 : PI; st.rotation.x = -0.22;
+        st.position.set(0.85, 1.84, s * 1.36); st.rotation.y = s > 0 ? 0 : PI; st.rotation.x = -0.22;
         model.add(p, st);
       }
     }
