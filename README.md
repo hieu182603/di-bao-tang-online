@@ -10,12 +10,12 @@ Sản phẩm sáng tạo môn Lịch sử Đảng (VNR) – Nhóm 2. Bảo tàng
 
 ## Chơi ngay
 
-👉 **https://tutuhehe999.github.io/game-bao-tang-lich-su-online/** (bản chạy sẵn trên GitHub Pages, chế độ một người cho tới khi bật Firebase)
+👉 **https://hieu182603.github.io/di-bao-tang-online/** (bản chạy sẵn trên GitHub Pages, chế độ một người cho tới khi bật Firebase)
 
 ## Deploy 1 cú bấm
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ftutuhehe999%2Fgame-bao-tang-lich-su-online&project-name=game-bao-tang-lich-su-online)
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/tutuhehe999/game-bao-tang-lich-su-online)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhieu182603%2Fdi-bao-tang-online&project-name=di-bao-tang-online)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/hieu182603/di-bao-tang-online)
 
 Bấm một trong hai nút, đăng nhập (miễn phí), bấm **Deploy**. Không cần cấu hình gì: đây là web tĩnh, không có bước build.
 Xong sẽ có link dạng `https://ten-du-an.vercel.app` để gửi cho mọi người.
@@ -37,31 +37,42 @@ Cách khác: tải code về (**Code → Download ZIP**), rồi kéo cả thư m
 
 ## Cấu trúc thư mục
 
-| File | Nội dung |
-| --- | --- |
-| `index.html` | Trang chính |
-| `style.css` | Giao diện (màn hình chào, nút, chat) |
-| `app.js` | Dựng không gian 3D, người que, di chuyển |
-| `net.js` | Kết nối nhiều người |
-| `content.js` | **Toàn bộ chữ trưng bày** – sửa nội dung ở đây |
-| `config.js` | Cấu hình Firebase cho chế độ nhiều người |
-| `images/` | Ảnh tư liệu: `images/` (Phòng I), `images/hien_vat/` (ngoài trời), `images/tu_kinh/` (tủ kính), `images/sanh/` (sảnh) |
-| `models/` | Ảnh tượng (đang tắt trong `config.js`) |
-| `database.rules.json` | Quy tắc bảo mật Firebase |
-| `artifact.html`, `make-artifact.js` | Bản dùng cho link claude.ai (không cần khi deploy) |
-| `dev-server.js` | Máy chủ chạy thử trên máy |
+```
+.
+├── Frontend/              # Giao diện web tĩnh (HTML/JS/Three.js)
+│   ├── index.html         # Trang chính
+│   ├── style.css          # Giao diện (màn hình chào, nút, chat)
+│   ├── app.js             # Dựng không gian 3D, người que, di chuyển
+│   ├── net.js             # Kết nối nhiều người (SignalR / Firebase)
+│   ├── content.js         # Toàn bộ chữ trưng bày – sửa nội dung ở đây
+│   ├── config.js          # Cấu hình Backend URL và Firebase
+│   ├── images/            # Ảnh tư liệu (hien_vat, sanh, tu_kinh...)
+│   ├── models/            # Mô hình 3D (.glb) và ảnh nhân vật
+│   ├── dev-server.js      # Máy chủ tĩnh chạy thử trên máy
+│   └── artifact.html, make-artifact.js  # Bản cho link claude.ai (tùy chọn)
+├── Backend/               # ASP.NET Core 8 + SignalR (nhiều người chơi, chat)
+└── database.rules.json    # Quy tắc bảo mật Firebase
+```
 
 ## Chạy thử trên máy
 
+Frontend:
 ```bash
+cd Frontend
 node dev-server.js
 ```
 Mở http://localhost:5173. (Không mở thẳng file `index.html`, vì trình duyệt sẽ chặn ảnh 3D.)
 
+Backend (tùy chọn, cho chế độ nhiều người; mặc định chạy ở http://localhost:5089 như `Frontend/config.js`):
+```bash
+cd Backend
+dotnet run
+```
+
 ## Đưa lên Vercel bằng dòng lệnh (tùy chọn)
 
 1. Đăng ký tài khoản miễn phí tại https://vercel.com (đăng nhập bằng GitHub hoặc Gmail).
-2. Trong thư mục này chạy:
+2. Trong thư mục `Frontend/` chạy:
    ```bash
    npx vercel login
    npx vercel --prod
@@ -113,6 +124,31 @@ Khi thuyết trình: mở bảo tàng → bấm nút số người ở góc ph�
 | Xác B-52 ở hồ Hữu Tiệp | Pdhadam – CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File:B52_wreckage,_H%E1%BB%AFu_Ti%E1%BB%87p_Lake,_Hanoi_(landscape).jpg |
 | Pháo 130 mm M-46 | kitmasterbloke – CC BY 2.0 | https://commons.wikimedia.org/wiki/File:Soviet_130mm_M46_towed_gun.jpg |
 | Máy bay F-5E | BluesyPete – CC BY-SA 3.0 | https://commons.wikimedia.org/wiki/File:Vietnam-0026.jpg |
+
+## Mô hình 3D tự dựng trong Blender
+
+Dựng theo ảnh tư liệu Wikimedia Commons (xem bảng ảnh ở trên) và thông số thật; lớp sơn bạc màu, gỉ sét, bụi bẩn được bake thành texture. File nguồn: `E:\Blender\hien_vat\hien_vat_ngoai_troi.blend`.
+
+| Hiện vật | File |
+| --- | --- |
+| Pháo cao xạ 37 mm (61-K) | `models/aa37_61k.glb` |
+| Pháo 130 mm M-46 | `models/m46_130.glb` |
+| Xác B-52 ở hồ Hữu Tiệp (kèm mặt hồ) | `models/b52_wreck.glb` |
+| Xe đạp thồ Điện Biên Phủ | `models/xe_dap_tho.glb` |
+
+## Nguồn mô hình 3D ngoài trời (Sketchfab)
+
+Tải từ Sketchfab, đã giảm số đa giác và thu nhỏ texture cho web. Bật/tắt từng mô hình trong `config.js` (`window.REAL_MODELS`).
+
+| Dùng cho | File | Mô hình gốc |
+| --- | --- | --- |
+| Xe tăng lội nước PT-76 | `models/pt76.glb` | "PT-76" – https://sketchfab.com/3d-models/941b0d0fc4074694879a2a642289282a |
+| Tên lửa SAM-2 | `models/sam2.glb` | "SAM S-75 Dvina" – https://sketchfab.com/3d-models/ed7d4831832d499482a6aa9620a858e4 |
+| Lựu pháo 105 mm | `models/m101.glb` | "M101 howitzer (WARNO)" – https://sketchfab.com/3d-models/5f83c8e803444073bee48e90628e4d1e |
+| Xe vận tải Trường Sơn | `models/zis150.glb` | "Zis 150" – https://sketchfab.com/3d-models/983a0ebdd79b467ea1efffdb43cb8ddf |
+| Súng cối 120 mm | `models/mortar120.glb` | "120迫击炮" – https://sketchfab.com/3d-models/91c22766562b467fa3773778df5dde96 |
+| Cây bóng mát ở sân | `models/tree_shade.glb` | "Realistic Tree" – https://sketchfab.com/3d-models/d989c0f801d847b9a74992ec4ddcfdfc |
+| Ghế công viên | `models/bench.glb` | "Classic Park Bench (Low Poly)" – https://sketchfab.com/3d-models/01a5b64427984632bb44242da3813bb1 |
 
 ## Nguồn ảnh hiện vật trong tủ kính
 

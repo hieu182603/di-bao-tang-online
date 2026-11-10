@@ -3,3 +3,8 @@ node_modules/
 .netlify/
 .DS_Store
 Thumbs.db
+Backend/bin/
+Backend/obj/
+.claude/
+.impeccable/
+*.backup.glb

@@ -1,9 +1,9 @@
 // Kết nối nhiều người.
-// Thứ tự: Firebase (khi đã điền config.js) -> phòng chung claude.ai (khi mở bằng link claude.ai) -> một mình.
+// Thứ tự ưu tiên: Backend SignalR (.NET 8 - 15Hz Tick Batching) -> Firebase -> phòng chung claude.ai -> một mình.
 (function () {
   const listeners = new Set();
   const Net = {
-    mode: "solo",        // "solo" | "firebase" | "claude"
+    mode: "solo",        // "solo" | "signalr" | "firebase" | "claude"
     status: "solo",      // "solo" | "connecting" | "online"
     selfId: Math.random().toString(36).slice(2, 10),
     peers: new Map(),    // id -> trạng thái người khác (đã kiểm tra)
@@ -23,6 +23,7 @@
       yaw: raw.yaw,
       n: str(raw.n, 24) || "Khách",
       c: typeof raw.c === "string" && /^#[0-9a-fA-F]{6}$/.test(raw.c) ? raw.c : "#d62828",
+      av: raw.av === "nv2" ? "nv2" : "nv1",
       m: raw.m === true,
       y: num(raw.y) ? Math.max(0, Math.min(9, raw.y)) : 0,
       say: str(raw.say, 80), sayAt: num(raw.sayAt) ? raw.sayAt : 0,
@@ -31,12 +32,25 @@
     };
   }
   function setPeer(id, raw) {
-    if (id === Net.selfId) return;
+    if (!id || id === Net.selfId) return;
     const s = clean(raw);
     if (!s) { removePeer(id); return; }
     const had = Net.peers.has(id);
     Net.peers.set(id, s);
     fire(had ? "update" : "join", id);
+  }
+  function patchPeerMove(item) {
+    if (!item || !item.id || item.id === Net.selfId) return false;
+    const p = Net.peers.get(item.id);
+    if (!p) return false;
+    if (num(item.x)) p.x = Math.max(-40, Math.min(40, item.x));
+    if (num(item.z)) p.z = Math.max(-36, Math.min(64, item.z));
+    if (num(item.y)) p.y = Math.max(0, Math.min(9, item.y));
+    if (num(item.yaw)) p.yaw = item.yaw;
+    if (typeof item.m === "boolean") p.m = item.m;
+    if (item.av) p.av = item.av === "nv2" ? "nv2" : "nv1";
+    p.t = Date.now();
+    return true;
   }
   function removePeer(id) { if (Net.peers.delete(id)) fire("leave", id); }
   function setStatus(s) { Net.status = s; fire("status"); }
@@ -46,6 +60,73 @@
       s.src = src; s.onload = res; s.onerror = () => rej(new Error("Không tải được " + src));
       document.head.appendChild(s);
     });
+  }
+
+  async function startSignalR(baseUrl, initial) {
+    if (!window.signalR) {
+      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js");
+    }
+    const cleanUrl = String(baseUrl).replace(/\/+$/, "");
+    const roomCode = window.MUSEUM_ROOM || "bao-tang-vnr";
+    let mine = { ...initial };
+
+    const conn = new window.signalR.HubConnectionBuilder()
+      .withUrl(cleanUrl + "/museumHub")
+      .withAutomaticReconnect([0, 1000, 2000, 5000, 10000])
+      .build();
+
+    conn.on("RoomSnapshot", (myId, list) => {
+      if (myId) Net.selfId = myId;
+      const seen = new Set();
+      if (Array.isArray(list)) {
+        for (const p of list) {
+          if (p && p.id && p.id !== Net.selfId) {
+            seen.add(p.id);
+            setPeer(p.id, p);
+          }
+        }
+      }
+      for (const id of [...Net.peers.keys()]) if (!seen.has(id)) removePeer(id);
+    });
+
+    conn.on("PeerJoined", (p) => { if (p && p.id) setPeer(p.id, p); });
+    conn.on("PeerUpdated", (p) => { if (p && p.id) setPeer(p.id, p); });
+    conn.on("PeerLeft", (id) => { if (id) removePeer(id); });
+
+    // Nhận gói tin gộp 15Hz (WorldTick) cho toàn bộ những người vừa di chuyển
+    conn.on("WorldTick", (batch) => {
+      if (!Array.isArray(batch)) return;
+      for (let i = 0; i < batch.length; i++) {
+        patchPeerMove(batch[i]);
+      }
+      fire("tick", null);
+    });
+
+    conn.onreconnecting(() => setStatus("connecting"));
+    conn.onreconnected(() => {
+      setStatus("online");
+      conn.invoke("JoinRoom", roomCode, Net.selfId, mine).catch(() => {});
+    });
+    conn.onclose(() => setStatus("connecting"));
+
+    await conn.start();
+    Net.mode = "signalr";
+    setStatus("online");
+    await conn.invoke("JoinRoom", roomCode, Net.selfId, mine);
+
+    Net.update = (patch) => {
+      mine = { ...mine, ...patch };
+      if (conn.state === window.signalR.HubConnectionState.Connected) {
+        conn.invoke("UpdateState", patch).catch(() => {});
+      }
+    };
+
+    // Nhịp tim mỗi 25s để giữ kết nối trên server khi đứng yên lâu
+    setInterval(() => {
+      if (conn.state === window.signalR.HubConnectionState.Connected) {
+        conn.invoke("UpdateState", {}).catch(() => {});
+      }
+    }, 25000);
   }
 
   async function startFirebase(cfg, initial) {
@@ -104,6 +185,15 @@
   }
 
   Net.start = async function (initial) {
+    if (window.BACKEND_URL) {
+      try {
+        setStatus("connecting");
+        await startSignalR(window.BACKEND_URL, initial);
+        return;
+      } catch (e) {
+        console.warn("[Bảo tàng] Không kết nối được Backend SignalR, chuyển sang phương án dự phòng:", e);
+      }
+    }
     try {
       const cfg = window.FIREBASE_CONFIG;
       if (cfg && cfg.databaseURL) { setStatus("connecting"); await startFirebase(cfg, initial); return; }
