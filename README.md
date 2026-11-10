@@ -1,37 +1,24 @@
-# Bảo tàng số Lịch sử Đảng Cộng sản Việt Nam (3D Online)
+# 🏛️ Bảo tàng số Lịch sử Đảng Cộng sản Việt Nam (3D Online)
 
-Sản phẩm sáng tạo môn Lịch sử Đảng (VNR) – Nhóm 2. Bảo tàng 3D chạy trên trình duyệt: sân trước 12 hiện vật ngoài trời, tòa nhà 5 phòng trưng bày, người chơi là người que, nhiều người vào cùng lúc thấy nhau và chat được.
+> **Sản phẩm sáng tạo môn Lịch sử Đảng Cộng sản Việt Nam (VNR) – Thực hiện bởi Nhóm 2**
 
-## Cấu trúc
+---
 
-```
-Frontend/   Web tĩnh (HTML/JS/Three.js): index.html, app.js, net.js, content.js, config.js, images/, models/
-Backend/    ASP.NET Core 8 + SignalR (nhiều người chơi, chat)
-database.rules.json   Quy tắc bảo mật Firebase (phương án dự phòng)
-```
+## 📖 Giới thiệu dự án
 
-## Chạy thử
+**Bảo tàng số 3D Lịch sử Đảng** là một không gian bảo tàng ảo tương tác trực tiếp trên trình duyệt web (không cần cài đặt), được xây dựng nhằm đổi mới phương pháp học tập và tìm hiểu lịch sử, mang lại trải nghiệm trực quan, sinh động cho người xem.
 
-```bash
-cd Frontend
-node dev-server.js    # http://localhost:5173
-```
+Người tham quan có thể tự do điều khiển nhân vật 3D dạo bước qua khuôn viên và các phòng trưng bày, tương tác với các hiện vật để xem hình ảnh tư liệu, đọc ý nghĩa lịch sử, nghe thuyết minh tự động và cùng tham quan với bạn bè trong thời gian thực.
 
-Chế độ nhiều người (tùy chọn):
+---
 
-```bash
-cd Backend
-dotnet run            # http://localhost:5089, khớp BACKEND_URL trong Frontend/config.js
-```
+## ✨ Các điểm nổi bật
 
-Không có Backend thì web tự chuyển sang Firebase, hoặc chế độ một người.
+* **🏛️ Không gian tham quan đa dạng:**
+  * **Khuôn viên ngoài trời:** Trưng bày 12 hiện vật lịch sử tiêu biểu.
+  * **Tòa nhà bảo tàng:** Gồm **1 Sảnh chính** (giai đoạn 1930 – 1945) cùng **5 Phòng trưng bày chuyên đề** tái hiện các chặng đường lịch sử từ năm 1930 đến nay.
+* **🎙️ Tư liệu & Thuyết minh sinh động:** Bấm vào từng hiện vật để xem hình ảnh tư liệu, thông tin bối cảnh, bài học lịch sử và nghe giọng đọc thuyết minh.
+* **👥 Trải nghiệm nhiều người cùng lúc (Realtime):** Nhiều người có thể cùng vào bảo tàng, nhìn thấy nhân vật của nhau di chuyển, thực hiện cử chỉ (vẫy tay, vỗ tay) và nhắn tin trò chuyện trực tiếp.
+* **📱 Dễ dàng tiếp cận:** Chạy mượt mà trên cả máy tính (chuột, bàn phím) và điện thoại di động (cần gạt cảm ứng), vào nhanh qua liên kết hoặc quét mã QR.
 
-## Điều khiển
 
-WASD/phím mũi tên: đi · Chuột: nhìn · E/bấm hiện vật: xem thông tin · Space: nhảy · V: đổi góc nhìn · T: chat
-
-## Deploy
-
-Frontend là web tĩnh, deploy thư mục `Frontend/` lên GitHub Pages, Vercel hoặc Netlify. Backend deploy riêng, rồi đổi `BACKEND_URL` trong `Frontend/config.js`.
-
-Sửa nội dung trưng bày tại `Frontend/content.js`.

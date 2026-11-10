@@ -29,7 +29,7 @@ window.REAL_MODELS = {
 // Cấu hình máy chủ Backend SignalR (.NET 8 - thư mục Backend/).
 // Khi chạy local: "http://localhost:5089" (hoặc đổi sang link server khi deploy).
 // Nếu để null hoặc khi máy chủ Backend chưa bật, hệ thống tự động chuyển sang Firebase -> Chế độ một người.
-window.BACKEND_URL = "http://localhost:5089";
+window.BACKEND_URL = (location.hostname === "localhost" || location.hostname === "127.0.0.1") ? "http://localhost:5089" : "https://baotang-lsd-12222.azurewebsites.net";
 
 // Cấu hình chế độ nhiều người dự phòng bằng Firebase khi chạy tĩnh hoàn toàn.
 // Để trống (null) thì bảo tàng dùng BACKEND_URL hoặc chạy chế độ một người.
