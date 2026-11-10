@@ -3816,8 +3816,48 @@ async function init() {
   loadCharacterModels();
   buildAtmosphere(); buildOutdoor(); buildBuilding(); buildStatue(); buildGarden(); buildVehicles(); buildHall(); buildUpperFloor(); buildRooms(); loadCases();
   requestAnimationFrame(frame);
-  $("go").disabled = false;
-  $("go").innerHTML = '<span class="g-icon">login</span> Vào bảo tàng';
+  // Tải xong mô hình/ảnh + biên dịch shader + đẩy texture lên GPU TRƯỚC khi cho vào, để lúc lia chuột không bị đơ
+  const goBtn = $("go"), goLabel = (t) => { goBtn.innerHTML = '<span class="g-icon">hourglass_top</span> ' + t; };
+  goLabel("Đang tải bảo tàng… 0%");
+  await new Promise((res) => {
+    const DLM = THREE.DefaultLoadingManager; let began = false, done = false;
+    const finish = () => { if (!done) { done = true; res(); } };
+    DLM.onStart = () => { began = true; };
+    DLM.onProgress = (u, l, t) => goLabel("Đang tải bảo tàng… " + Math.round((l / Math.max(1, t)) * 100) + "%");
+    DLM.onLoad = () => setTimeout(finish, 400);
+    setTimeout(() => { if (!began) finish(); }, 1500);
+    setTimeout(finish, 25000);
+  });
+  goLabel("Đang tối ưu đồ họa…");
+  try { await warmUp(); } catch (e) { console.info("warmUp:", e); }
+  goBtn.disabled = false;
+  goBtn.innerHTML = '<span class="g-icon">login</span> Vào bảo tàng';
+  // Ảnh/texture dựng muộn (tủ kính, bảng) vẫn được đẩy lên GPU dần dần ở nền
+  [2500, 6000, 12000].forEach((ms) => setTimeout(() => warmUp().catch(() => {}), ms));
+}
+
+const warmedTex = new WeakSet();
+const TEX_KEYS = ["map", "normalMap", "roughnessMap", "metalnessMap", "emissiveMap", "aoMap", "bumpMap", "alphaMap"];
+async function warmUp() {
+  // hình người chơi (SkinnedMesh) có shader riêng: dựng tạm để biên dịch trước
+  const temp = [];
+  for (const key of ["nv1", "nv2"]) { try { const f = makeFigure(key, "#d62828"); f.position.set(player.x, 0, player.z); scene.add(f); temp.push(f); } catch (e) {} }
+  renderer.compile(scene, camera);
+  temp.forEach((f) => scene.remove(f));
+  const list = [];
+  scene.traverse((o) => {
+    if (!o.material) return;
+    for (const m of Array.isArray(o.material) ? o.material : [o.material]) for (const k of TEX_KEYS) {
+      const t = m[k];
+      if (!t || !t.image || warmedTex.has(t)) continue;
+      if (t.image.complete === false) continue; // ảnh chưa tải xong, lần sau
+      warmedTex.add(t); list.push(t);
+    }
+  });
+  for (let i = 0; i < list.length; i += 4) {
+    for (let j = i; j < Math.min(i + 4, list.length); j++) renderer.initTexture(list[j]);
+    await new Promise((r) => setTimeout(r, 16));
+  }
 }
 init();
 })();
