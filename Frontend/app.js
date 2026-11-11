@@ -2636,14 +2636,15 @@ function buildPortraitWall(wall) {
   onWall(new THREE.Mesh(bx(1.3, 0.03, 0.22), DECO.glow), wall, 0, cy + fh / 2 + 0.17, 0.2);
   const spot = new THREE.PointLight(0xffe2b0, 0.55, 7, 1.6); spot.position.set(wall.x, cy + 0.6, wall.z + 1.6); scene.add(spot);
   [photo, band].forEach((m) => { m.userData.ex = PORTRAIT_EX; interactive.push(m); });
-  // the national flag (left) and the Party flag (right), each on a gold rod
+  // Chuẩn nghi lễ trang trí khánh tiết quốc gia (Tả Đảng, Hữu Quốc):
+  // Nhìn trực diện vào: Cờ Đảng ở bên TRÁI (-3.25), Cờ Tổ quốc ở bên PHẢI (+3.25)
   const flagW = 1.95, flagH = 1.3;
   const mk = (c) => new THREE.MeshLambertMaterial({ map: canvasTex(c), side: THREE.DoubleSide });
-  const vn = new THREE.Mesh(new THREE.PlaneGeometry(flagW, flagH), mk(vnFlagCanvas()));
-  onWall(vn, wall, -3.25, cy + 0.6, 0.09);
-  const pf = new THREE.Mesh(new THREE.PlaneGeometry(flagW, flagH), new THREE.MeshLambertMaterial({ color: 0xda251d, side: THREE.DoubleSide }));
-  onWall(pf, wall, 3.25, cy + 0.6, 0.09);
+  const pf = new THREE.Mesh(new THREE.PlaneGeometry(flagW, flagH), mk(partyFlagCanvas()));
+  onWall(pf, wall, -3.25, cy + 0.6, 0.09);
   loadImg("images/sanh/co_dang.png").then((im) => { if (!im) return; const t = new THREE.Texture(im); t.encoding = THREE.sRGBEncoding; t.needsUpdate = true; pf.material.map = t; pf.material.color.set(0xffffff); pf.material.needsUpdate = true; });
+  const vn = new THREE.Mesh(new THREE.PlaneGeometry(flagW, flagH), mk(vnFlagCanvas()));
+  onWall(vn, wall, 3.25, cy + 0.6, 0.09);
   for (const x of [-3.25, 3.25]) {
     onWall(new THREE.Mesh(bx(flagW + 0.2, 0.05, 0.05), DECO.gold), wall, x, cy + 0.6 + flagH / 2 + 0.05, 0.1);
     for (const s of [-1, 1]) onWall(new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), DECO.gold), wall, x + s * (flagW / 2 + 0.12), cy + 0.6 + flagH / 2 + 0.05, 0.1);
