@@ -310,3 +310,6 @@ body.touch .act .hk { display: none; }
 .ew-center { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%;
   display: grid; place-items: center; background: rgba(24,18,14,0.96); border: 1px solid var(--gold); color: var(--gold-soft);
   font: 700 15px var(--font-ui); pointer-events: none; }
+
+/* Máy tính nhảy bằng phím Space nên ẩn nút; điện thoại vẫn cần nút này */
+body:not(.touch) #jump-btn { display: none; }
