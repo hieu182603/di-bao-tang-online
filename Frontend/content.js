@@ -179,6 +179,24 @@ window.MUSEUM = {
   // - Ảnh được chia đều cho 3 tường của phòng theo thứ tự trong danh sách; tường nào nhiều ảnh hơn số cột thì tự treo thành 2 hàng nhỏ.
   // - Thêm/bớt/đổi thứ tự dòng là đổi ngay trên tường; mỗi phòng treo tối đa 30 ảnh. Dòng không có img sẽ hiện khung trống.
   // - Mở trang với đuôi ?slots=1 để thấy mã khung trên các khung trống.
+  // corridor: ảnh treo trên tường hành lang tầng 2, hai bên cửa ra ban công (tối đa 9 ảnh)
+  corridor: {
+    period: "1939 – 1945", name: "Phong trào giải phóng dân tộc",
+    frames: [
+      { id: "H2-01", src: "P0-K02-01", img: "tu_lieu/p0_k02_01_ghi_chep_chi_thi_thanh_lap_doi.jpg", date: "Thành lập Đội Việt Nam Tuyên truyền Giải phóng quân (22/12/1944)", title: "Chỉ thị thành lập Đội (bản ghi chép)",
+        text: "Ghi chép của đồng chí Võ Nguyên Giáp về Chỉ thị của Chủ tịch Hồ Chí Minh về việc thành lập Đội Việt Nam Tuyên truyền Giải phóng quân.\n\nChủ đề: Thành lập Đội Việt Nam Tuyên truyền Giải phóng quân (22/12/1944) (Sảnh chính · 1930 – 1945)." },
+      { id: "H2-02", src: "P0-K02-02", img: "tu_lieu/p0_k02_02_le_thanh_lap_doi_22_12_1944.jpg", date: "Thành lập Đội Việt Nam Tuyên truyền Giải phóng quân (22/12/1944)", title: "Lễ thành lập Đội, 22/12/1944",
+        text: "Chấp hành chỉ thị của lãnh tụ Hồ Chí Minh, đồng chí Võ Nguyên Giáp tổ chức lễ thành lập Đội Việt Nam Tuyên truyền Giải phóng quân ngày 22/12/1944.\n\nChủ đề: Thành lập Đội Việt Nam Tuyên truyền Giải phóng quân (22/12/1944) (Sảnh chính · 1930 – 1945)." },
+      { id: "H2-03", src: "P0-K03-02", img: "tu_lieu/p0_k03_02_linh_phap_rut_lui_nhat_dao_chinh_3_1945.jpg", date: "Cao trào kháng Nhật cứu nước, tiến tới Tổng khởi nghĩa Tháng Tám 1945", title: "Lính Pháp rút lui, 3/1945",
+        text: "Binh lính thuộc địa Pháp rút lui về khu vực biên giới Hoa – Việt trong cuộc đảo chính của Nhật vào tháng 3 năm 1945.\n\nChủ đề: Cao trào kháng Nhật cứu nước, tiến tới Tổng khởi nghĩa Tháng Tám 1945 (Sảnh chính · 1930 – 1945)." },
+      { id: "H2-04", src: "P0-K03-01", img: "tu_lieu/p0_k03_01_lan_na_nua_tuyen_quang.webp", date: "Cao trào kháng Nhật cứu nước, tiến tới Tổng khởi nghĩa Tháng Tám 1945", title: "Lán Nà Nưa, Tuyên Quang",
+        text: "Lán Nà Nưa (Tuyên Quang), nơi Bác Hồ làm việc trong những ngày ở chiến khu Việt Bắc.\n\nChủ đề: Cao trào kháng Nhật cứu nước, tiến tới Tổng khởi nghĩa Tháng Tám 1945 (Sảnh chính · 1930 – 1945)." },
+      { id: "H2-05", src: "P0-K03-03", img: "tu_lieu/p0_k03_03_tong_khoi_nghia_ha_noi_19_8_1945.jpg", date: "Cao trào kháng Nhật cứu nước, tiến tới Tổng khởi nghĩa Tháng Tám 1945", title: "Tổng khởi nghĩa ở Hà Nội, 19/8/1945",
+        text: "Không khí Tổng khởi nghĩa ở Hà Nội hưởng ứng lời kêu gọi của Chủ tịch Hồ Chí Minh ngày 19/8/1945.\n\nChủ đề: Cao trào kháng Nhật cứu nước, tiến tới Tổng khởi nghĩa Tháng Tám 1945 (Sảnh chính · 1930 – 1945)." },
+      { id: "H2-06", src: "P0-K03-04", img: "tu_lieu/p0_k03_04_bac_ho_doc_tuyen_ngon_doc_lap_2_9_1945.jpg", date: "Cao trào kháng Nhật cứu nước, tiến tới Tổng khởi nghĩa Tháng Tám 1945", title: "Tuyên ngôn Độc lập, 2/9/1945",
+        text: "Ngày 2/9/1945, tại Quảng trường Ba Đình, Hà Nội, Chủ tịch Hồ Chí Minh đọc Tuyên ngôn Độc lập khai sinh nước Việt Nam Dân chủ Cộng hòa.\n\nChủ đề: Cao trào kháng Nhật cứu nước, tiến tới Tổng khởi nghĩa Tháng Tám 1945 (Sảnh chính · 1930 – 1945)." },
+    ],
+  },
   upperRooms: [
     {
       num: "VI", period: "1946 – 1954", name: "Phòng ảnh tư liệu 1946 – 1954", // trên Phòng I · ảnh của Phòng II: Kháng chiến chống thực dân Pháp

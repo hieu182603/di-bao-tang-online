@@ -2537,11 +2537,13 @@ function buildHall() {
   // portrait of President Hồ Chí Minh in the middle of the back wall, facing the entrance, with the two flags
   const back = { x: 0, z: -23.8, ry: 0 };
   buildPortraitWall(back);
-  // the big title moves above the entrance (inside), so it greets people on the way out
-  onWall(textPlane([
-    { text: "LỊCH SỬ ĐẢNG CỘNG SẢN VIỆT NAM", size: 64, weight: 700, color: GOLD_TXT, gap: 10 },
-    { text: "1930 – nay", size: 44, font: UI_FONT, color: "#f3ead8" },
-  ], 6.6, 1.3, { bg: "#6e1414", ppm: 150, pad: 0.05 }), { x: 0, z: -0.2, ry: PI }, 6.0, 6.3);
+  // the big title hangs under the ceiling above the mezzanine edge, facing the hall, so it greets people on the way out
+  // (the wall behind the mezzanine is kept free for the 1939 – 1945 photos, see MUSEUM.corridor)
+  box(4.4, 0.92, 0.08, 0, 7.52, -3.42, M.dark);
+  placeAt(textPlane([
+    { text: "LỊCH SỬ ĐẢNG CỘNG SẢN VIỆT NAM", size: 44, weight: 700, color: GOLD_TXT, gap: 10 },
+    { text: "1930 – nay", size: 34, font: UI_FONT, color: "#f3ead8" },
+  ], 4.3, 0.85, { bg: "#6e1414", ppm: 230, pad: 0.05 }), 0, 7.52, -3.47, PI);
   onWall(textPlane([
     { text: "“Không có gì quý hơn độc lập, tự do.”", size: 64, weight: 700, gap: 18 },
     { text: "Hồ Chí Minh, 1966", size: 40, font: UI_FONT, color: GOLD_TXT },
@@ -2822,7 +2824,7 @@ function buildUpperFloor() {
   // gold frame around the balcony door
   box(0.2, 2.5, 0.5, -1.3, UP + 1.2, 0.05, M.gold); box(0.2, 2.5, 0.5, 1.3, UP + 1.2, 0.05, M.gold); box(2.8, 0.2, 0.5, 0, UP + 2.45, 0.05, M.gold);
   // signs
-  onWall(textPlane([{ text: "BAN CÔNG NGẮM CẢNH", size: 52, weight: 700, color: GOLD_TXT, gap: 6 }, { text: "Cửa giữa ra ban công · Hai đầu hành lang vào Phòng ảnh tư liệu", size: 30, font: UI_FONT }], 4.2, 0.9, { ppm: 200 }), { x: 0, z: -0.2, ry: PI }, -5.6, 6.3);
+  onWall(textPlane([{ text: "BAN CÔNG NGẮM CẢNH", size: 52, weight: 700, color: GOLD_TXT, gap: 6 }, { text: "Cửa giữa ra ban công · Hai đầu hành lang vào Phòng ảnh tư liệu", size: 30, font: UI_FONT }], 2.6, 0.9, { ppm: 240 }), { x: 0, z: -0.2, ry: PI }, -9.9, 6.3);
 
   // glass elevator shaft: three glass sides, open towards +z at both floors
   const top = UP + 2.7, cx = (ELEV.x0 + ELEV.x1) / 2, cz = (ELEV.z0 + ELEV.z1) / 2, w = ELEV.x1 - ELEV.x0, d = ELEV.z1 - ELEV.z0;
@@ -3011,6 +3013,19 @@ function buildUpperRooms() {
     // đèn: mỗi cặp phòng chung một đèn đặt trên vách ngăn
     if (i % 2 === 0) { const l = new THREE.PointLight(0xffd6a0, 0.75, 15, 1.5); l.position.set(cx, UP + 2.9, -12); scene.add(l); }
   });
+  // hành lang tầng 2 (mặt trong tường mặt tiền, hai bên cửa ra ban công): ảnh tư liệu 1939 – 1945, dữ liệu ở MUSEUM.corridor.
+  // Vị trí lần lượt trái -> phải khi đứng trong hành lang nhìn ra ban công; tối đa 9 ảnh (từ 8 ảnh trở xuống thì ô đầu là biển tiêu đề).
+  const cor = DATA.corridor;
+  if (cor && cor.frames && cor.frames.length) {
+    const cw = { x: 0, z: -0.2, ry: PI }, CL = { y: UP + 2.0, h: 1.3, mw: 1.5 }, all = [-7.7, -6.0, -4.3, -2.6, 2.6, 4.35, 6.1, 7.85, 9.6], head = cor.frames.length < all.length, offs = head ? all.slice(1) : all;
+    cor.frames.slice(0, offs.length).forEach((fr, n) => { const id = fr.id || `H2-0${n + 1}`; if (fr.img) photo(cw, offs[n], fr, id, CL); else holder(cw, offs[n], id, CL); });
+    if (cor.frames.length > offs.length) console.warn(`Hành lang tầng 2: có ${cor.frames.length} ảnh nhưng chỉ treo được ${offs.length}`);
+    if (head) onWall(textPlane([
+      { text: "ẢNH TƯ LIỆU", size: 40, weight: 600, font: UI_FONT, color: GOLD_TXT, gap: 8 },
+      { text: cor.period, size: 64, weight: 700, gap: 12 },
+      { text: cor.name, size: 40, weight: 500, color: "#e8dcc4" },
+    ], 1.5, 1.3, { ppm: 240 }), cw, all[0], UP + 2.0, 0.04);
+  }
   // mặt hành lang (trong hội trường): khung cửa vàng + biển chỉ dẫn bên cạnh mỗi cửa lên phòng ảnh
   UPPER_GEO.forEach((u, i) => {
     const r = rooms[i]; if (!r || u.hall.door == null) return;
