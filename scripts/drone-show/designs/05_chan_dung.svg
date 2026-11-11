@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 960 1350" width="960" height="1350">
+  <title>Cảnh 5 — Chân dung Chủ tịch Hồ Chí Minh (thiết kế nét cho đội hình drone)</title>
+  <desc>
+    Can tay theo ảnh chân dung khoảng năm 1946 (public domain, Wikimedia Commons; bản trong dự án:
+    Frontend/images/sanh/bac_ho_1946.jpg). Toạ độ = pixel của ảnh gốc 960×1350; bộ dựng quy đổi sang mét
+    (chiều cao khung 92 m). Không dùng ảnh trực tiếp trên bầu trời: ảnh chỉ là tư liệu tham chiếu để can nét,
+    còn phần tô dùng độ sáng ảnh để quyết định độ sáng từng LED.
+    data-smooth="1": nét được làm mượt bằng spline Catmull-Rom đi qua các điểm can.
+  </desc>
+  <image href="../../../Frontend/images/sanh/bac_ho_1946.jpg" x="0" y="0" width="960" height="1350" opacity="0.45" data-skip="1"/>
+
+  <g fill="none" stroke="#ffd98a" stroke-width="5" data-smooth="1">
+    <!-- ĐƯỜNG BAO: tóc, thái dương, tai, má, cằm, cổ, vai -->
+    <g data-group="pt_outline" data-prio="0.95" data-bright="0.95" data-sp="0.85">
+      <polyline points="232,930 252,860 252,790 246,722"/>
+      <polyline points="176,530 180,600 192,668 214,712 246,722"/>
+      <polyline points="186,490 168,420 160,345 178,268 225,196 292,138 372,102 462,86 552,94 640,124 712,176 764,244 796,318 808,410 800,470"/>
+      <polyline points="746,726 726,768 700,832 664,900 648,972"/>
+      <polyline points="232,930 196,990 150,1060 70,1130 0,1210"/>
+      <polyline points="648,972 700,1004 800,1046 900,1094 960,1124"/>
+    </g>
+    <!-- TAI -->
+    <g data-group="pt_outline" data-prio="0.9" data-bright="0.9" data-sp="0.8">
+      <polyline points="246,505 216,488 192,500 180,560 186,630 202,690 226,714 246,706"/>
+      <polyline points="226,524 208,562 208,628 222,668"/>
+      <polyline points="752,522 782,506 806,522 803,590 790,652 770,704 748,722"/>
+      <polyline points="772,548 786,600 776,660"/>
+    </g>
+    <!-- TÓC BẠC: các lọn chải ngược (màu bạc lạnh để tách với da) -->
+    <g data-group="pt_hair" data-prio="0.8" data-bright="0.92" data-sp="0.95" stroke="#f2f4ff">
+      <!-- mái tóc bạc chải ngược: lọn bồng ở hai thái dương, lọn mảnh trên đỉnh -->
+      <polyline points="190,468 174,400 178,330 206,262"/>
+      <polyline points="232,440 216,370 226,300 262,240"/>
+      <polyline points="266,410 262,352 286,294 324,252"/>
+      <polyline points="336,302 356,232 398,164 444,124" data-bright="0.6"/>
+      <polyline points="432,292 442,212 472,144 522,106" data-bright="0.6"/>
+      <polyline points="524,296 548,218 592,158 642,132" data-bright="0.6"/>
+      <polyline points="690,372 712,302 702,240 670,192"/>
+      <polyline points="724,424 750,352 752,290 724,222"/>
+      <polyline points="762,470 790,410 794,342 772,282"/>
+      <!-- lọn tóc mảnh xù ra ngoài đường bao -->
+      <polyline points="232,206 212,186" data-sp="0.7"/>
+      <polyline points="300,142 286,114" data-sp="0.7"/>
+      <polyline points="384,104 376,78" data-sp="0.7"/>
+      <polyline points="472,90 480,64" data-sp="0.7"/>
+      <polyline points="562,98 578,74" data-sp="0.7"/>
+      <polyline points="650,130 674,108" data-sp="0.7"/>
+      <polyline points="720,184 746,166" data-sp="0.7"/>
+      <polyline points="772,256 798,246" data-sp="0.7"/>
+      <polyline points="180,300 158,290" data-sp="0.7"/>
+      <polyline points="168,380 146,378" data-sp="0.7"/>
+    </g>
+    <!-- NẾP NHĂN TRÁN (mờ) -->
+    <g data-group="pt_fill" data-prio="0.55" data-bright="0.5" data-sp="1.1">
+      <polyline points="330,392 410,378 490,376 570,384 640,402"/>
+      <polyline points="350,355 430,343 510,340 590,348 650,364"/>
+    </g>
+    <!-- MẮT & LÔNG MÀY -->
+    <g data-group="pt_eyes" data-prio="1" data-bright="1" data-sp="0.68" stroke="#ffd98a">
+      <polyline points="300,462 340,445 385,438 425,444 448,460" data-bright="0.8" data-sp="0.75"/>
+      <polyline points="548,470 590,455 635,452 675,460 705,478" data-bright="0.8" data-sp="0.75"/>
+      <polyline points="322,512 345,500 375,494 405,497 430,510 441,526" data-bright="1"/>
+      <polyline points="326,526 350,540 380,546 410,542 441,528" data-bright="0.55"/>
+      <polyline points="552,526 575,507 605,497 640,497 668,505 690,520 702,538"/>
+      <polyline points="560,530 590,541 625,546 660,543 690,540" data-bright="0.55"/>
+      <circle cx="373" cy="516" r="9" fill="#ffffff" data-sp="0.5" data-fsp="0.4"/>
+      <circle cx="622" cy="517" r="9" fill="#ffffff" data-sp="0.5" data-fsp="0.4"/>
+    </g>
+    <!-- MŨI -->
+    <g data-group="pt_nose" data-prio="0.9" data-bright="0.95" data-sp="0.65">
+      <polyline points="458,548 452,602 440,656 424,690"/>
+      <polyline points="424,690 412,712 430,728 462,731"/>
+      <polyline points="562,692 576,712 560,728 530,731"/>
+      <polyline points="440,714 466,710 490,718" data-sp="0.55"/>
+      <polyline points="522,716 542,710 556,718" data-sp="0.55"/>
+      <polyline points="474,736 500,740 528,734"/>
+    </g>
+    <!-- RIA, MIỆNG, NẾP MÁ -->
+    <g data-group="pt_mouth" data-prio="0.88" data-bright="0.95" data-sp="0.65">
+      <polyline points="410,690 386,742 370,792" data-bright="0.6"/>
+      <polyline points="590,700 620,760 628,820" data-bright="0.6"/>
+      <polyline points="412,752 456,744 500,752 544,746 586,756 606,780"/>
+      <polyline points="420,770 380,800 352,842"/>
+      <polyline points="606,780 616,822 620,862"/>
+      <polyline points="396,826 440,816 490,819 540,816 586,823 610,834"/>
+      <polyline points="452,850 500,858 560,852" data-bright="0.6"/>
+    </g>
+    <!-- CHÒM RÂU: đường bao + sợi râu -->
+    <g data-group="pt_beard" data-prio="0.85" data-bright="0.72" data-sp="0.8" stroke="#ffe9cc">
+      <polyline points="318,884 330,940 352,1000 380,1060 408,1120 436,1180 462,1240 482,1286"/>
+      <polyline points="482,1286 500,1258 530,1200 556,1140 580,1080 600,1020 612,960 602,902"/>
+      <polyline points="358,926 352,980 370,1030 364,1076" data-bright="0.75"/>
+      <polyline points="398,930 410,990 398,1050 418,1110 430,1150" data-bright="0.85"/>
+      <polyline points="440,944 432,1010 452,1070 444,1130 466,1200"/>
+      <polyline points="480,950 490,1020 476,1090 492,1160 484,1236"/>
+      <polyline points="520,946 512,1010 528,1080 512,1150 504,1196"/>
+      <polyline points="556,950 566,1010 552,1070 548,1110" data-bright="0.85"/>
+      <polyline points="590,968 582,1020 590,1050" data-bright="0.75"/>
+    </g>
+    <!-- CỔ ÁO -->
+    <g data-group="pt_collar" data-prio="0.7" data-bright="0.8" data-sp="0.95">
+      <polyline points="196,990 176,1046 226,1150 262,1250 290,1310"/>
+      <polyline points="232,930 262,1010 330,1110 392,1200"/>
+      <polyline points="648,972 640,1040 602,1130 556,1210"/>
+      <polyline points="672,990 700,1080 690,1170 640,1260"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 -45 120 90" width="1200" height="900">
+  <title>Cảnh 7 — Quốc kỳ Việt Nam (đội hình drone)</title>
+  <desc>
+    Tỉ lệ 2:3 (rộng 96 m × cao 64 m). Ngôi sao vàng năm cánh ở chính giữa, khoảng cách từ tâm
+    tới đỉnh cánh = 1/5 chiều dài = 19,2 m; bán kính trong = 19,2 × 0,381966 = 7,334 m (sao đều,
+    cạnh thẳng). Một cánh hướng thẳng lên. Toạ độ: mét, gốc tại tâm lá cờ, y hướng xuống.
+    Màu in: đỏ #da251d, vàng #ffff00. Màu LED (data-color) chỉnh cho đèn phát sáng trên nền trời đêm.
+    Đường viền chữ nhật lấy mẫu dày để mép cờ sắc nét; nền đỏ tô lưới lục giác rung nhẹ (đẹp khi gợn sóng).
+  </desc>
+  <rect x="-60" y="-45" width="120" height="90" fill="#050814" data-skip="1"/>
+  <g data-group="flag_red" data-color="#ff2c1c" data-bright="1">
+    <!-- mép cờ: nét dày để cạnh lá cờ thẳng, sắc -->
+    <rect x="-48" y="-32" width="96" height="64" fill="none" stroke="#da251d" data-sp="0.9" data-prio="0.8"/>
+    <!-- nền đỏ: chữ nhật trừ đi ngôi sao (quy tắc even-odd) -->
+    <path fill="#da251d" fill-rule="evenodd" data-mode="fill" data-fsp="1.0" data-prio="0.5"
+          d="M-48,-32 H48 V32 H-48 Z M0,-19.2 L4.311,-5.933 L18.260,-5.933 L6.975,2.266 L11.285,15.533 L0,7.334 L-11.285,15.533 L-6.975,2.266 L-18.260,-5.933 L-4.311,-5.933 Z"/>
+  </g>
+  <g data-group="flag_star">
+    <polygon points="0,-19.2 4.311,-5.933 18.260,-5.933 6.975,2.266 11.285,15.533 0,7.334 -11.285,15.533 -6.975,2.266 -18.260,-5.933 -4.311,-5.933"
+             fill="#ffff00" stroke="#ffff00" data-color="#ffd61e" data-bright="1" data-sp="0.62" data-fsp="0.82" data-prio="1"/>
+  </g>
+</svg>

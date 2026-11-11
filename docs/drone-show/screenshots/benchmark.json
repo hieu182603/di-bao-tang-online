@@ -1,0 +1,97 @@
+{
+  "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009A60) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "runs": [
+    {
+      "tier": "LOW",
+      "drones": 760,
+      "dragon": {
+        "fps": 23.4,
+        "p95ms": 58.7,
+        "frames": 118,
+        "droneCpuMs": 0.155,
+        "calls": 1744,
+        "points": 1730
+      },
+      "flag": {
+        "fps": 23.3,
+        "p95ms": 60.9,
+        "frames": 94,
+        "droneCpuMs": 0.1,
+        "calls": 1744,
+        "points": 1730
+      },
+      "finaleWithFireworks": {
+        "fps": 21.7,
+        "p95ms": 60.2,
+        "frames": 109,
+        "droneCpuMs": 0.176,
+        "calls": 1747,
+        "points": 296642
+      }
+    },
+    {
+      "tier": "BALANCED",
+      "drones": 1800,
+      "dragon": {
+        "fps": 21.8,
+        "p95ms": 61,
+        "frames": 109,
+        "droneCpuMs": 0.278,
+        "calls": 1745,
+        "points": 4570
+      },
+      "flag": {
+        "fps": 22.2,
+        "p95ms": 59.7,
+        "frames": 90,
+        "droneCpuMs": 0.201,
+        "calls": 1745,
+        "points": 4570
+      },
+      "finaleWithFireworks": {
+        "fps": 21,
+        "p95ms": 61.9,
+        "frames": 105,
+        "droneCpuMs": 0.256,
+        "calls": 1748,
+        "points": 299482
+      }
+    },
+    {
+      "tier": "HIGH",
+      "drones": 2800,
+      "dragon": {
+        "fps": 24.3,
+        "p95ms": 55.1,
+        "frames": 122,
+        "droneCpuMs": 0.322,
+        "calls": 1745,
+        "points": 6570
+      },
+      "flag": {
+        "fps": 25.6,
+        "p95ms": 52.4,
+        "frames": 103,
+        "droneCpuMs": 0.261,
+        "calls": 1745,
+        "points": 6570
+      },
+      "finaleWithFireworks": {
+        "fps": 23.8,
+        "p95ms": 57.5,
+        "frames": 119,
+        "droneCpuMs": 0.289,
+        "calls": 1748,
+        "points": 301482
+      }
+    }
+  ],
+  "baseline": {
+    "fps": 23.9,
+    "p95ms": 59.3,
+    "frames": 120,
+    "droneCpuMs": 0,
+    "calls": 1743,
+    "points": 970
+  }
+}

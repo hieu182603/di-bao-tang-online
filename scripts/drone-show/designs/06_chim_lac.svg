@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-45 -36 80 72" width="800" height="720">
+  <title>Cảnh 6 — Chim Lạc dang cánh</title>
+  <desc>Thiết kế gốc theo lối khắc chim bay trên trống đồng Đông Sơn: thân và cánh nhìn từ trên xuống, đầu nhìn nghiêng; mỏ dài, có mào, cổ dài, chân/đuôi dài, thân thon kiểu cò–sếu–vạc. Cánh trên/dưới là hai nhóm (bird_wing_u / bird_wing_d) để engine vỗ cánh 3D quanh trục thân. Toạ độ mét, y xuống.</desc>
+  <rect x="-45" y="-36" width="80" height="72" fill="#050814" data-skip="1"/>
+  <g fill="none" stroke-width="0.35" data-smooth="1">
+    <g data-group="bird_body" stroke="#fff3d6" data-prio="1" data-sp="0.65">
+      <polyline points="-14,0.6 -8,1.6 -2,1.8 4,1.2 8,0.2 11,-1.2 13.4,-2.6 15.4,-3"/>
+      <polyline points="-14,-0.6 -8,-1.4 -2,-1.6 4,-1.4 8,-1.6 11,-2.6 13.2,-4.2 15.4,-4.4"/>
+      <polyline points="15.4,-3 17.2,-3.6 17.6,-4.4 16.6,-5 15.4,-4.4"/>
+      <polyline points="17.4,-3.8 24,-2.2 30,-0.6" stroke="#ffd36a" data-sp="0.6"/>
+      <polyline points="17,-3.4 23.6,-1.8" stroke="#ffd36a" data-sp="0.6" data-bright="0.7"/>
+      <polyline points="16.4,-5 15,-7.4 13,-8.6 11.6,-8.2" stroke="#ff7a2a" data-sp="0.6"/>
+      <polyline points="15.6,-6 14.6,-9.6 12.6,-11.4" stroke="#ff7a2a" data-sp="0.6"/>
+      <circle cx="16.6" cy="-4.0" r="0.35" fill="#ff3a24" stroke="#ff3a24" data-sp="0.4"/>
+    </g>
+    <g data-group="bird_wing_u" stroke="#ffd36a" data-prio="0.9" data-sp="0.62" data-p0="-1">
+      <polygon points="2,-1.6 -1,-8 -5,-15 -10,-22 -15,-28 -21,-32 -19.5,-27.5 -22.5,-24.5 -18,-22 -20.5,-18.5 -15,-16 -17,-12 -11,-9.5 -12.5,-6 -6,-3 -4,-1.4" fill="#ffd36a" data-fsp="1.55" data-bright="0.95"/>
+      <polyline points="-1,-6 -14,-12.5" data-bright="0.55" data-sp="0.8"/>
+      <polyline points="-5,-13 -17.5,-19.5" data-bright="0.55" data-sp="0.8"/>
+      <polyline points="-10,-20 -20,-25.5" data-bright="0.55" data-sp="0.8"/>
+    </g>
+    <g data-group="bird_wing_d" stroke="#ffd36a" data-prio="0.9" data-sp="0.62" data-p0="1">
+      <polygon points="2,1.6 -1,8 -5,15 -10,22 -15,28 -21,32 -19.5,27.5 -22.5,24.5 -18,22 -20.5,18.5 -15,16 -17,12 -11,9.5 -12.5,6 -6,3 -4,1.4" fill="#ffd36a" data-fsp="1.55" data-bright="0.95"/>
+      <polyline points="-1,6 -14,12.5" data-bright="0.55" data-sp="0.8"/>
+      <polyline points="-5,13 -17.5,19.5" data-bright="0.55" data-sp="0.8"/>
+      <polyline points="-10,20 -20,25.5" data-bright="0.55" data-sp="0.8"/>
+    </g>
+    <g data-group="bird_tail" stroke="#ff9a2a" data-prio="0.8" data-sp="0.7">
+      <polyline points="-14,-0.78 -24,-2.44 -34,-2.64"/>
+      <polyline points="-14,-0.3 -25.5,-0.2 -37,1.2"/>
+      <polyline points="-14,0.18 -26,2.04 -38,5.04"/>
+      <polyline points="-14,0.66 -24.5,4.28 -35,8.88"/>
+    </g>
+  </g>
+</svg>

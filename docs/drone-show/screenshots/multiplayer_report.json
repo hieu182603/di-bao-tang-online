@@ -1,0 +1,199 @@
+{
+  "checks": [
+    {
+      "name": "A và B thấy nhau (1 peer, 1 avatar, không trùng)",
+      "ok": true,
+      "detail": {
+        "a": [
+          1,
+          1
+        ],
+        "b": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "F9 trên A khởi động show trên A",
+      "ok": true,
+      "detail": {
+        "running": true,
+        "paused": false,
+        "t": 4.04,
+        "frameT": 3.98,
+        "tier": "BALANCED",
+        "drones": 1800,
+        "showId": "drones-zd20tm",
+        "seed": 2138245546,
+        "scene": 1,
+        "cinematic": false,
+        "avgMs": 0.622
+      }
+    },
+    {
+      "name": "B nhận đồng bộ và chạy cùng show (cùng seed)",
+      "ok": true,
+      "detail": {
+        "seedA": 2138245546,
+        "seedB": 2138245546
+      }
+    },
+    {
+      "name": "Lệch thời gian A–B < 0,6 s",
+      "ok": true,
+      "detail": {
+        "tA": 4.04,
+        "tB": 4.05
+      }
+    },
+    {
+      "name": "Cả hai chuyển sang trời đêm",
+      "ok": true
+    },
+    {
+      "name": "Giữ F9 (repeat) không dừng/khởi động lại show",
+      "ok": true
+    },
+    {
+      "name": "F8 bị chặn khi Drone Show đang chạy (không mở màn pháo hoa độc lập)",
+      "ok": true,
+      "detail": {
+        "a": false,
+        "b": false
+      }
+    },
+    {
+      "name": "Avatar của B di chuyển trên máy A (không teleport: bước < 3 m / 0,25 s)",
+      "ok": true,
+      "detail": {
+        "track": [
+          0.47,
+          1.4,
+          2.72,
+          3.71,
+          4.83,
+          5.86,
+          6.87,
+          7.7
+        ]
+      }
+    },
+    {
+      "name": "Vị trí & camera của A không bị đổi bởi show hay người khác",
+      "ok": true,
+      "detail": {
+        "me": [
+          [
+            0,
+            37
+          ],
+          [
+            0,
+            37
+          ]
+        ],
+        "cam": [
+          [
+            0,
+            1.65,
+            37
+          ],
+          [
+            0,
+            1.65,
+            37
+          ]
+        ]
+      }
+    },
+    {
+      "name": "C bật góc điện ảnh trên A",
+      "ok": true,
+      "detail": [
+        6.52,
+        73.8,
+        8.43
+      ]
+    },
+    {
+      "name": "Camera của B giữ nguyên khi A bật điện ảnh",
+      "ok": true,
+      "detail": {
+        "before": [
+          8.8,
+          1.65,
+          37
+        ],
+        "after": [
+          8.8,
+          1.65,
+          37
+        ]
+      }
+    },
+    {
+      "name": "C vào muộn chạy cùng show (cùng seed) đúng giây đang diễn (lệch < 1,5 s)",
+      "ok": true,
+      "detail": {
+        "tA": 53.879999999999995,
+        "tC": 53.88
+      }
+    },
+    {
+      "name": "Không avatar trùng sau khi C vào (A thấy 2, C thấy 2)",
+      "ok": true,
+      "detail": {
+        "A": 2,
+        "C": 2
+      }
+    },
+    {
+      "name": "F9 hai lần trên B dừng show trên A, B, C",
+      "ok": true,
+      "detail": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "name": "Trời trở lại ban ngày sau khi dừng (trạng thái trước show)",
+      "ok": true,
+      "detail": {
+        "a": false,
+        "b": false
+      }
+    },
+    {
+      "name": "F8 vẫn kích hoạt pháo hoa (đồng bộ sang B)",
+      "ok": true,
+      "detail": {
+        "a": true,
+        "b": true
+      }
+    },
+    {
+      "name": "Restart 4 lần: số đối tượng trong scene không tăng",
+      "ok": true,
+      "detail": {
+        "scene": [
+          2067,
+          2067
+        ],
+        "stage": [
+          2,
+          2
+        ],
+        "mem": "{\"used\":77955340}"
+      }
+    },
+    {
+      "name": "Không có lỗi JS / shader trên 3 client",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "passed": 18,
+  "total": 18
+}

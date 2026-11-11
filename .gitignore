@@ -10,3 +10,4 @@ Backend/obj/
 *.backup.glb
 
 .vercel
+__pycache__/

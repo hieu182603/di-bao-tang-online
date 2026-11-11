@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 -50 120 100" width="1200" height="1000">
+  <title>Cảnh 1 — Vua Lý Thái Tổ ban Chiếu dời đô (1010)</title>
+  <desc>
+    Thiết kế gốc, cách điệu ước lệ (không có tư liệu hình ảnh gốc về dung mạo và trang phục của nhà vua;
+    nhà điêu khắc tượng đài Lý Thái Tổ ở Hà Nội cũng cho biết tượng mang tính ước lệ). Lấy cảm hứng từ hình
+    tượng "vua Lý Thái Tổ ban Chiếu dời đô" trong màn drone "Rực rỡ Thăng Long" 2024 nhưng KHÔNG sao chép.
+    Bố cục: nhà vua đứng chính diện, đội mũ miện (bản miện + chuỗi hạt), mặt có ria và râu cằm, long bào cổ tròn,
+    bổ tử rồng ở ngực, đai ngọc, tay áo rộng; hai tay cầm mép trên cuộn chiếu đặt ngang thân.
+    Cuộn chiếu: nền lụa vàng, các cột chữ Hán (cách điệu thành vạch chữ), cột tiêu đề bên phải, ấn đỏ bên trái,
+    hai trục cuộn. Năm 1010 phía dưới. Lớp chiều sâu (data-z): áo 0 m, tay áo +1, mặt +2, cuộn chiếu +5, năm +6.
+    Toạ độ: mét, gốc ở tâm đội hình, y hướng xuống. Nhóm (data-group) dùng cho hoạt cảnh: cuộn chiếu mở dần,
+    chữ hiện dần, năm 1010 sáng lên.
+  </desc>
+  <rect x="-60" y="-50" width="120" height="100" fill="#050814" data-skip="1"/>
+
+  <g fill="none" stroke-width="0.5" data-smooth="1">
+    <!-- MŨ MIỆN -->
+    <g data-group="king_crown" data-z="1" stroke="#ffc34a" data-prio="0.95" data-sp="0.8">
+      <polygon points="-10.5,-41.2 10.5,-41.2 10.5,-39.4 -10.5,-39.4" data-smooth="0"/>
+      <polyline points="-6.2,-31.4 -6.6,-35.2 -5.2,-38.6 0,-39.4 5.2,-38.6 6.6,-35.2 6.2,-31.4"/>
+      <polyline points="-6.4,-32 0,-32.5 6.4,-32" stroke="#ff4a2a"/>
+      <circle cx="0" cy="-35.2" r="1.1" stroke="#ff4a2a" fill="#ff4a2a" data-sp="0.6"/>
+      <g stroke="#fff0d0" data-sp="0.55" data-bright="0.85" data-smooth="0">
+        <polyline points="-8.6,-39.2 -8.6,-34.6"/><polyline points="-5.2,-39.2 -5.2,-35.2"/>
+        <polyline points="5.2,-39.2 5.2,-35.2"/><polyline points="8.6,-39.2 8.6,-34.6"/>
+      </g>
+      <polyline points="-6.4,-31.6 -7.4,-27 -7,-21.6" stroke="#ff9a2a" data-bright="0.8"/>
+      <polyline points="6.4,-31.6 7.4,-27 7,-21.6" stroke="#ff9a2a" data-bright="0.8"/>
+    </g>
+    <!-- KHUÔN MẶT, RIA, RÂU -->
+    <g data-group="king_face" data-z="2" stroke="#fff0d0" data-prio="1" data-sp="0.6">
+      <polyline points="-5.2,-30.6 -5.5,-25 -4.8,-21.5 -3.4,-19.4 0,-18.6 3.4,-19.4 4.8,-21.5 5.5,-25 5.2,-30.6"/>
+      <polyline points="-3.4,-26.2 -1.4,-26.5"/><polyline points="1.4,-26.5 3.4,-26.2"/>
+      <polyline points="-3.9,-28 -2.6,-28.6 -1.2,-28.3" data-bright="0.8"/><polyline points="1.2,-28.3 2.6,-28.6 3.9,-28" data-bright="0.8"/>
+      <polyline points="0,-27.2 -0.3,-24.6 0.7,-24.2" data-bright="0.8"/>
+      <polyline points="-0.2,-22.9 -2.2,-22.7 -3.9,-21.3"/><polyline points="0.2,-22.9 2.2,-22.7 3.9,-21.3"/>
+      <polyline points="-2.3,-20.8 -1.6,-17 0,-13.4 1.6,-17 2.3,-20.8"/>
+      <polyline points="-5.4,-27.4 -6.5,-26.6 -6.5,-23.9 -5.5,-23.2" data-bright="0.8"/>
+      <polyline points="5.4,-27.4 6.5,-26.6 6.5,-23.9 5.5,-23.2" data-bright="0.8"/>
+    </g>
+    <!-- LONG BÀO: cổ tròn, vai, tay áo rộng, thân, bổ tử, đai ngọc -->
+    <g data-group="king_robe" stroke="#ffb93a" data-prio="0.85" data-sp="0.95">
+      <polyline points="-5.9,-18.9 -4.1,-16.6 0,-15.6 4.1,-16.6 5.9,-18.9" stroke="#ff4a2a" data-z="1"/>
+      <polyline points="-7.4,-18.6 -5.2,-15.1 0,-13.9 5.2,-15.1 7.4,-18.6" data-z="1"/>
+      <polyline points="-7.4,-18.6 -11.4,-16.8 -15.6,-14.6 -17.8,-11.6 -19.7,-5.6 -20.6,-0.6"/>
+      <polyline points="7.4,-18.6 11.4,-16.8 15.6,-14.6 17.8,-11.6 19.7,-5.6 20.6,-0.6"/>
+      <polyline points="-20.6,-0.6 -15.4,0.4 -10.4,-1.2" data-z="1"/>
+      <polyline points="20.6,-0.6 15.4,0.4 10.4,-1.2" data-z="1"/>
+      <polyline points="-12.6,-12.2 -12.2,-6.2 -10.4,-1.2" data-z="1" data-bright="0.8"/>
+      <polyline points="12.6,-12.2 12.2,-6.2 10.4,-1.2" data-z="1" data-bright="0.8"/>
+      <polyline points="-10.4,-1.2 -6.6,-1.0" data-z="1"/><polyline points="10.4,-1.2 6.6,-1.0" data-z="1"/>
+      <polygon points="-6.5,-1.4 -4.6,-2.1 -2.6,-1.6 -2.1,0.2 -3,1 -5.6,0.9" stroke="#fff0d0" data-z="2" data-sp="0.6"/>
+      <polygon points="6.5,-1.4 4.6,-2.1 2.6,-1.6 2.1,0.2 3,1 5.6,0.9" stroke="#fff0d0" data-z="2" data-sp="0.6"/>
+      <circle cx="0" cy="-9.6" r="3.2" stroke="#ff4a2a" data-z="0.5" data-sp="0.7"/>
+      <polyline points="-1.6,-8.2 -1.8,-10.4 0,-11.4 1.6,-10.4 0.6,-8.8 -0.6,-9.6 0.2,-10.2" stroke="#ffd36a" data-sp="0.55" data-z="0.6"/>
+      <polyline points="-10.8,-5.9 0,-6.3 10.8,-5.9" stroke="#ffd36a" data-smooth="0"/>
+      <polyline points="-10.8,-4.3 0,-4.6 10.8,-4.3" stroke="#ffd36a" data-smooth="0"/>
+      <g stroke="#ff3a24" fill="#ff3a24" data-sp="0.5">
+        <circle cx="-7.5" cy="-5.1" r="0.5"/><circle cx="-2.5" cy="-5.3" r="0.5"/>
+        <circle cx="2.5" cy="-5.3" r="0.5"/><circle cx="7.5" cy="-5.1" r="0.5"/>
+      </g>
+      <!-- vạt áo dưới cuộn chiếu -->
+      <polyline points="-13.4,17 -15,26 -17,35.4"/><polyline points="13.4,17 15,26 17,35.4"/>
+      <polyline points="-17,35.4 -8,36.3 0,36.7 8,36.3 17,35.4"/>
+      <path d="M-15.4,31.6 q1,-1.4 2,0 t2,0 t2,0 t2,0 t2,0 t2,0 t2,0 t2,0 t2,0 t2,0 t2,0 t2,0 t2,0 t2,0 t2,0 t2,0" stroke="#ff9a2a" data-bright="0.8" data-sp="0.8"/>
+      <polyline points="-3.4,17 -3.4,36.6" data-bright="0.75" data-smooth="0"/><polyline points="3.4,17 3.4,36.6" data-bright="0.75" data-smooth="0"/>
+      <polyline points="-6,36.5 -5,38.4 -2.2,38.6 -1.6,36.9" stroke="#fff0d0" data-sp="0.7"/>
+      <polyline points="6,36.5 5,38.4 2.2,38.6 1.6,36.9" stroke="#fff0d0" data-sp="0.7"/>
+    </g>
+    <!-- tô thân áo (thưa, vàng ấm) -->
+    <g data-group="king_robe" data-mode="fill" data-bright="0.42" data-fsp="1.45" data-prio="0.3">
+      <polygon fill="#ffb93a" data-smooth="0" points="-11.6,-14.8 -5,-15.2 0,-14 5,-15.2 11.6,-14.8 12.4,-6.6 -12.4,-6.6"/>
+      <polygon fill="#ffb93a" data-smooth="0" points="-18.6,-10.4 -13.2,-12.4 -12.6,-6.4 -11.2,-2.6 -19.6,-1.6"/>
+      <polygon fill="#ffb93a" data-smooth="0" points="18.6,-10.4 13.2,-12.4 12.6,-6.4 11.2,-2.6 19.6,-1.6"/>
+      <polygon fill="#ffb93a" data-smooth="0" points="-12.8,18 12.8,18 15.8,30.4 -15.8,30.4"/>
+    </g>
+
+    <!-- CUỘN CHIẾU DỜI ĐÔ (mở hoàn toàn: rộng 92 m) -->
+    <g data-group="scroll_paper" data-z="5" stroke="#ffd36a" data-prio="0.9" data-sp="0.95" data-smooth="0">
+      <polyline points="-45.4,0 45.4,0"/>
+      <polyline points="-45.4,16 45.4,16"/>
+      <polyline points="-44,1.5 44,1.5" data-bright="0.55" data-sp="1.15"/>
+      <polyline points="-44,14.5 44,14.5" data-bright="0.55" data-sp="1.15"/>
+    </g>
+    <g data-group="scroll_paper" data-z="5" data-mode="fill" data-bright="0.22" data-fsp="1.9" data-prio="0.2">
+      <rect x="-44.6" y="2.2" width="89.2" height="11.6" fill="#ffd36a"/>
+    </g>
+    <g data-group="scroll_roll_l" data-z="5.5" stroke="#ff9a2a" data-prio="0.95" data-sp="0.6" data-smooth="0">
+      <polyline points="-46.6,-1.6 -46.6,17.6"/><polyline points="-45.4,-1.6 -45.4,17.6"/>
+      <circle cx="-46" cy="-2.4" r="0.9" fill="#ffd36a"/><circle cx="-46" cy="18.4" r="0.9" fill="#ffd36a"/>
+    </g>
+    <g data-group="scroll_roll_r" data-z="5.5" stroke="#ff9a2a" data-prio="0.95" data-sp="0.6" data-smooth="0">
+      <polyline points="46.6,-1.6 46.6,17.6"/><polyline points="45.4,-1.6 45.4,17.6"/>
+      <circle cx="46" cy="-2.4" r="0.9" fill="#ffd36a"/><circle cx="46" cy="18.4" r="0.9" fill="#ffd36a"/>
+    </g>
+    <!-- các cột chữ (cách điệu): sinh tự động bởi bộ dựng — xem build_formations.py: scroll_text() -->
+    <g data-group="scroll_text" data-z="5.2" stroke="#ff3a24" data-prio="0.4" data-sp="0.7" data-smooth="0" id="scroll-text-anchor"/>
+
+    <!-- NĂM 1010 -->
+    <text x="0" y="48.6" font-size="9.4" text-anchor="middle" fill="#ffe2a0" data-font="stroke" data-group="year"
+          data-z="6" data-prio="0.5" data-sp="0.55" data-tracking="0.6">1010</text>
+  </g>
+</svg>

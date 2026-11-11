@@ -1,0 +1,305 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 -42 120 80" width="1200" height="800">
+  <title>Cảnh 4 — Dinh Độc Lập, cổng chính (30/4/1975)</title>
+  <desc>Cách điệu mặt tiền Dinh Độc Lập (KTS Ngô Viết Thụ, 1962–1966): mái đua dài, hai tầng 'rèm hoa đá' cách điệu đốt mành trúc, khoang kính giữa, tầng trệt có cột, sảnh có mái hiên, bậc thềm, hai hồ sen bán nguyệt, khối sân thượng với cột cờ. Phía trước (z=+12): cổng chính hai cánh + hàng rào song sắt. Hai cánh cổng là nhóm riêng (gate_l / gate_r, data-p0 = toạ độ bản lề) để engine quay mở trong 3D. Lá cờ trên nóc tắt đèn (data-dark) cho tới cuối cảnh. Không sao chép ảnh hay thiết kế drone có sẵn.</desc>
+  <rect x="-60" y="-42" width="120" height="80" fill="#050814" data-skip="1"/>
+  <g fill="none" stroke-width="0.35">
+    <g data-group="pal_struct" data-z="-14" stroke="#e8f0ff" data-prio="0.9" data-sp="0.95">
+      <polyline points="-50,-22 50,-22"/>
+      <polyline points="-50,-23.6 50,-23.6"/>
+      <polyline points="-50,-23.6 -50,-22"/><polyline points="50,-23.6 50,-22"/>
+      <polyline points="-46,-22 -46,11.5"/><polyline points="46,-22 46,11.5"/>
+      <polyline points="-47.5,-12.5 47.5,-12.5" data-bright="0.85"/>
+      <polyline points="-47.5,-2.5 47.5,-2.5" data-bright="0.85"/>
+      <polyline points="-48,11.5 48,11.5 48,14 -48,14 -48,11.5"/>
+      <polyline points="-11,-23.6 -11,-27 11,-27 11,-23.6"/>
+    </g>
+    <g data-group="pal_curtain" data-z="-13" stroke="#cfe0ff" data-prio="0.7" data-sp="0.9" data-bright="0.8">
+      <polyline points="-43.7,-21.05 -43.7,-18.98"/>
+      <polyline points="-43.7,-18.28 -43.7,-16.22"/>
+      <polyline points="-43.7,-15.52 -43.7,-13.45"/>
+      <polyline points="-41.4,-21.05 -41.4,-18.98"/>
+      <polyline points="-41.4,-18.28 -41.4,-16.22"/>
+      <polyline points="-41.4,-15.52 -41.4,-13.45"/>
+      <polyline points="-39.1,-21.05 -39.1,-18.98"/>
+      <polyline points="-39.1,-18.28 -39.1,-16.22"/>
+      <polyline points="-39.1,-15.52 -39.1,-13.45"/>
+      <polyline points="-36.8,-21.05 -36.8,-18.98"/>
+      <polyline points="-36.8,-18.28 -36.8,-16.22"/>
+      <polyline points="-36.8,-15.52 -36.8,-13.45"/>
+      <polyline points="-34.5,-21.05 -34.5,-18.98"/>
+      <polyline points="-34.5,-18.28 -34.5,-16.22"/>
+      <polyline points="-34.5,-15.52 -34.5,-13.45"/>
+      <polyline points="-32.2,-21.05 -32.2,-18.98"/>
+      <polyline points="-32.2,-18.28 -32.2,-16.22"/>
+      <polyline points="-32.2,-15.52 -32.2,-13.45"/>
+      <polyline points="-29.9,-21.05 -29.9,-18.98"/>
+      <polyline points="-29.9,-18.28 -29.9,-16.22"/>
+      <polyline points="-29.9,-15.52 -29.9,-13.45"/>
+      <polyline points="-27.6,-21.05 -27.6,-18.98"/>
+      <polyline points="-27.6,-18.28 -27.6,-16.22"/>
+      <polyline points="-27.6,-15.52 -27.6,-13.45"/>
+      <polyline points="-25.3,-21.05 -25.3,-18.98"/>
+      <polyline points="-25.3,-18.28 -25.3,-16.22"/>
+      <polyline points="-25.3,-15.52 -25.3,-13.45"/>
+      <polyline points="-23,-21.05 -23,-18.98"/>
+      <polyline points="-23,-18.28 -23,-16.22"/>
+      <polyline points="-23,-15.52 -23,-13.45"/>
+      <polyline points="-20.7,-21.05 -20.7,-18.98"/>
+      <polyline points="-20.7,-18.28 -20.7,-16.22"/>
+      <polyline points="-20.7,-15.52 -20.7,-13.45"/>
+      <polyline points="-18.4,-21.05 -18.4,-18.98"/>
+      <polyline points="-18.4,-18.28 -18.4,-16.22"/>
+      <polyline points="-18.4,-15.52 -18.4,-13.45"/>
+      <polyline points="-16.1,-21.05 -16.1,-18.98"/>
+      <polyline points="-16.1,-18.28 -16.1,-16.22"/>
+      <polyline points="-16.1,-15.52 -16.1,-13.45"/>
+      <polyline points="-13.8,-21.05 -13.8,-18.98"/>
+      <polyline points="-13.8,-18.28 -13.8,-16.22"/>
+      <polyline points="-13.8,-15.52 -13.8,-13.45"/>
+      <polyline points="-11.5,-21.05 -11.5,-18.98"/>
+      <polyline points="-11.5,-18.28 -11.5,-16.22"/>
+      <polyline points="-11.5,-15.52 -11.5,-13.45"/>
+      <polyline points="11.5,-21.05 11.5,-18.98"/>
+      <polyline points="11.5,-18.28 11.5,-16.22"/>
+      <polyline points="11.5,-15.52 11.5,-13.45"/>
+      <polyline points="13.8,-21.05 13.8,-18.98"/>
+      <polyline points="13.8,-18.28 13.8,-16.22"/>
+      <polyline points="13.8,-15.52 13.8,-13.45"/>
+      <polyline points="16.1,-21.05 16.1,-18.98"/>
+      <polyline points="16.1,-18.28 16.1,-16.22"/>
+      <polyline points="16.1,-15.52 16.1,-13.45"/>
+      <polyline points="18.4,-21.05 18.4,-18.98"/>
+      <polyline points="18.4,-18.28 18.4,-16.22"/>
+      <polyline points="18.4,-15.52 18.4,-13.45"/>
+      <polyline points="20.7,-21.05 20.7,-18.98"/>
+      <polyline points="20.7,-18.28 20.7,-16.22"/>
+      <polyline points="20.7,-15.52 20.7,-13.45"/>
+      <polyline points="23,-21.05 23,-18.98"/>
+      <polyline points="23,-18.28 23,-16.22"/>
+      <polyline points="23,-15.52 23,-13.45"/>
+      <polyline points="25.3,-21.05 25.3,-18.98"/>
+      <polyline points="25.3,-18.28 25.3,-16.22"/>
+      <polyline points="25.3,-15.52 25.3,-13.45"/>
+      <polyline points="27.6,-21.05 27.6,-18.98"/>
+      <polyline points="27.6,-18.28 27.6,-16.22"/>
+      <polyline points="27.6,-15.52 27.6,-13.45"/>
+      <polyline points="29.9,-21.05 29.9,-18.98"/>
+      <polyline points="29.9,-18.28 29.9,-16.22"/>
+      <polyline points="29.9,-15.52 29.9,-13.45"/>
+      <polyline points="32.2,-21.05 32.2,-18.98"/>
+      <polyline points="32.2,-18.28 32.2,-16.22"/>
+      <polyline points="32.2,-15.52 32.2,-13.45"/>
+      <polyline points="34.5,-21.05 34.5,-18.98"/>
+      <polyline points="34.5,-18.28 34.5,-16.22"/>
+      <polyline points="34.5,-15.52 34.5,-13.45"/>
+      <polyline points="36.8,-21.05 36.8,-18.98"/>
+      <polyline points="36.8,-18.28 36.8,-16.22"/>
+      <polyline points="36.8,-15.52 36.8,-13.45"/>
+      <polyline points="39.1,-21.05 39.1,-18.98"/>
+      <polyline points="39.1,-18.28 39.1,-16.22"/>
+      <polyline points="39.1,-15.52 39.1,-13.45"/>
+      <polyline points="41.4,-21.05 41.4,-18.98"/>
+      <polyline points="41.4,-18.28 41.4,-16.22"/>
+      <polyline points="41.4,-15.52 41.4,-13.45"/>
+      <polyline points="43.7,-21.05 43.7,-18.98"/>
+      <polyline points="43.7,-18.28 43.7,-16.22"/>
+      <polyline points="43.7,-15.52 43.7,-13.45"/>
+      <polyline points="-43.7,-11.55 -43.7,-9.32"/>
+      <polyline points="-43.7,-8.62 -43.7,-6.38"/>
+      <polyline points="-43.7,-5.68 -43.7,-3.45"/>
+      <polyline points="-41.4,-11.55 -41.4,-9.32"/>
+      <polyline points="-41.4,-8.62 -41.4,-6.38"/>
+      <polyline points="-41.4,-5.68 -41.4,-3.45"/>
+      <polyline points="-39.1,-11.55 -39.1,-9.32"/>
+      <polyline points="-39.1,-8.62 -39.1,-6.38"/>
+      <polyline points="-39.1,-5.68 -39.1,-3.45"/>
+      <polyline points="-36.8,-11.55 -36.8,-9.32"/>
+      <polyline points="-36.8,-8.62 -36.8,-6.38"/>
+      <polyline points="-36.8,-5.68 -36.8,-3.45"/>
+      <polyline points="-34.5,-11.55 -34.5,-9.32"/>
+      <polyline points="-34.5,-8.62 -34.5,-6.38"/>
+      <polyline points="-34.5,-5.68 -34.5,-3.45"/>
+      <polyline points="-32.2,-11.55 -32.2,-9.32"/>
+      <polyline points="-32.2,-8.62 -32.2,-6.38"/>
+      <polyline points="-32.2,-5.68 -32.2,-3.45"/>
+      <polyline points="-29.9,-11.55 -29.9,-9.32"/>
+      <polyline points="-29.9,-8.62 -29.9,-6.38"/>
+      <polyline points="-29.9,-5.68 -29.9,-3.45"/>
+      <polyline points="-27.6,-11.55 -27.6,-9.32"/>
+      <polyline points="-27.6,-8.62 -27.6,-6.38"/>
+      <polyline points="-27.6,-5.68 -27.6,-3.45"/>
+      <polyline points="-25.3,-11.55 -25.3,-9.32"/>
+      <polyline points="-25.3,-8.62 -25.3,-6.38"/>
+      <polyline points="-25.3,-5.68 -25.3,-3.45"/>
+      <polyline points="-23,-11.55 -23,-9.32"/>
+      <polyline points="-23,-8.62 -23,-6.38"/>
+      <polyline points="-23,-5.68 -23,-3.45"/>
+      <polyline points="-20.7,-11.55 -20.7,-9.32"/>
+      <polyline points="-20.7,-8.62 -20.7,-6.38"/>
+      <polyline points="-20.7,-5.68 -20.7,-3.45"/>
+      <polyline points="-18.4,-11.55 -18.4,-9.32"/>
+      <polyline points="-18.4,-8.62 -18.4,-6.38"/>
+      <polyline points="-18.4,-5.68 -18.4,-3.45"/>
+      <polyline points="-16.1,-11.55 -16.1,-9.32"/>
+      <polyline points="-16.1,-8.62 -16.1,-6.38"/>
+      <polyline points="-16.1,-5.68 -16.1,-3.45"/>
+      <polyline points="-13.8,-11.55 -13.8,-9.32"/>
+      <polyline points="-13.8,-8.62 -13.8,-6.38"/>
+      <polyline points="-13.8,-5.68 -13.8,-3.45"/>
+      <polyline points="-11.5,-11.55 -11.5,-9.32"/>
+      <polyline points="-11.5,-8.62 -11.5,-6.38"/>
+      <polyline points="-11.5,-5.68 -11.5,-3.45"/>
+      <polyline points="11.5,-11.55 11.5,-9.32"/>
+      <polyline points="11.5,-8.62 11.5,-6.38"/>
+      <polyline points="11.5,-5.68 11.5,-3.45"/>
+      <polyline points="13.8,-11.55 13.8,-9.32"/>
+      <polyline points="13.8,-8.62 13.8,-6.38"/>
+      <polyline points="13.8,-5.68 13.8,-3.45"/>
+      <polyline points="16.1,-11.55 16.1,-9.32"/>
+      <polyline points="16.1,-8.62 16.1,-6.38"/>
+      <polyline points="16.1,-5.68 16.1,-3.45"/>
+      <polyline points="18.4,-11.55 18.4,-9.32"/>
+      <polyline points="18.4,-8.62 18.4,-6.38"/>
+      <polyline points="18.4,-5.68 18.4,-3.45"/>
+      <polyline points="20.7,-11.55 20.7,-9.32"/>
+      <polyline points="20.7,-8.62 20.7,-6.38"/>
+      <polyline points="20.7,-5.68 20.7,-3.45"/>
+      <polyline points="23,-11.55 23,-9.32"/>
+      <polyline points="23,-8.62 23,-6.38"/>
+      <polyline points="23,-5.68 23,-3.45"/>
+      <polyline points="25.3,-11.55 25.3,-9.32"/>
+      <polyline points="25.3,-8.62 25.3,-6.38"/>
+      <polyline points="25.3,-5.68 25.3,-3.45"/>
+      <polyline points="27.6,-11.55 27.6,-9.32"/>
+      <polyline points="27.6,-8.62 27.6,-6.38"/>
+      <polyline points="27.6,-5.68 27.6,-3.45"/>
+      <polyline points="29.9,-11.55 29.9,-9.32"/>
+      <polyline points="29.9,-8.62 29.9,-6.38"/>
+      <polyline points="29.9,-5.68 29.9,-3.45"/>
+      <polyline points="32.2,-11.55 32.2,-9.32"/>
+      <polyline points="32.2,-8.62 32.2,-6.38"/>
+      <polyline points="32.2,-5.68 32.2,-3.45"/>
+      <polyline points="34.5,-11.55 34.5,-9.32"/>
+      <polyline points="34.5,-8.62 34.5,-6.38"/>
+      <polyline points="34.5,-5.68 34.5,-3.45"/>
+      <polyline points="36.8,-11.55 36.8,-9.32"/>
+      <polyline points="36.8,-8.62 36.8,-6.38"/>
+      <polyline points="36.8,-5.68 36.8,-3.45"/>
+      <polyline points="39.1,-11.55 39.1,-9.32"/>
+      <polyline points="39.1,-8.62 39.1,-6.38"/>
+      <polyline points="39.1,-5.68 39.1,-3.45"/>
+      <polyline points="41.4,-11.55 41.4,-9.32"/>
+      <polyline points="41.4,-8.62 41.4,-6.38"/>
+      <polyline points="41.4,-5.68 41.4,-3.45"/>
+      <polyline points="43.7,-11.55 43.7,-9.32"/>
+      <polyline points="43.7,-8.62 43.7,-6.38"/>
+      <polyline points="43.7,-5.68 43.7,-3.45"/>
+    </g>
+    <g data-group="pal_struct" data-z="-12" stroke="#ffe7b0" data-prio="0.75" data-sp="0.9" data-bright="0.85">
+      <polyline points="-9,-22 -9,-2.5"/><polyline points="9,-22 9,-2.5"/>
+      <polyline points="-9,-18 9,-18" data-bright="0.55"/>
+      <polyline points="-9,-16 9,-16" data-bright="0.55"/>
+      <polyline points="-9,-8.5 9,-8.5" data-bright="0.55"/>
+      <polyline points="-9,-6.5 9,-6.5" data-bright="0.55"/>
+    </g>
+    <g data-group="pal_struct" data-z="-14" stroke="#e8f0ff" data-prio="0.65" data-sp="1.0" data-bright="0.75">
+      <polyline points="-40,-2.5 -40,11.5"/>
+      <polyline points="-32,-2.5 -32,11.5"/>
+      <polyline points="-24,-2.5 -24,11.5"/>
+      <polyline points="-16,-2.5 -16,11.5"/>
+      <polyline points="16,-2.5 16,11.5"/>
+      <polyline points="24,-2.5 24,11.5"/>
+      <polyline points="32,-2.5 32,11.5"/>
+      <polyline points="40,-2.5 40,11.5"/>
+      <polyline points="-12,1.5 12,1.5" stroke="#ffe7b0" data-bright="0.95"/>
+      <polyline points="-12,1.5 -12,11.5"/><polyline points="12,1.5 12,11.5"/>
+    </g>
+    <g data-group="pal_ground" data-z="-6" stroke="#ffd36a" data-prio="0.6" data-sp="0.95" data-bright="0.8">
+      <polyline points="-9,15 9,15"/>
+      <polyline points="-10.2,16.6 10.2,16.6"/>
+      <polyline points="-11.4,18.2 11.4,18.2"/>
+      <polyline points="-14,15.5 -14.13,16.39 -14.5,17.24 -15.09,17.99 -15.88,18.63 -16.83,19.1 -17.89,19.4 -19,19.5 -20.11,19.4 -21.17,19.1 -22.12,18.63 -22.91,17.99 -23.5,17.24 -23.87,16.39 -24,15.5" stroke="#7fd4ff"/>
+      <polyline points="24,15.5 23.87,16.39 23.5,17.24 22.91,17.99 22.12,18.63 21.17,19.1 20.11,19.4 19,19.5 17.89,19.4 16.83,19.1 15.88,18.63 15.09,17.99 14.5,17.24 14.13,16.39 14,15.5" stroke="#7fd4ff"/>
+    </g>
+    <g data-group="pal_pole" data-z="-14" stroke="#ffd36a" data-prio="0.6" data-sp="0.7">
+      <polyline points="0,-27 0,-38"/>
+    </g>
+    <g data-group="pal_flag_r" data-z="-14" data-prio="0.3">
+      <polygon points="0.4,-38 9.4,-38 9.4,-35 0.4,-35" fill="#ff2c1c" stroke="#ff2c1c" data-sp="0.7" data-fsp="0.75"/>
+    </g>
+    <g data-group="pal_flag_b" data-z="-14" data-prio="0.3">
+      <polygon points="0.4,-35 9.4,-35 9.4,-32 0.4,-32" fill="#2a7dff" stroke="#2a7dff" data-sp="0.7" data-fsp="0.75"/>
+    </g>
+    <g data-group="pal_flag_s" data-z="-13.6" data-prio="0.3"><polygon points="4.9,-36.35 5.21,-35.42 6.18,-35.42 5.39,-34.84 5.69,-33.91 4.9,-34.48 4.11,-33.91 4.41,-34.84 3.62,-35.42 4.59,-35.42" stroke="#ffd61e" fill="none" data-sp="0.45"/></g>
+    <g data-group="gate_post" data-z="12" stroke="#fff0d0" data-prio="0.85" data-sp="0.75">
+      <polyline points="-7.2,30 -7.2,21 -8.8,21 -8.8,30"/>
+      <polyline points="-6.9,21 -8,19.8 -9.1,21"/>
+      <polyline points="7.2,30 7.2,21 8.8,21 8.8,30"/>
+      <polyline points="6.9,21 8,19.8 9.1,21"/>
+    </g>
+    <g data-group="fence" data-z="12" stroke="#c8d6f0" data-prio="0.6" data-sp="1.0" data-bright="0.75">
+      <polyline points="-8.8,25.2 -52,25.2"/>
+      <polyline points="-8.8,29.8 -52,29.8"/>
+      <polyline points="-11.05,25.2 -11.05,29.8"/>
+      <polyline points="-13.3,25.2 -13.3,29.8"/>
+      <polyline points="-15.55,25.2 -15.55,29.8"/>
+      <polyline points="-17.8,25.2 -17.8,29.8"/>
+      <polyline points="-20.05,23.6 -20.05,29.8"/>
+      <polyline points="-22.3,25.2 -22.3,29.8"/>
+      <polyline points="-24.55,25.2 -24.55,29.8"/>
+      <polyline points="-26.8,25.2 -26.8,29.8"/>
+      <polyline points="-29.05,25.2 -29.05,29.8"/>
+      <polyline points="-31.3,23.6 -31.3,29.8"/>
+      <polyline points="-33.55,25.2 -33.55,29.8"/>
+      <polyline points="-35.8,25.2 -35.8,29.8"/>
+      <polyline points="-38.05,25.2 -38.05,29.8"/>
+      <polyline points="-40.3,25.2 -40.3,29.8"/>
+      <polyline points="-42.55,23.6 -42.55,29.8"/>
+      <polyline points="-44.8,25.2 -44.8,29.8"/>
+      <polyline points="-47.05,25.2 -47.05,29.8"/>
+      <polyline points="-49.3,25.2 -49.3,29.8"/>
+      <polyline points="-51.55,25.2 -51.55,29.8"/>
+      <polyline points="8.8,25.2 52,25.2"/>
+      <polyline points="8.8,29.8 52,29.8"/>
+      <polyline points="11.05,25.2 11.05,29.8"/>
+      <polyline points="13.3,25.2 13.3,29.8"/>
+      <polyline points="15.55,25.2 15.55,29.8"/>
+      <polyline points="17.8,25.2 17.8,29.8"/>
+      <polyline points="20.05,23.6 20.05,29.8"/>
+      <polyline points="22.3,25.2 22.3,29.8"/>
+      <polyline points="24.55,25.2 24.55,29.8"/>
+      <polyline points="26.8,25.2 26.8,29.8"/>
+      <polyline points="29.05,25.2 29.05,29.8"/>
+      <polyline points="31.3,23.6 31.3,29.8"/>
+      <polyline points="33.55,25.2 33.55,29.8"/>
+      <polyline points="35.8,25.2 35.8,29.8"/>
+      <polyline points="38.05,25.2 38.05,29.8"/>
+      <polyline points="40.3,25.2 40.3,29.8"/>
+      <polyline points="42.55,23.6 42.55,29.8"/>
+      <polyline points="44.8,25.2 44.8,29.8"/>
+      <polyline points="47.05,25.2 47.05,29.8"/>
+      <polyline points="49.3,25.2 49.3,29.8"/>
+      <polyline points="51.55,25.2 51.55,29.8"/>
+    </g>
+    <g data-group="gate_l" data-z="12" stroke="#ffd36a" data-prio="0.8" data-sp="0.8" data-p0="-7.2">
+      <polyline points="-7.2,23.2 -0.2,23.2 -0.2,30 -7.2,30"/>
+      <polyline points="-7.2,26.6 -0.2,26.6" data-bright="0.7"/>
+      <polyline points="-6.03,23.2 -6.03,30" data-bright="0.65"/>
+      <polyline points="-4.87,23.2 -4.87,30" data-bright="0.65"/>
+      <polyline points="-3.7,23.2 -3.7,30" data-bright="0.65"/>
+      <polyline points="-2.53,23.2 -2.53,30" data-bright="0.65"/>
+      <polyline points="-1.37,23.2 -1.37,30" data-bright="0.65"/>
+      <polyline points="-7.2,23.2 -6.5,22.83 -5.8,22.49 -5.1,22.23 -4.4,22.06 -3.7,22 -3,22.06 -2.3,22.23 -1.6,22.49 -0.9,22.83 -0.2,23.2"/>
+    </g>
+    <g data-group="gate_r" data-z="12" stroke="#ffd36a" data-prio="0.8" data-sp="0.8" data-p0="7.2">
+      <polyline points="7.2,23.2 0.2,23.2 0.2,30 7.2,30"/>
+      <polyline points="7.2,26.6 0.2,26.6" data-bright="0.7"/>
+      <polyline points="6.03,23.2 6.03,30" data-bright="0.65"/>
+      <polyline points="4.87,23.2 4.87,30" data-bright="0.65"/>
+      <polyline points="3.7,23.2 3.7,30" data-bright="0.65"/>
+      <polyline points="2.53,23.2 2.53,30" data-bright="0.65"/>
+      <polyline points="1.37,23.2 1.37,30" data-bright="0.65"/>
+      <polyline points="7.2,23.2 6.5,22.83 5.8,22.49 5.1,22.23 4.4,22.06 3.7,22 3,22.06 2.3,22.23 1.6,22.49 0.9,22.83 0.2,23.2"/>
+    </g>
+  </g>
+</svg>

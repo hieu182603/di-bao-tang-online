@@ -18,6 +18,7 @@ Người tham quan có thể tự do điều khiển nhân vật 3D dạo bướ
   * **Tòa nhà bảo tàng:** Gồm **1 Sảnh chính** (giai đoạn 1930 – 1945) cùng **5 Phòng trưng bày chuyên đề** tái hiện các chặng đường lịch sử từ năm 1930 đến nay.
 * **🎙️ Tư liệu & Thuyết minh sinh động:** Bấm vào từng hiện vật để xem hình ảnh tư liệu, thông tin bối cảnh, bài học lịch sử và nghe giọng đọc thuyết minh.
   * Nút **Thuyết minh** luôn dùng tiếng Việt. Nếu thiết bị chưa có giọng Việt, trình phát dùng bản thuyết minh tiếng Việt có sẵn trong website. Bấm **Dừng đọc** hoặc đóng thông tin hiện vật để dừng. Khi sửa nội dung, tạo lại bản thu theo hướng dẫn trong `Frontend/sounds/narration/README.md`.
+* **🚁 Drone Show (phím F9):** 150 giây, 1.800 drone (760 trên điện thoại, 2.800 trên máy mạnh) tạo thành 7 đội hình: vua Lý Thái Tổ ban Chiếu dời đô, Rồng thời Lý, lá cờ Quyết chiến Quyết thắng ở Điện Biên Phủ, xe tăng 390 húc cổng Dinh Độc Lập, chân dung Chủ tịch Hồ Chí Minh, trống đồng và chim Lạc, Quốc kỳ kết bằng pháo hoa. Nhấn C để xem ở góc điện ảnh. Cả phòng xem cùng lúc. Chi tiết trong `docs/drone-show/README.md`.
 * **👥 Trải nghiệm nhiều người cùng lúc (Realtime):** Nhiều người có thể cùng vào bảo tàng, nhìn thấy nhân vật của nhau di chuyển, thực hiện cử chỉ (vẫy tay, vỗ tay) và nhắn tin trò chuyện trực tiếp.
 * **📱 Dễ dàng tiếp cận:** Chạy mượt mà trên cả máy tính (chuột, bàn phím) và điện thoại di động (cần gạt cảm ứng), vào nhanh qua liên kết hoặc quét mã QR.
 

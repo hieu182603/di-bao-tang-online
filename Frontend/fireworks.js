@@ -1172,7 +1172,9 @@ const FireworksShow = {
 
   runEvents(now) {
     const D = this.director, showT = now - this.startTime;
-    while (D.i < D.events.length && D.events[D.i].t <= showT) {
+    // Chỉ chạy biên đạo 60 s khi show F8 đang chạy. Khi không chạy, hàm này vẫn được gọi để xử lý các sự kiện
+    // phụ (this.extra) của cue bên ngoài (vd. Drone Show gọi spawnEffect) — không được "xả" cue cũ của F8.
+    while (this.isRunning && D.i < D.events.length && D.events[D.i].t <= showT) {
       const e = D.events[D.i++], b = this.startTime + e.t, late = showT - e.t > 0.3;
       if (late) FireworksAudio.muted = true;
       this.exec(e, b, now);

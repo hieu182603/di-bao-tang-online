@@ -33,6 +33,7 @@
   }
   let lastFwTime = 0;
   let lastDnTime = 0;
+  let lastDsTime = 0;
   function setPeer(id, raw) {
     if (!id || id === Net.selfId) return;
     const s = clean(raw);
@@ -50,6 +51,15 @@
       const startTime = parseInt(parts[3], 10);
       if (typeof Net.onFireworks === "function") {
         Net.onFireworks(action, { seed, startTime, peerId: id });
+      }
+    }
+
+    // Đồng bộ Drone Show (F9): chỉ gửi hành động + seed + thời điểm bắt đầu, mỗi máy tự mô phỏng drone
+    if (s.say && s.say.startsWith("__ds__:") && s.sayAt > lastDsTime) {
+      lastDsTime = s.sayAt;
+      const parts = s.say.split(":");
+      if (typeof Net.onDroneShow === "function") {
+        Net.onDroneShow(parts[1], { seed: parseInt(parts[2], 10) || 0, startTime: parseInt(parts[3], 10) || 0, peerId: id });
       }
     }
 
@@ -199,6 +209,16 @@
       }
     });
 
+    const dsRef = db.ref((window.MUSEUM_ROOM || "bao-tang") + "/droneshow");
+    Net.firebaseDsRef = dsRef;
+    dsRef.on("value", (snap) => {
+      const d = snap.val();
+      if (d && d.t > lastDsTime) {
+        lastDsTime = d.t;
+        if (typeof Net.onDroneShow === "function") Net.onDroneShow(d.action, d);
+      }
+    });
+
     const dnRef = db.ref((window.MUSEUM_ROOM || "bao-tang") + "/daynight");
     Net.firebaseDnRef = dnRef;
     dnRef.on("value", (snap) => {
@@ -263,6 +283,16 @@
     if (Net.firebaseFwRef) {
       Net.firebaseFwRef.set({ action, seed, startTime, t: Date.now() }).catch(() => {});
     }
+  };
+
+  // Drone Show: KHÔNG gửi toạ độ drone — chỉ gửi {action, seed, startTime}; tối đa vài gói tin mỗi show.
+  Net.broadcastDroneShow = function (action, opts = {}) {
+    const seed = opts.seed >>> 0;
+    const startTime = opts.startTime || Date.now();
+    const now = Date.now();
+    lastDsTime = Math.max(lastDsTime, now);   // không tự nhận lại gói của chính mình
+    if (typeof Net.update === "function") Net.update({ say: `__ds__:${action}:${seed}:${startTime}`, sayAt: now });
+    if (Net.firebaseDsRef) Net.firebaseDsRef.set({ action, seed, startTime, t: now }).catch(() => {});
   };
 
   Net.broadcastDayNight = function (targetIsNight) {
