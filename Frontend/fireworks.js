@@ -104,12 +104,26 @@ const FireworksQualityManager = {
   setTier(t) { if (FireworksConfig.qualityBudgets[t]) { this.currentTier = t; console.info("[Fireworks] quality:", t); } },
 };
 
-/* ================= 3. ÂM THANH (buffer nhiễu dùng chung, giới hạn số voice) ================= */
+/* ================= 3. ÂM THANH (Tiếng pháo hoa thực tế từ tiengdong.com + Web Audio Spatial 3D) ================= */
 const FireworksAudio = {
-  // Âm thanh tổng hợp thời gian thực (không cần file): cối phóng, tiếng rít bay lên, tiếng nổ nhiều lớp,
-  // vang dội không gian rộng (convolver), xèo liễu, lách tách, tiếng reo đám đông ở cao trào.
+  // Âm thanh thực tế từ tiengdong.com:
+  // - tieng_phao_hoa_no_tren_bau_troi.mp3: Tiếng pháo hoa nổ vang rền trên bầu trời (sky bursts & atmospheric rumble)
+  // - tieng_phao_hoa_no.mp3: Tiếng pháo nổ giòn giã, chát chúa và lách tách (crackles & crisp detonations)
+  // - tieng_ban_phao_hoa.mp3: Tiếng cối phóng pháo hoa mặt đất (mortar launches)
+  // - tieng_phao_hoa_hu_len_troi.mp3: Tiếng rít hú của pháo hoa xé gió bay vút lên trời
   ctx: null, master: null, dry: null, wet: null, enabled: true, muted: false,
-  noise: null, pink: null, voices: [],
+  noise: null, pink: null, shot: null, voices: [],
+  buffers: {
+    skyBoom: null,
+    groundBoom: null,
+    launch: null,
+    whistle: null,
+  },
+  isLoading: false,
+  isLoaded: false,
+  ambientNode: null,
+  ambientGain: null,
+
   ensure() {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!this.ctx && AC) this.ctx = new AC();
@@ -141,12 +155,96 @@ const FireworksAudio = {
       this.dry = ctx.createGain(); this.dry.gain.value = 1.0; this.dry.connect(this.master);
     }
     if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
+    if (ctx && !this.isLoading && !this.isLoaded) this.loadAudio();
     return ctx;
   },
+
+  loadPromise: null,
+  loadAudio() {
+    if (this.isLoaded) return Promise.resolve(this.buffers);
+    if (this.loadPromise) return this.loadPromise;
+    const ctx = this.ctx;
+    if (!ctx) return Promise.resolve(null);
+    this.isLoading = true;
+    const list = [
+      { key: "skyBoom", url: "sounds/tieng_phao_hoa_no_tren_bau_troi.mp3" },
+      { key: "groundBoom", url: "sounds/tieng_phao_hoa_no.mp3" },
+      { key: "launch", url: "sounds/tieng_ban_phao_hoa.mp3" },
+      { key: "whistle", url: "sounds/tieng_phao_hoa_hu_len_troi.mp3" }
+    ];
+    this.loadPromise = Promise.all(list.map(async (item) => {
+      try {
+        const res = await fetch(item.url);
+        if (!res.ok) {
+          console.warn("[FireworksAudio] HTTP error fetching:", item.url, res.status);
+          return;
+        }
+        const ab = await res.arrayBuffer();
+        const decoded = await ctx.decodeAudioData(ab);
+        this.buffers[item.key] = decoded;
+      } catch (err) {
+        console.warn("[FireworksAudio] error decoding:", item.key, err);
+      }
+    })).then(() => {
+      this.isLoaded = true;
+      this.isLoading = false;
+      if (typeof FireworksShow !== "undefined" && FireworksShow.isRunning && !this.ambientNode) {
+        this.startShowAmbient();
+      }
+      return this.buffers;
+    });
+    return this.loadPromise;
+  },
+
+  startShowAmbient() {
+    if (!this.ok()) return;
+    this.stopShowAmbient();
+    const ctx = this.ctx;
+    const buf = this.buffers.skyBoom || this.buffers.groundBoom;
+    if (!buf) return;
+    try {
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+      const g = ctx.createGain();
+      const t = ctx.currentTime;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.35, t + 2.0);
+
+      const f = ctx.createBiquadFilter();
+      f.type = "lowpass";
+      f.frequency.value = 6500;
+
+      src.connect(f);
+      f.connect(g);
+      g.connect(this.master);
+
+      src.start(t, 1.2);
+      this.ambientNode = src;
+      this.ambientGain = g;
+    } catch (e) {}
+  },
+
+  stopShowAmbient() {
+    if (this.ambientGain && this.ctx) {
+      try {
+        const t = this.ctx.currentTime;
+        this.ambientGain.gain.setValueAtTime(this.ambientGain.gain.value, t);
+        this.ambientGain.gain.linearRampToValueAtTime(0.0001, t + 1.8);
+        const node = this.ambientNode;
+        setTimeout(() => {
+          try { if (node) node.stop(); } catch (e) {}
+        }, 1900);
+      } catch (e) {}
+    }
+    this.ambientNode = null;
+    this.ambientGain = null;
+  },
+
   geo(x, y, z) {
     const cam = (FireworksShow.camera && FireworksShow.camera.position) || { x: 0, y: 2, z: 37 };
     const dist = Math.hypot(x - cam.x, y - cam.y, z - cam.z);
-    return { dist, pan: Math.max(-0.85, Math.min(0.85, (x - cam.x) / 120)), att: Math.max(0.15, Math.min(0.85, 190 / (dist + 50))) };
+    return { dist, pan: Math.max(-0.85, Math.min(0.85, (x - cam.x) / 120)), att: Math.max(0.18, Math.min(0.9, 210 / (dist + 45))) };
   },
   out(pan, wetAmt = 0.5) {   // nút đầu ra: pan stereo + gửi vang
     const ctx = this.ctx, g = ctx.createGain();
@@ -184,48 +282,170 @@ const FireworksAudio = {
     o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
     o.connect(g); g.connect(this.out(pan, 0.2)); o.start(t); o.stop(t + dur + 0.02);
   },
-  // Cối phóng: tiếng "bụp" ngắn + (thỉnh thoảng) tiếng rít bay lên
+
+  // Cối phóng: tiếng bụp uy lực từ file thu âm tieng_ban_phao_hoa.mp3 + tiếng hú xé gió
   launch(x, y, z, ascent = 1.2) {
     if (!this.ok()) return;
-    const { dist, pan, att } = this.geo(x, y, z), ctx = this.ctx, t = ctx.currentTime + Math.min(0.5, dist / 340);
-    try {
+    const { dist, pan, att } = this.geo(x, y, z), ctx = this.ctx, t = ctx.currentTime + Math.min(0.4, dist / 340);
+    const launchOffsets = [3.58, 5.47, 6.07, 13.01, 14.91, 20.16, 24.10, 35.91];
+
+    if (this.buffers.launch) {
+      try {
+        const offset = launchOffsets[Math.floor(Math.random() * launchOffsets.length)];
+        const dur = 0.85;
+        const src = ctx.createBufferSource();
+        src.buffer = this.buffers.launch;
+        src.playbackRate.value = 0.94 + Math.random() * 0.12;
+
+        const f = ctx.createBiquadFilter();
+        f.type = "lowpass"; f.frequency.value = 2500;
+
+        const g = ctx.createGain();
+        const gVal = Math.max(0.25, att * 0.85);
+        g.gain.setValueAtTime(gVal, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+        src.connect(f); f.connect(g); g.connect(this.out(pan, 0.25));
+        src.start(t, offset, dur);
+      } catch (e) {
+        this.shotAt(t, att * 0.55, pan, 0.42 + Math.random() * 0.1, 900, 0.25);
+      }
+    } else {
       this.shotAt(t, att * 0.55, pan, 0.42 + Math.random() * 0.1, 900, 0.25);
       this.thumpAt(t, att * 0.7, pan, 120, 45, 0.12);
-      if (ascent > 0.6 && Math.random() < 0.4) {
+    }
+
+    // Tiếng rít hú bay vút lên bầu trời (tieng_phao_hoa_hu_len_troi.mp3)
+    if (ascent > 0.65) {
+      if (this.buffers.whistle) {
+        try {
+          const wSrc = ctx.createBufferSource();
+          wSrc.buffer = this.buffers.whistle;
+          const wGain = ctx.createGain();
+          const wTime = t + 0.05, wDur = Math.min(1.5, ascent);
+          wGain.gain.setValueAtTime(0.0001, wTime);
+          wGain.gain.linearRampToValueAtTime(att * 0.45, wTime + 0.2);
+          wGain.gain.exponentialRampToValueAtTime(0.0001, wTime + wDur);
+          wSrc.connect(wGain); wGain.connect(this.out(pan, 0.3));
+          wSrc.start(wTime, 0, wDur);
+        } catch (e) {}
+      } else if (Math.random() < 0.4) {
         const w = this.src(this.noise, t + 0.05, ascent), wf = this.filt("bandpass", 1400, 3800 + Math.random() * 1500, t + 0.05, ascent, 10);
         const wg = ctx.createGain();
         wg.gain.setValueAtTime(0.0001, t + 0.05); wg.gain.linearRampToValueAtTime(att * 0.14, t + 0.3);
         wg.gain.exponentialRampToValueAtTime(0.0001, t + ascent);
         w.connect(wf); wf.connect(wg); wg.connect(this.out(pan, 0.3));
       }
-    } catch (e) {}
+    }
   },
-  // Tiếng nổ kiểu tiếng súng: "ĐOÀNG" — xung chát + thụp ngắn + tiếng dội lại từ công trình (slap echo)
+
+  // Tiếng nổ lớn: trích xuất vụ nổ bầu trời chân thực từ tiengdong.com
   boom(x, y, z, power = 1) {
     if (!this.ok()) return;
     const nowMs = performance.now();
-    this.voices = this.voices.filter((v) => nowMs - v < 200);
-    if (this.voices.length >= 8) return;
+    this.voices = this.voices.filter((v) => nowMs - v < 220);
+    if (this.voices.length >= 10) return;
     this.voices.push(nowMs);
+
     const { dist, pan, att } = this.geo(x, y, z), ctx = this.ctx;
-    const t = ctx.currentTime + Math.min(0.9, dist / 340) + Math.random() * 0.015, g = att * power;
-    const lp = Math.max(2200, Math.min(12000, 1500000 / (dist + 40)));   // gần chát, xa đục
-    try {
-      this.shotAt(t, g * 1.9, pan, 0.85 + Math.random() * 0.3, lp, 0.45);
-      this.thumpAt(t, g * 1.1, pan * 0.5, 130, 38, 0.16);
-      const echo = 0.22 + Math.random() * 0.14;    // dội lại từ toà nhà / khán đài
-      this.shotAt(t + echo, g * 0.42, -pan * 0.6, 0.8 + Math.random() * 0.2, 1800, 0.8);
-      if (power > 1.2) this.shotAt(t + echo + 0.18, g * 0.2, pan * 0.3, 0.75, 1200, 0.9);
-    } catch (e) {}
+    const t = ctx.currentTime + Math.min(0.85, dist / 340) + Math.random() * 0.012;
+    const gVal = Math.min(1.5, att * power * 1.25);
+    const lpFreq = Math.max(2000, Math.min(14000, 1600000 / (dist + 40)));
+
+    const skyOffsets = [1.62, 3.77, 10.14, 11.67, 16.05, 19.38, 20.62, 25.32, 34.59, 35.89, 41.20, 45.29, 49.65, 54.23];
+    const groundOffsets = [0.77, 1.96, 2.92, 6.04, 7.14, 8.03, 9.55, 10.50, 11.42, 13.92, 15.33, 16.24, 18.96, 19.89, 20.96, 21.87, 22.85, 24.47, 25.42, 26.86];
+
+    let buf = null, offset = 0, dur = 2.4;
+    if (power >= 1.0 && this.buffers.skyBoom) {
+      buf = this.buffers.skyBoom;
+      offset = skyOffsets[Math.floor(Math.random() * skyOffsets.length)];
+      dur = 2.8;
+    } else if (this.buffers.groundBoom) {
+      buf = this.buffers.groundBoom;
+      offset = groundOffsets[Math.floor(Math.random() * groundOffsets.length)];
+      dur = 2.1;
+    } else if (this.buffers.skyBoom) {
+      buf = this.buffers.skyBoom;
+      offset = skyOffsets[Math.floor(Math.random() * skyOffsets.length)];
+      dur = 2.4;
+    }
+
+    if (buf) {
+      try {
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.playbackRate.value = 0.92 + Math.random() * 0.16;
+
+        const f = ctx.createBiquadFilter();
+        f.type = "lowpass"; f.frequency.value = lpFreq; f.Q.value = 0.6;
+
+        const gainNode = ctx.createGain();
+        gainNode.gain.setValueAtTime(gVal, t);
+        gainNode.gain.setValueAtTime(gVal, t + 0.35);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+        src.connect(f); f.connect(gainNode); gainNode.connect(this.out(pan, 0.45));
+        src.start(t, offset, dur);
+
+        // Rung chấn sub-bass xúc giác (thump rung ngực)
+        this.thumpAt(t, gVal * 0.85, pan * 0.4, 90, 36, 0.22);
+
+        // Vọng âm dội lại từ công trình xa (slap echo)
+        if (power > 1.1) {
+          const echoTime = t + 0.24 + Math.random() * 0.14;
+          const echoGain = ctx.createGain();
+          echoGain.gain.setValueAtTime(gVal * 0.32, echoTime);
+          echoGain.gain.exponentialRampToValueAtTime(0.0001, echoTime + 1.2);
+          const echoSrc = ctx.createBufferSource();
+          echoSrc.buffer = buf;
+          echoSrc.playbackRate.value = 0.88;
+          echoSrc.connect(echoGain);
+          echoGain.connect(this.out(-pan * 0.7, 0.7));
+          echoSrc.start(echoTime, offset + 0.1, 1.2);
+        }
+      } catch (e) {
+        this.shotAt(t, gVal * 1.9, pan, 0.85 + Math.random() * 0.3, lpFreq, 0.45);
+        this.thumpAt(t, gVal * 1.1, pan * 0.5, 130, 38, 0.16);
+      }
+    } else {
+      this.shotAt(t, gVal * 1.9, pan, 0.85 + Math.random() * 0.3, lpFreq, 0.45);
+      this.thumpAt(t, gVal * 1.1, pan * 0.5, 130, 38, 0.16);
+    }
   },
-  // Lách tách = chuỗi tiếng "pằng" nhỏ, sắc
+
+  // Lách tách = chuỗi tiếng nổ tí tách từ file tieng_phao_hoa_no.mp3
   crackle(x, y, z, n = 30, delay = 0.45) {
     if (!this.ok()) return;
     const { dist, pan, att } = this.geo(x, y, z), ctx = this.ctx, t0 = ctx.currentTime + Math.min(0.9, dist / 340) + delay;
+    const crackleOffsets = [7.10, 19.85, 22.80, 26.80];
+
+    if (this.buffers.groundBoom) {
+      try {
+        const offset = crackleOffsets[Math.floor(Math.random() * crackleOffsets.length)];
+        const dur = Math.min(1.8, n * 0.05 + 0.4);
+        const src = ctx.createBufferSource();
+        src.buffer = this.buffers.groundBoom;
+        src.playbackRate.value = 1.05 + Math.random() * 0.2;
+
+        const f = ctx.createBiquadFilter();
+        f.type = "highpass"; f.frequency.value = 1200;
+
+        const g = ctx.createGain();
+        const gVal = att * 0.75;
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.linearRampToValueAtTime(gVal, t0 + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+
+        src.connect(f); f.connect(g); g.connect(this.out(pan + (Math.random() - 0.5) * 0.3, 0.35));
+        src.start(t0, offset, dur);
+      } catch (e) {}
+    }
+
     try {
-      for (let k = 0; k < n; k++) {
-        const t = t0 + Math.pow(Math.random(), 0.7) * 1.1;
-        this.shotAt(t, att * (0.18 + Math.random() * 0.25), pan + (Math.random() - 0.5) * 0.4, 1.6 + Math.random() * 0.9, 9000, 0.35);
+      const snapCount = Math.min(12, n);
+      for (let k = 0; k < snapCount; k++) {
+        const t = t0 + Math.pow(Math.random(), 0.7) * 1.0;
+        this.shotAt(t, att * (0.15 + Math.random() * 0.2), pan + (Math.random() - 0.5) * 0.4, 1.8 + Math.random() * 0.8, 8500, 0.3);
       }
     } catch (e) {}
   },
@@ -261,6 +481,17 @@ const FireworksAudio = {
     } catch (e) {}
   },
 };
+
+// Tự động mở khoá AudioContext và tải sẵn âm thanh ngay khi người dùng tương tác
+if (typeof window !== "undefined") {
+  const unlockAudio = () => {
+    FireworksAudio.ensure();
+    window.removeEventListener("pointerdown", unlockAudio);
+    window.removeEventListener("keydown", unlockAudio);
+  };
+  window.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
+  window.addEventListener("keydown", unlockAudio, { once: true, passive: true });
+}
 
 /* ================= 4. SHADERS ================= */
 const GLSL_COMMON = `
@@ -899,6 +1130,7 @@ const FireworksShow = {
   start(opts = {}) {
     if (this.isRunning) return false;
     FireworksAudio.ensure();
+    FireworksAudio.startShowAmbient();
     this.seed = opts.seed >>> 0 || ((Math.random() * 2 ** 31) >>> 0);
     this.showId = opts.showId || ("show-" + this.seed.toString(36));
     const rng = mulberry32(this.seed);
@@ -924,6 +1156,7 @@ const FireworksShow = {
     this.isRunning = false; this.isFinished = true; this.extra = [];
     if (!natural) { this.points.clear(); this.trails.clear(); this.restoreSky(); }
     if (this.flashLight) this.flashLight.intensity = 0;
+    FireworksAudio.stopShowAmbient();
   },
   toggle() { if (!this.isRunning) this.start(); },   // không cho chạy 2 show chồng nhau
   restoreSky() {
@@ -992,11 +1225,13 @@ const FireworksShow = {
       this.runEvents(now);
       if (this.elapsed >= FireworksConfig.duration && this.director.i >= this.director.events.length) {
         this.isRunning = false; this.endAt = now + FireworksConfig.tail;   // ngừng phóng mới, cho hạt tàn tự nhiên
+        FireworksAudio.stopShowAmbient();
       }
     } else if (this.extra.length) {
       this.runEvents(now);
     } else if (this.endAt && now >= this.endAt) {
       this.endAt = 0; this.isFinished = true; this.points.clear(); this.trails.clear(); this.restoreSky();
+      FireworksAudio.stopShowAmbient();
     }
     if (this.flashLight && this.flashLight.intensity > 0.002) this.flashLight.intensity *= Math.exp(-dt * 6);
     // tỉ lệ pixel/mét cho point size (chính xác theo FOV & độ phân giải hiện tại)
