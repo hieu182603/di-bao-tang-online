@@ -271,6 +271,9 @@ function plankCanvas() {
   }
   return c;
 }
+const BUA_LIEM_IMG = new Image();
+BUA_LIEM_IMG.src = "images/bua_liem.png";
+
 function flagCanvas() {
   const c = document.createElement("canvas"); c.width = 300; c.height = 200; const g = c.getContext("2d");
   g.fillStyle = "#da251d"; g.fillRect(0, 0, 300, 200);
@@ -282,25 +285,13 @@ function partyFlagCanvas() {
   g.fillStyle = "#da251d"; g.fillRect(0, 0, 300, 200);
   g.save();
   g.translate(150, 100);
-  g.fillStyle = "#ffcd00";
-  // Cán búa & đầu búa (Hammer)
-  g.save();
-  g.rotate(-Math.PI / 4);
-  g.fillRect(-5, -38, 10, 72);
-  g.fillRect(-20, -52, 40, 16);
-  g.restore();
-  // Lưỡi liềm (Sickle blade)
-  g.beginPath();
-  g.arc(6, -4, 44, -Math.PI * 0.16, Math.PI * 0.94, false);
-  g.arc(12, 0, 34, Math.PI * 0.88, -Math.PI * 0.10, true);
-  g.closePath();
-  g.fill();
-  // Cán liềm (Sickle handle)
-  g.save();
-  g.translate(-24, 30);
-  g.rotate(Math.PI / 5);
-  g.fillRect(-4, 0, 8, 20);
-  g.restore();
+  // Biểu tượng Búa Liềm chuẩn Quy định 99-QĐ/TW (đường kính 4/10 chiều ngang lá cờ)
+  const targetH = 80;
+  const aspect = (BUA_LIEM_IMG.naturalWidth && BUA_LIEM_IMG.naturalHeight) ? (BUA_LIEM_IMG.naturalWidth / BUA_LIEM_IMG.naturalHeight) : (440 / 384);
+  const targetW = targetH * aspect;
+  if (BUA_LIEM_IMG.complete && BUA_LIEM_IMG.naturalWidth > 0) {
+    g.drawImage(BUA_LIEM_IMG, -targetW / 2, -targetH / 2, targetW, targetH);
+  }
   g.restore();
   return c;
 }
@@ -3348,22 +3339,13 @@ function propagandaBannerCanvas(kind) {
   g.shadowOffsetY = 4;
 
   if (kind === "party") {
-    // Búa Liềm vàng chuẩn tỉ lệ
-    g.save();
-    g.rotate(-Math.PI / 4);
-    g.fillRect(-6, -40, 12, 80);
-    g.fillRect(-22, -56, 44, 18);
-    g.restore();
-    g.beginPath();
-    g.arc(6, -5, 48, -Math.PI * 0.16, Math.PI * 0.94, false);
-    g.arc(13, 0, 37, Math.PI * 0.88, -Math.PI * 0.10, true);
-    g.closePath();
-    g.fill();
-    g.save();
-    g.translate(-26, 32);
-    g.rotate(Math.PI / 5);
-    g.fillRect(-5, 0, 10, 22);
-    g.restore();
+    // Biểu tượng Búa Liềm vàng chuẩn theo Quy định số 99-QĐ/TW của Ban Bí thư
+    const targetH = 105;
+    const aspect = (BUA_LIEM_IMG.naturalWidth && BUA_LIEM_IMG.naturalHeight) ? (BUA_LIEM_IMG.naturalWidth / BUA_LIEM_IMG.naturalHeight) : (440 / 384);
+    const targetW = targetH * aspect;
+    if (BUA_LIEM_IMG.complete && BUA_LIEM_IMG.naturalWidth > 0) {
+      g.drawImage(BUA_LIEM_IMG, -targetW / 2, -targetH / 2, targetW, targetH);
+    }
   } else {
     // Ngôi sao vàng 5 cánh rực rỡ
     starPath(g, 0, 0, 56, 22);
@@ -3485,7 +3467,8 @@ function buildDecor() {
     // Tấm phông nền dày cứng giữa 2 mặt
     box(BW, BH, 0.016, x, BY, z, M.ochreDark);
     const tex = bannerTexMap[kind];
-    const bMat = new THREE.MeshLambertMaterial({ map: tex });
+    // Dùng MeshBasicMaterial để ban đêm bảng không bị tối đen, giữ độ sáng rõ như hộp đèn pano cổ động
+    const bMat = new THREE.MeshBasicMaterial({ map: tex });
     const b1 = new THREE.Mesh(new THREE.PlaneGeometry(BW, BH), bMat);
     placeAt(b1, x, BY, z + 0.012, 0);
     const b2 = new THREE.Mesh(new THREE.PlaneGeometry(BW, BH), bMat);
@@ -5400,7 +5383,7 @@ $("go").addEventListener("click", () => {
   SFX.ensure();
   me.name = $("nick").value.replace(/\s+/g, " ").trim().slice(0, 24) || "Khách " + Math.floor(100 + Math.random() * 900);
   try { localStorage.setItem("museum-me", JSON.stringify({ n: me.name, c: me.color, m: me.modelKey })); } catch (e) {}
-  started = true; joinedAt = performance.now();
+  started = true; window.started = true; joinedAt = performance.now();
   $("start").hidden = true; $("hud").hidden = false; $("dot").hidden = thirdPerson; $("people-btn").hidden = false;
   if (isTouch) joy.hidden = false;
   setMyFigure();
@@ -5412,7 +5395,12 @@ window.__museum = { player, avatars, scene, camera, free, PLATFORMS, BLOCKS, BAL
 async function init() {
   try {
     await Promise.race([
-      Promise.all([document.fonts.load(`700 40px "Noto Serif"`), document.fonts.load(`600 40px "Be Vietnam Pro"`), document.fonts.load(`400 40px "Be Vietnam Pro"`)]),
+      Promise.all([
+        document.fonts.load(`700 40px "Noto Serif"`),
+        document.fonts.load(`600 40px "Be Vietnam Pro"`),
+        document.fonts.load(`400 40px "Be Vietnam Pro"`),
+        BUA_LIEM_IMG.decode ? BUA_LIEM_IMG.decode().catch(() => {}) : Promise.resolve()
+      ]),
       new Promise((r) => setTimeout(r, 3000)),
     ]);
   } catch (e) {}
