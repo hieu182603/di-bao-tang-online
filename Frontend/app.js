@@ -2896,6 +2896,7 @@ function buildUpperRooms() {
   const FY = UP + 2.55;
   // L = bố cục một khung: y tâm ảnh, h cao ảnh, mw rộng tối đa, small = hàng đôi (biển tên 1 dòng, không đèn)
   const BIG = { y: FY, h: 1.4, mw: 1.5 }, TOP = { y: UP + 3.02, h: 0.78, mw: 1.5, small: true }, BOT = { y: UP + 1.84, h: 0.78, mw: 1.5, small: true };
+  const TOPD = { ...TOP, mw: 1.25, pw: 1.3 }, BOTD = { ...BOT, mw: 1.25, pw: 1.3 };
   const holder = (wall, off, id, L = BIG) => {
     const g = new THREE.Group(), k = L.h / 1.1;
     const f = new THREE.Mesh(gFrame, M.gold); f.position.z = 0.03; f.scale.set(k, k, 1);
@@ -2914,7 +2915,7 @@ function buildUpperRooms() {
       const frame = new THREE.Mesh(new THREE.BoxGeometry(w + 0.12, h + 0.12, 0.06), M.gold); frame.position.z = 0.03;
       const pic = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex })); pic.position.z = 0.065;
       const plq = L.small
-        ? textPlane([{ text: fr.title || "", size: 38, weight: 700 }], 1.5, 0.26, { ppm: 300, pad: 0.04 })
+        ? textPlane([{ text: fr.title || "", size: 38, weight: 700 }], L.pw || 1.5, 0.26, { ppm: 300, pad: 0.04 })
         : textPlane([{ text: fr.date || "", size: 30, weight: 600, font: UI_FONT, color: GOLD_TXT, gap: 4 }, { text: fr.title || "", size: 42, weight: 700 }], 1.6, 0.42, { ppm: 300, pad: 0.05 });
       plq.position.set(0, L.small ? -L.h / 2 - 0.24 : -h / 2 - 0.38, 0.02);
       grp.add(frame, pic, plq);
@@ -2924,17 +2925,28 @@ function buildUpperRooms() {
       [frame, pic, plq].forEach((m) => { m.userData.ex = ex; interactive.push(m); });
     }, undefined, () => {});
   };
-  // vị trí khung trên một tường: cols = các off có thể treo; n ảnh -> 1 hàng lớn (n <= số cột) hoặc 2 hàng nhỏ
-  const SP = 1.75, DOOR_COLS = [-3.95, -2.3, 2.3, 3.95];
-  const wallCols = (w, u, k) => k === u.door ? DOOR_COLS.length : Math.floor((wallLen(w, u.rect) - 0.6) / SP);
-  const rowOffs = (n, cols, isDoor) => isDoor ? [1, 2, 0, 3].slice(0, n).sort().map((i) => DOOR_COLS[i]) : Array.from({ length: n }, (_, i) => (i - (n - 1) / 2) * SP);
-  const hang = (w, u, k, list) => {
-    const cols = wallCols(w, u, k), isDoor = k === u.door;
+  // vị trí khung trên một tường (cols = các off có thể treo): n ảnh -> 1 hàng lớn (n <= số cột) hoặc 2 hàng nhỏ
+  const DOOR_COLS = [-3.95, -2.3, 2.3, 3.95]; // vách ngăn có cửa ở giữa: 2 cột mỗi bên
+  const plainCols = (len, sp) => { const c = Math.floor((len - 0.6) / sp); return Array.from({ length: c }, (_, i) => (i - (c - 1) / 2) * sp); };
+  // tường phía hội trường: chừa cửa ra hành lang (±1.45) và biển tên phòng (±1.2), xếp cột vào các đoạn còn trống
+  const hallCols = (hw, len, sp) => {
+    const blocks = [[hw.title - 1.2, hw.title + 1.2]]; if (hw.door != null) blocks.push([hw.door - 1.45, hw.door + 1.45]);
+    blocks.sort((a, b) => a[0] - b[0]);
+    const out = []; let a = -len / 2 + 0.3;
+    for (const [b0, b1] of [...blocks, [len / 2 - 0.3, 99]]) {
+      const c = Math.floor((b0 - a + 1e-6) / sp); for (let i = 0; i < c; i++) out.push((a + b0) / 2 + (i - (c - 1) / 2) * sp);
+      a = Math.max(a, b1);
+    }
+    return out;
+  };
+  const rowOffs = (n, cols, sp, plain) => n >= cols.length ? cols : plain ? Array.from({ length: n }, (_, i) => (i - (n - 1) / 2) * sp)
+    : cols === DOOR_COLS ? [1, 2, 0, 3].slice(0, n).sort().map((i) => cols[i]) : cols.slice(0, n);
+  const hang = (w, cols, sp, plain, list, dense) => {
     const put = (fr, off, L) => fr.img ? photo(w, off, fr, fr.id, L) : holder(w, off, fr.id, L);
-    if (list.length <= cols) { rowOffs(list.length, cols, isDoor).forEach((off, i) => put(list[i], off, BIG)); return; }
-    const nTop = Math.min(cols, Math.ceil(list.length / 2)), nBot = Math.min(cols, list.length - nTop);
-    rowOffs(nTop, cols, isDoor).forEach((off, i) => put(list[i], off, TOP));
-    rowOffs(nBot, cols, isDoor).forEach((off, i) => put(list[nTop + i], off, BOT));
+    if (!dense && list.length <= cols.length) { rowOffs(list.length, cols, sp, plain).forEach((off, i) => put(list[i], off, BIG)); return; }
+    const nTop = Math.min(cols.length, Math.ceil(list.length / 2)), nBot = Math.min(cols.length, list.length - nTop);
+    rowOffs(nTop, cols, sp, plain).forEach((off, i) => put(list[i], off, dense ? TOPD : TOP));
+    rowOffs(nBot, cols, sp, plain).forEach((off, i) => put(list[nTop + i], off, dense ? BOTD : BOT));
   };
   // trang trí tường: ốp chân tường + phào trần; doors = vị trí các ô cửa (theo off) để ốp chân tường chừa ra
   const trimUp = (w, len, doors) => {
@@ -2976,9 +2988,17 @@ function buildUpperRooms() {
       { text: r.period, size: 66, weight: 700, gap: 12 },
       { text: "Ảnh tư liệu", size: 44, weight: 500, color: "#e8dcc4" },
     ], 2.4, 1.6, { ppm: 240 }), hw, hw.title, UP + 2.5, 0.04);
-    // các khung ảnh: chia cho 3 tường theo tỉ lệ chiều dài (tối đa 2 hàng mỗi tường), lần lượt trái -> phải, hàng trên rồi hàng dưới
+    // các khung ảnh: chia cho các tường theo tỉ lệ số cột (tối đa 2 hàng mỗi tường), lần lượt trái -> phải, hàng trên rồi hàng dưới.
+    // Phòng quá 30 ảnh chuyển sang kiểu "dày": khung nhỏ hơn, cách nhau 1.4 m và treo thêm lên tường phía hội trường.
     const frames = (r.frames || []).map((fr, n) => ({ ...fr, id: fr.id || `U${i + 1}-${String(n + 1).padStart(2, "0")}` }));
-    const caps = u.walls.map((w, k) => wallCols(w, u, k)), capSum = caps.reduce((a, b) => a + b, 0);
+    const mk = (sp, withHall) => {
+      const ws = u.walls.map((w, k) => ({ w, cols: k === u.door ? DOOR_COLS : plainCols(wallLen(w, u.rect), sp), plain: k !== u.door }));
+      if (withHall) ws.push({ w: u.hall, cols: hallCols(u.hall, wallLen(u.hall, u.rect), sp), plain: false });
+      return ws;
+    };
+    let ws = mk(1.75, false), sp = 1.75, dense = false;
+    if (frames.length > ws.reduce((a, x) => a + x.cols.length, 0) * 2) { ws = mk(1.4, true); sp = 1.4; dense = true; }
+    const caps = ws.map((x) => x.cols.length), capSum = caps.reduce((a, b) => a + b, 0);
     const N = Math.min(frames.length, capSum * 2);
     const share = caps.map((c) => Math.min(c * 2, Math.floor(N * c / capSum)));
     for (let left = N - share.reduce((a, b) => a + b, 0); left > 0;) {
@@ -2986,7 +3006,7 @@ function buildUpperRooms() {
       share[k]++; left--;
     }
     let n = 0;
-    u.walls.forEach((w, k) => { hang(w, u, k, frames.slice(n, n + share[k])); n += share[k]; });
+    ws.forEach((x, k) => { hang(x.w, x.cols, sp, x.plain, frames.slice(n, n + share[k]), dense); n += share[k]; });
     if (frames.length > N) console.warn(`Phòng ${r.num}: có ${frames.length} ảnh nhưng tường chỉ treo được ${N}`);
     // đèn: mỗi cặp phòng chung một đèn đặt trên vách ngăn
     if (i % 2 === 0) { const l = new THREE.PointLight(0xffd6a0, 0.75, 15, 1.5); l.position.set(cx, UP + 2.9, -12); scene.add(l); }
