@@ -3685,23 +3685,40 @@ function buildCase(x, z, ry, ex) {
     const c = lc.getContext("2d"), W = lc.width, H = lc.height;
     c.fillStyle = "#1c1511"; c.fillRect(0, 0, W, H);
     c.strokeStyle = "rgba(212,174,85,0.95)"; c.lineWidth = 6; c.strokeRect(10, 10, W - 20, H - 20);
-    const px = 30, py = 30, pw = 420, ph = H - 60;
-    if (img) { const sc = Math.min(pw / img.width, ph / img.height), dw = img.width * sc, dh = img.height * sc; c.fillStyle = "#0d0a08"; c.fillRect(px, py, pw, ph); c.drawImage(img, px + (pw - dw) / 2, py + (ph - dh) / 2, dw, dh); }
-    else { c.fillStyle = "#2a201a"; c.fillRect(px, py, pw, ph); }
-    const tx = px + pw + 28, tw = W - tx - 30; let y = 44;
+    // ảnh hiện vật nằm trong tủ kính (xem showPhoto bên dưới); nhãn chỉ còn chữ. Chưa có ảnh thì nhãn vẫn chừa ô ảnh bên trái như cũ.
+    const px = 30, py = 30, pw = inCase ? 0 : 420, ph = H - 60;
+    if (!inCase) {
+      if (img) { const sc = Math.min(pw / img.width, ph / img.height), dw = img.width * sc, dh = img.height * sc; c.fillStyle = "#0d0a08"; c.fillRect(px, py, pw, ph); c.drawImage(img, px + (pw - dw) / 2, py + (ph - dh) / 2, dw, dh); }
+      else { c.fillStyle = "#2a201a"; c.fillRect(px, py, pw, ph); }
+    }
+    const tx = inCase ? 44 : px + pw + 28, tw = W - tx - (inCase ? 44 : 30), k = inCase ? 1.6 : 1; let y = 44;
     c.textAlign = "left"; c.textBaseline = "top";
-    c.fillStyle = GOLD_TXT; c.font = `600 30px ${UI_FONT}`; for (const l of wrapLines(c, ex.date || "", tw)) { c.fillText(l, tx, y); y += 38; } y += 8;
-    let ts = 46; c.font = `700 ${ts}px ${SERIF}`; let tl = wrapLines(c, ex.title, tw);
-    while (tl.length > 4 && ts > 30) { ts -= 4; c.font = `700 ${ts}px ${SERIF}`; tl = wrapLines(c, ex.title, tw); }
+    c.fillStyle = GOLD_TXT; c.font = `600 ${Math.round(30 * k)}px ${UI_FONT}`; for (const l of wrapLines(c, ex.date || "", tw)) { c.fillText(l, tx, y); y += 38 * k; } y += 8;
+    let ts = Math.round(46 * k); c.font = `700 ${ts}px ${SERIF}`; let tl = wrapLines(c, ex.title, tw);
+    while (tl.length > (inCase ? 3 : 4) && ts > 30) { ts -= 4; c.font = `700 ${ts}px ${SERIF}`; tl = wrapLines(c, ex.title, tw); }
     c.fillStyle = "#f3ead8"; for (const l of tl) { c.fillText(l, tx, y); y += ts * 1.18; }
-    y += 14; c.fillStyle = "#b9ab94"; c.font = `500 24px ${UI_FONT}`; c.fillText("Bấm để xem chi tiết", tx, y);
+    y += 14; c.fillStyle = "#b9ab94"; c.font = `500 ${Math.round(24 * k)}px ${UI_FONT}`; c.fillText("Bấm để xem chi tiết", tx, y);
     if (ex.credit) { c.font = `400 19px ${UI_FONT}`; c.fillStyle = "#9c8f7a"; const cl = wrapLines(c, "Ảnh: " + ex.credit, tw).slice(0, 4); let cy = H - 34 - cl.length * 24; for (const l of cl) { c.fillText(l, tx, cy); cy += 24; } }
     if (y > H - 34 - 4 * 24) textIssue("nhãn tủ kính: chữ chạm dòng nguồn ảnh", ex.title);
     ltex.needsUpdate = true;
   };
-  drawLabel(null); if (ex.photo) loadImg(ex.photo).then(drawLabel);
-  const m = artifactModel(ex.model, ex); m.position.y = 0.975; g.add(m);
-  g.traverse((o) => { if (o.isMesh) { o.userData.ex = ex; interactive.push(o); } });
+  // Ảnh thật của hiện vật dựng đứng trong tủ kính, xem được từ cả hai mặt; không tải được ảnh thì dùng mô hình dựng sẵn.
+  let inCase = false;
+  const tag = (o) => { o.userData.ex = ex; interactive.push(o); return o; };
+  const showModel = () => { const m = artifactModel(ex.model, ex); m.position.y = 0.975; g.add(m); m.traverse((o) => { if (o.isMesh) tag(o); }); };
+  const showPhoto = (img) => {
+    const asp = img.width / img.height; let w = 0.86, h = w / asp; if (h > 0.6) { h = 0.6; w = h * asp; }
+    const tex = new THREE.Texture(img); tex.encoding = THREE.sRGBEncoding; tex.needsUpdate = true;
+    const mat = new THREE.MeshBasicMaterial({ map: tex }), cy = 0.985 + (h + 0.06) / 2;
+    tag(P(bx(w + 0.06, h + 0.06, 0.024), DECO.gold, 0, cy, 0));
+    tag(P(new THREE.PlaneGeometry(w, h), mat, 0, cy, 0.013));
+    const back = tag(P(new THREE.PlaneGeometry(w, h), mat, 0, cy, -0.013)); back.rotation.y = PI;
+    tag(P(bx(Math.min(0.5, w * 0.6), 0.02, 0.2), DECO.caseWood, 0, 0.985, 0));
+  };
+  g.traverse((o) => { if (o.isMesh) tag(o); });
+  drawLabel(null);
+  if (ex.photo) loadImg(ex.photo).then((img) => { if (img) { inCase = true; showPhoto(img); } else showModel(); drawLabel(null); });
+  else showModel();
   CIRCLES.push([x, z, 0.8]);
 }
 function indoorSign(ex, x, z, ry) {
