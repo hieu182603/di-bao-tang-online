@@ -1,9 +1,5 @@
 # 🏛️ Bảo tàng số Lịch sử Đảng Cộng sản Việt Nam (3D Online)
 
-> **Sản phẩm sáng tạo môn Lịch sử Đảng Cộng sản Việt Nam (VNR) – Thực hiện bởi Nhóm 2**
-
----
-
 ## 📖 Giới thiệu dự án
 
 **Bảo tàng số 3D Lịch sử Đảng** là một không gian bảo tàng ảo tương tác trực tiếp trên trình duyệt web (không cần cài đặt), được xây dựng nhằm đổi mới phương pháp học tập và tìm hiểu lịch sử, mang lại trải nghiệm trực quan, sinh động cho người xem.
