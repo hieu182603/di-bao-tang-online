@@ -227,6 +227,7 @@ button.primary:disabled { opacity: 0.6; cursor: progress; }
 }
 #close:hover { border-color: var(--gold); background: rgba(201, 162, 74, 0.1); }
 #tts-btn.speaking { background: var(--lacquer); color: var(--ink); border-color: var(--gold); }
+#info #tts-status { color: var(--muted); font-size: 13px; }
 
 /* multiplayer */
 #people-btn {

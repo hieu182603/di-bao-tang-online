@@ -4473,33 +4473,25 @@ const SFX = {
   },
 };
 
-let currentEx = null, isSpeaking = false;
-function stopSpeech() {
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-  isSpeaking = false;
+let currentEx = null;
+const narration = new window.MuseumNarration(({ state, message }) => {
+  const active = state === "loading" || state === "speaking";
   const btn = $("tts-btn"), ic = $("tts-icon"), lb = $("tts-label");
-  if (btn) btn.classList.remove("speaking");
-  if (ic) ic.textContent = "record_voice_over";
-  if (lb) lb.textContent = "Thuyết minh";
-}
+  if (btn) {
+    btn.classList.toggle("speaking", active);
+    btn.setAttribute("aria-pressed", String(active));
+    btn.setAttribute("aria-busy", String(state === "loading"));
+  }
+  if (ic) ic.textContent = active ? "stop_circle" : "record_voice_over";
+  if (lb) lb.textContent = active ? "Dừng đọc" : "Thuyết minh";
+  const status = $("tts-status");
+  if (status) { status.textContent = message; status.hidden = !message; }
+});
+function stopSpeech() { narration.stop(); }
 function toggleSpeech() {
-  if (!("speechSynthesis" in window) || !currentEx) return;
-  if (isSpeaking) { stopSpeech(); return; }
-  window.speechSynthesis.cancel();
-  const parts = [currentEx.title, currentEx.date ? "Thời gian: " + currentEx.date : "", currentEx.text, currentEx.lesson ? "Liên hệ bài học: " + currentEx.lesson : ""].filter(Boolean);
-  const u = new SpeechSynthesisUtterance(parts.join(". "));
-  u.lang = "vi-VN";
-  u.rate = 1.0;
-  const voices = window.speechSynthesis.getVoices();
-  const vi = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith("vi"));
-  if (vi) u.voice = vi;
-  u.onend = () => stopSpeech();
-  u.onerror = () => stopSpeech();
-  isSpeaking = true;
-  $("tts-btn").classList.add("speaking");
-  $("tts-icon").textContent = "stop_circle";
-  $("tts-label").textContent = "Dừng đọc";
-  window.speechSynthesis.speak(u);
+  if (!currentEx) return;
+  if (narration.active) { stopSpeech(); return; }
+  narration.start(window.MuseumNarration.textFor(currentEx));
 }
 if ($("tts-btn")) $("tts-btn").addEventListener("click", toggleSpeech);
 if ($("sfx-btn")) {
