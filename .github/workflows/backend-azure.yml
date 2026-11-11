@@ -1,0 +1,29 @@
+name: Deploy Backend lên Azure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Backend/**"
+      - ".github/workflows/backend-azure.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Build & publish
+        run: dotnet publish Backend/Backend.csproj -c Release -o publish
+
+      - name: Deploy lên Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: baotang-lsd-12222
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: publish

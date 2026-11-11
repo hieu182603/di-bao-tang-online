@@ -8,3 +8,5 @@ Backend/obj/
 .claude/
 .impeccable/
 *.backup.glb
+
+.vercel

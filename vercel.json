@@ -1,4 +1,9 @@
 {
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "",
+  "outputDirectory": "Frontend",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- Frontend vercel.json",
   "cleanUrls": true,
   "headers": [
     { "source": "/models/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }] },
