@@ -3437,15 +3437,20 @@ const keys = {};
 let started = false;
 const isTouch = matchMedia("(pointer: coarse)").matches;
 if (isTouch) document.body.classList.add("touch");
+const GAME_KEYS = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "KeyE", "KeyF", "KeyG", "KeyV", "KeyT"]);
 addEventListener("keydown", (e) => {
   if (e.target && e.target.tagName === "INPUT") { if (e.key === "Escape") e.target.blur(); return; }
   if (e.key === "Escape") { if (infoOpen) closeInfo(); else if (!$("qr-modal").hidden) $("qr-modal").hidden = true; return; }
   if (!started || infoOpen) return;
-  if (e.code === "KeyT") { e.preventDefault(); $("say").focus(); return; }
-  if (e.code === "KeyV") { toggleView(); return; }
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.code === "KeyT" || e.key === "Enter") { e.preventDefault(); $("say").focus(); return; }
+  if (e.code === "KeyV") { if (!e.repeat) toggleView(); return; }
+  if (e.code === "KeyF" || e.code === "KeyG") { if (!e.repeat) doEmote(e.code === "KeyF" ? "wave" : "clap"); return; }
   if (e.code === "Space") { e.preventDefault(); jump(); return; }
+  // Phím chữ/số không dùng để điều khiển => mở ô chat và gõ luôn ký tự đó
+  if (e.key.length === 1 && !GAME_KEYS.has(e.code) && e.key.trim()) { $("say").focus(); return; }
   keys[e.code] = true;
-  if (e.code === "KeyE" || e.code === "Enter") { if (elevAction) { SFX.bell(); elevAction(); } else if (target) openInfo(target); }
+  if (e.code === "KeyE") { if (elevAction) { SFX.bell(); elevAction(); } else if (target) openInfo(target); }
 });
 addEventListener("keyup", (e) => { keys[e.code] = false; });
 addEventListener("blur", () => { for (const k in keys) keys[k] = false; });
@@ -3642,15 +3647,15 @@ $("unfollow").addEventListener("click", stopFollow);
 $("people-btn").addEventListener("click", () => {
   const p = $("people-panel"); p.hidden = !p.hidden; $("people-btn").setAttribute("aria-expanded", String(!p.hidden)); if (!p.hidden) renderPeople();
 });
-document.querySelectorAll("[data-emote]").forEach((b) => b.addEventListener("click", () => {
-  const em = b.dataset.emote;
+document.querySelectorAll("[data-emote]").forEach((b) => b.addEventListener("click", () => doEmote(b.dataset.emote)));
+function doEmote(em) {
   Net.update({ emote: em, emoteAt: Date.now() });
   me.emote = em; me.emoteUntil = performance.now() + 1800; showMyBubble(EMOTES[em]);
   addLog("Bạn", EMOTES[em]);
-}));
+}
 $("chatbox").addEventListener("submit", (e) => {
   e.preventDefault();
-  const t = $("say").value.replace(/\s+/g, " ").trim().slice(0, 80); if (!t) return;
+  const t = $("say").value.replace(/\s+/g, " ").trim().slice(0, 80); if (!t) { $("say").blur(); return; }
   Net.update({ say: t, sayAt: Date.now() }); showMyBubble(t); addLog("Bạn", t);
   $("say").value = ""; $("say").blur();
 });

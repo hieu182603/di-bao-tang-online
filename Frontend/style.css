@@ -290,3 +290,7 @@ body.touch #actions { max-width: calc(100vw - 170px); }
   #follow-bar { top: calc(64px + env(safe-area-inset-top, 0px)); }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+/* Nhãn phím tắt trên các nút HUD */
+.act .hk { margin-left: 4px; min-width: 18px; padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,0.06); color: var(--gold-soft); font: 600 11px/1.3 var(--font-ui); }
+body.touch .act .hk { display: none; }
