@@ -3472,33 +3472,35 @@ addEventListener("blur", () => { for (const k in keys) keys[k] = false; });
 // });
 // canvas.addEventListener("pointercancel", () => { drag = null; });
 
-// Desktop: khóa chuột và xoay camera theo hướng di chuyển chuột
-canvas.addEventListener("click", () => {
-  if (!started || infoOpen || isTouch) return;
-
-  if (document.pointerLockElement !== canvas) {
-    canvas.requestPointerLock();
-  }
+// Desktop: GIỮ chuột (trái/phải) và kéo để xoay; chỉ khóa con trỏ trong lúc giữ, thả ra là con trỏ hiện lại
+// để vẫn bấm được các nút (Vẫy tay, Nhảy, Góc nhìn, Chat...). Bấm nhanh không kéo = xem hiện vật.
+let look = null;
+canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+canvas.addEventListener("mousedown", (e) => {
+  if (!started || infoOpen || isTouch || (e.button !== 0 && e.button !== 2)) return;
+  if (document.activeElement && document.activeElement.tagName === "INPUT") document.activeElement.blur();
+  look = { sx: e.clientX, sy: e.clientY, x: e.clientX, y: e.clientY, moved: 0, t: performance.now(), button: e.button };
+  try { const p = canvas.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (err) {}
 });
-
-// Xoay camera khi chuột đã được khóa
 document.addEventListener("mousemove", (e) => {
-  if (
-    document.pointerLockElement !== canvas ||
-    !started ||
-    infoOpen
-  ) return;
-
-  const sensitivity = 0.002;
-
-  player.yaw -= e.movementX * sensitivity;
-  player.pitch -= e.movementY * sensitivity;
-
-  player.pitch = Math.max(
-    -1.2,
-    Math.min(1.2, player.pitch)
-  );
+  if (!look || !started || infoOpen) return;
+  let dx, dy;
+  if (document.pointerLockElement === canvas) { dx = e.movementX; dy = e.movementY; }
+  else { dx = e.clientX - look.x; dy = e.clientY - look.y; look.x = e.clientX; look.y = e.clientY; } // trình duyệt không cho khóa chuột
+  look.moved += Math.abs(dx) + Math.abs(dy);
+  player.yaw -= dx * 0.0035;
+  player.pitch = Math.max(-1.2, Math.min(1.2, player.pitch - dy * 0.0035));
 });
+const endLook = () => {
+  if (!look) return;
+  const l = look; look = null;
+  if (document.pointerLockElement === canvas) document.exitPointerLock();
+  if (l.button === 0 && l.moved < 8 && performance.now() - l.t < 400 && !infoOpen) {
+    const hit = pick(l.sx, l.sy, 8); if (hit) openInfo(hit);
+  }
+};
+document.addEventListener("mouseup", endLook);
+addEventListener("blur", endLook);
 
 // Mobile: vẫn giữ thao tác chạm và kéo để xoay camera
 let touchDrag = null;
