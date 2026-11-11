@@ -3116,11 +3116,11 @@ function updatePendingFigures(key) {
 function loadCharacterModels() {
   if (!THREE.GLTFLoader) return;
   const loader = new THREE.GLTFLoader();
-  loader.load("models/nv1.glb?v=3.20", (gltf) => {
+  loader.load("models/nv1.glb?v=3.21", (gltf) => {
     prepareCharacterTemplate(gltf, "nv1");
   }, undefined, (err) => console.warn("Lỗi tải nv1.glb:", err));
 
-  loader.load("models/nv2.glb?v=3.20", (gltf) => {
+  loader.load("models/nv2.glb?v=3.21", (gltf) => {
     prepareCharacterTemplate(gltf, "nv2");
   }, undefined, (err) => console.warn("Lỗi tải nv2.glb:", err));
 }
