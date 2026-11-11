@@ -3714,11 +3714,15 @@ const nightLights = [];
 let isNight = false;
 let nightProgress = 0, nightTarget = 0; // 0 = ban ngày, 1 = ban đêm
 
-function toggleDayNight(force) {
+function toggleDayNight(force, broadcast = true) {
   SFX.ensure();
   if (typeof force === "boolean") nightTarget = force ? 1 : 0;
   else nightTarget = nightTarget > 0.5 ? 0 : 1;
   isNight = nightTarget > 0.5;
+
+  if (broadcast && window.Net && typeof window.Net.broadcastDayNight === "function") {
+    window.Net.broadcastDayNight(isNight);
+  }
 }
 window.toggleDayNight = toggleDayNight;
 
@@ -4235,7 +4239,14 @@ function ensureAvatar(id) {
   }
   if (a.color !== s.c) { a.color = s.c; a.name = ""; }
   if (a.name !== s.n) { a.name = s.n; disposeSprite(a.tag); a.tag = tagSprite(s.n, s.c, 2.3); a.tag.position.y = 2.15; a.fig.add(a.tag); }
-  if (s.sayAt !== a.sayAt) { a.sayAt = s.sayAt; if (s.say) { showBubble(a, s.say); addLog(s.n, s.say); } }
+  if (s.sayAt !== a.sayAt) {
+    a.sayAt = s.sayAt;
+    if (s.say) {
+      if (!s.say.startsWith("__fw__:") && !s.say.startsWith("__dn__:")) {
+        showBubble(a, s.say); addLog(s.n, s.say);
+      }
+    }
+  }
   if (s.emoteAt !== a.emoteAt) { a.emoteAt = s.emoteAt; if (EMOTES[s.emote]) { a.emote = s.emote; a.emoteUntil = performance.now() + 1800; showBubble(a, EMOTES[s.emote]); } }
   return a;
 }
@@ -4816,23 +4827,64 @@ let isFireworksRunning = false;
 let fireworkStartTime = 0;
 let fireworkScheduleIndex = 0;
 
-function startFireworksShow() {
+function startFireworksShow(opts = {}, broadcast = true) {
   if (window.FireworksShow) {
-    window.FireworksShow.start();
+    const seed = opts.seed || ((Math.random() * 2 ** 31) >>> 0);
+    const startTime = opts.startTime || Date.now();
+    if (!isNight && typeof toggleDayNight === "function") {
+      toggleDayNight(true);
+    }
+    window.FireworksShow.start({ ...opts, seed, startTime });
+    if (broadcast && window.Net && typeof window.Net.broadcastFireworks === "function") {
+      window.Net.broadcastFireworks("start", { seed, startTime });
+    }
   }
 }
 
-function stopFireworksShow(naturalFinish = false) {
+function stopFireworksShow(naturalFinish = false, broadcast = true) {
   if (window.FireworksShow) {
     window.FireworksShow.stop(naturalFinish);
+    if (broadcast && window.Net && typeof window.Net.broadcastFireworks === "function") {
+      window.Net.broadcastFireworks("stop");
+    }
   }
 }
 
 function toggleFireworksShow() {
-  if (window.FireworksShow) {
-    window.FireworksShow.toggle();
+  if (window.FireworksShow && window.FireworksShow.isRunning) {
+    stopFireworksShow(false, true);
+  } else {
+    startFireworksShow({}, true);
   }
 }
+
+// Lắng nghe sự kiện pháo hoa & đổi sáng tối (F1, F2) từ bất kỳ người chơi nào trong phòng
+if (typeof window !== "undefined") {
+  const registerNetEvents = () => {
+    if (window.Net) {
+      window.Net.onFireworks = (action, data) => {
+        if (action === "start") {
+          const seed = data.seed;
+          const startTime = data.startTime;
+          if (window.FireworksShow && (!window.FireworksShow.isRunning || window.FireworksShow.seed !== seed)) {
+            startFireworksShow({ seed, startTime }, false);
+          }
+        } else if (action === "stop") {
+          if (window.FireworksShow && window.FireworksShow.isRunning) {
+            stopFireworksShow(false, false);
+          }
+        }
+      };
+
+      window.Net.onDayNight = (targetIsNight) => {
+        toggleDayNight(targetIsNight, false);
+      };
+    }
+  };
+  registerNetEvents();
+  setTimeout(registerNetEvents, 1000);
+}
+
 window.toggleFireworks = toggleFireworksShow;
 window.startFireworks = startFireworksShow;
 window.stopFireworks = stopFireworksShow;

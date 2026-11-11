@@ -31,6 +31,8 @@
       t: num(raw.t) ? raw.t : 0,
     };
   }
+  let lastFwTime = 0;
+  let lastDnTime = 0;
   function setPeer(id, raw) {
     if (!id || id === Net.selfId) return;
     const s = clean(raw);
@@ -38,6 +40,28 @@
     const had = Net.peers.has(id);
     Net.peers.set(id, s);
     fire(had ? "update" : "join", id);
+
+    // Đồng bộ pháo hoa giữa tất cả người chơi trong phòng
+    if (s.say && s.say.startsWith("__fw__:") && s.sayAt > lastFwTime) {
+      lastFwTime = s.sayAt;
+      const parts = s.say.split(":");
+      const action = parts[1];
+      const seed = parseInt(parts[2], 10);
+      const startTime = parseInt(parts[3], 10);
+      if (typeof Net.onFireworks === "function") {
+        Net.onFireworks(action, { seed, startTime, peerId: id });
+      }
+    }
+
+    // Đồng bộ sáng / tối (Ban ngày / Ban đêm - F2) giữa tất cả người chơi trong phòng
+    if (s.say && s.say.startsWith("__dn__:") && s.sayAt > lastDnTime) {
+      lastDnTime = s.sayAt;
+      const parts = s.say.split(":");
+      const targetIsNight = parts[1] === "1";
+      if (typeof Net.onDayNight === "function") {
+        Net.onDayNight(targetIsNight, { peerId: id, time: s.sayAt });
+      }
+    }
   }
   function patchPeerMove(item) {
     if (!item || !item.id || item.id === Net.selfId) return false;
@@ -92,6 +116,16 @@
     conn.on("PeerJoined", (p) => { if (p && p.id) setPeer(p.id, p); });
     conn.on("PeerUpdated", (p) => { if (p && p.id) setPeer(p.id, p); });
     conn.on("PeerLeft", (id) => { if (id) removePeer(id); });
+    conn.on("FireworksTriggered", (data) => {
+      if (data && typeof Net.onFireworks === "function") {
+        Net.onFireworks(data.action, data);
+      }
+    });
+    conn.on("DayNightTriggered", (data) => {
+      if (data && typeof Net.onDayNight === "function") {
+        Net.onDayNight(!!data.isNight, data);
+      }
+    });
 
     // Nhận gói tin gộp 15Hz (WorldTick) cho toàn bộ những người vừa di chuyển
     conn.on("WorldTick", (batch) => {
@@ -109,6 +143,7 @@
     });
     conn.onclose(() => setStatus("connecting"));
 
+    Net.signalRConn = conn;
     await conn.start();
     Net.mode = "signalr";
     setStatus("online");
@@ -151,6 +186,31 @@
     ref.on("child_added", (s) => setPeer(s.key, s.val()));
     ref.on("child_changed", (s) => setPeer(s.key, s.val()));
     ref.on("child_removed", (s) => removePeer(s.key));
+
+    const fwRef = db.ref((window.MUSEUM_ROOM || "bao-tang") + "/fireworks");
+    Net.firebaseFwRef = fwRef;
+    fwRef.on("value", (snap) => {
+      const d = snap.val();
+      if (d && d.t > lastFwTime) {
+        lastFwTime = d.t;
+        if (typeof Net.onFireworks === "function") {
+          Net.onFireworks(d.action, d);
+        }
+      }
+    });
+
+    const dnRef = db.ref((window.MUSEUM_ROOM || "bao-tang") + "/daynight");
+    Net.firebaseDnRef = dnRef;
+    dnRef.on("value", (snap) => {
+      const d = snap.val();
+      if (d && d.t > lastDnTime) {
+        lastDnTime = d.t;
+        if (typeof Net.onDayNight === "function") {
+          Net.onDayNight(!!d.isNight, d);
+        }
+      }
+    });
+
     Net.update = (patch) => { mine = { ...mine, ...patch }; me.update({ ...patch, t: TS }).catch(() => {}); };
     setInterval(() => Net.update({}), 15000); // nhịp tim để biết ai còn online
     setInterval(() => { // bỏ "bóng ma" của người tắt máy đột ngột
@@ -184,14 +244,59 @@
     return true;
   }
 
+  Net.broadcastFireworks = function (action, opts = {}) {
+    const seed = opts.seed || ((Math.random() * 2 ** 31) >>> 0);
+    const startTime = opts.startTime || Date.now();
+    const payload = `__fw__:${action}:${seed}:${startTime}`;
+
+    // 1. Kênh SignalR trực tiếp
+    if (Net.signalRConn && Net.signalRConn.state === "Connected") {
+      Net.signalRConn.invoke("TriggerFireworks", { action, seed, startTime }).catch(() => {});
+    }
+
+    // 2. Kênh cập nhật trạng thái người chơi (tương thích mọi backend)
+    if (typeof Net.update === "function") {
+      Net.update({ say: payload, sayAt: Date.now() });
+    }
+
+    // 3. Kênh Firebase
+    if (Net.firebaseFwRef) {
+      Net.firebaseFwRef.set({ action, seed, startTime, t: Date.now() }).catch(() => {});
+    }
+  };
+
+  Net.broadcastDayNight = function (targetIsNight) {
+    const payload = `__dn__:${targetIsNight ? 1 : 0}:${Date.now()}`;
+
+    // 1. Kênh SignalR trực tiếp
+    if (Net.signalRConn && Net.signalRConn.state === "Connected") {
+      Net.signalRConn.invoke("TriggerDayNight", { isNight: targetIsNight, time: Date.now() }).catch(() => {});
+    }
+
+    // 2. Kênh cập nhật trạng thái người chơi (tương thích mọi backend)
+    if (typeof Net.update === "function") {
+      Net.update({ say: payload, sayAt: Date.now() });
+    }
+
+    // 3. Kênh Firebase
+    if (Net.firebaseDnRef) {
+      Net.firebaseDnRef.set({ isNight: targetIsNight, t: Date.now() }).catch(() => {});
+    }
+  };
+
   Net.start = async function (initial) {
-    if (window.BACKEND_URL) {
+    const urls = [];
+    if (window.BACKEND_URL) urls.push(window.BACKEND_URL);
+    const azureUrl = "https://baotang-lsd-12222.azurewebsites.net";
+    if (!urls.includes(azureUrl)) urls.push(azureUrl);
+
+    for (const u of urls) {
       try {
         setStatus("connecting");
-        await startSignalR(window.BACKEND_URL, initial);
+        await startSignalR(u, initial);
         return;
       } catch (e) {
-        console.warn("[Bảo tàng] Không kết nối được Backend SignalR, chuyển sang phương án dự phòng:", e);
+        console.warn("[Bảo tàng] Không kết nối được Backend SignalR tại " + u + ":", e.message || e);
       }
     }
     try {
