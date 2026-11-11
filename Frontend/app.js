@@ -3437,15 +3437,17 @@ const keys = {};
 let started = false;
 const isTouch = matchMedia("(pointer: coarse)").matches;
 if (isTouch) document.body.classList.add("touch");
-const GAME_KEYS = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "KeyE", "KeyF", "KeyG", "KeyV", "KeyT"]);
+const GAME_KEYS = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "KeyE", "KeyF", "KeyV", "KeyT"]);
 addEventListener("keydown", (e) => {
   if (e.target && e.target.tagName === "INPUT") { if (e.key === "Escape") e.target.blur(); return; }
+  if (e.key === "Escape" && !$("emote-wheel").hidden) { toggleWheel(false); return; }
   if (e.key === "Escape") { if (infoOpen) closeInfo(); else if (!$("qr-modal").hidden) $("qr-modal").hidden = true; return; }
   if (!started || infoOpen) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.code === "KeyT" || e.key === "Enter") { e.preventDefault(); $("say").focus(); return; }
   if (e.code === "KeyV") { if (!e.repeat) toggleView(); return; }
-  if (e.code === "KeyF" || e.code === "KeyG") { if (!e.repeat) doEmote(e.code === "KeyF" ? "wave" : "clap"); return; }
+  if (e.code === "KeyF") { if (!e.repeat) toggleWheel(); return; }
+  if (!$("emote-wheel").hidden && (e.key === "1" || e.key === "2")) { doEmote(e.key === "1" ? "wave" : "clap"); toggleWheel(false); return; }
   if (e.code === "Space") { e.preventDefault(); jump(); return; }
   // Phím chữ/số không dùng để điều khiển => mở ô chat và gõ luôn ký tự đó
   if (e.key.length === 1 && !GAME_KEYS.has(e.code) && e.key.trim()) { $("say").focus(); return; }
@@ -3647,7 +3649,14 @@ $("unfollow").addEventListener("click", stopFollow);
 $("people-btn").addEventListener("click", () => {
   const p = $("people-panel"); p.hidden = !p.hidden; $("people-btn").setAttribute("aria-expanded", String(!p.hidden)); if (!p.hidden) renderPeople();
 });
-document.querySelectorAll("[data-emote]").forEach((b) => b.addEventListener("click", () => doEmote(b.dataset.emote)));
+document.querySelectorAll("[data-emote]").forEach((b) => b.addEventListener("click", () => { doEmote(b.dataset.emote); toggleWheel(false); }));
+// Vòng biểu cảm: nhấn F (hoặc nút Biểu cảm) để mở, bấm chọn; F / Esc / bấm ra ngoài để đóng
+function toggleWheel(show) {
+  const w = $("emote-wheel"); show = show === undefined ? w.hidden : show;
+  w.hidden = !show; $("emote-btn").setAttribute("aria-expanded", String(show));
+}
+$("emote-btn").addEventListener("click", (e) => { e.stopPropagation(); toggleWheel(); });
+document.addEventListener("pointerdown", (e) => { if (!$("emote-wheel").hidden && !e.target.closest("#emote-wheel, #emote-btn")) toggleWheel(false); });
 function doEmote(em) {
   Net.update({ emote: em, emoteAt: Date.now() });
   me.emote = em; me.emoteUntil = performance.now() + 1800; showMyBubble(EMOTES[em]);
