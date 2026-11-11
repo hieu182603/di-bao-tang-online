@@ -49,7 +49,7 @@ namespace Backend.Repositories
                 RoomCode = room.RoomCode,
                 Name = SanitizeName(initial.Name),
                 Color = SanitizeColor(initial.Color),
-                X = Clamp(initial.X ?? 0, -40, 40),
+                X = Clamp(initial.X ?? 0, -66, 66),
                 Y = Clamp(initial.Y ?? 0, 0, 9),
                 Z = Clamp(initial.Z ?? 37, -36, 64),
                 Yaw = ClampAngle(initial.Yaw ?? 0),

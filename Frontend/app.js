@@ -46,7 +46,7 @@ const player = { x: 0, z: 37, yaw: 0, pitch: 0.04, moving: false, phase: 0, jy: 
 window.player = player;
 window.camera = camera;
 // grounded = đang đứng trên mặt đất / bệ (không phải đang bay); nhảy được bất cứ khi nào grounded
-function jump() { if (started && !infoOpen && player.grounded) { player.grounded = false; player.vy = 5.6; } }
+function jump() { if (player.seat) { if (started && !infoOpen) standUp(); return; } if (started && !infoOpen && player.grounded) { player.grounded = false; player.vy = 5.6; } }
 let thirdPerson = false;
 
 /* ================= small helpers ================= */
@@ -2471,6 +2471,39 @@ function buildVehicles() {
 }
 
 // Ghế công viên dọc hai lối đi bên, đặt giữa các hiện vật, quay mặt vào lối đi.
+/* ================= chỗ ngồi (ghế đá, ghế gỗ, ngựa đu quay, xích đu, bập bênh) ================= */
+// Mỗi chỗ ngồi là một "mỏ neo" Object3D đặt đúng mặt ghế, trục -z của nó là hướng mặt người ngồi.
+// Mỏ neo gắn vào chính vật chuyển động (ngựa gỗ, ván xích đu…) nên người ngồi tự đi theo.
+const SEATS = [];
+function addSeat(parent, x, y, z, ry, label, icon) {
+  const o = new THREE.Object3D(); o.position.set(x, y, z); o.rotation.y = ry; parent.add(o);
+  SEATS.push({ o, label, icon: icon || "chair" }); return o;
+}
+const _sv = new THREE.Vector3(), _sd = new THREE.Vector3();
+function seatPose(seat) { seat.o.getWorldPosition(_sv); seat.o.getWorldDirection(_sd); return { x: _sv.x, y: _sv.y, z: _sv.z, yaw: Math.atan2(_sd.x, _sd.z) }; }
+function seatTaken(p) { for (const [, a] of avatars) if (a.sit && Math.hypot(a.x - p.x, a.z - p.z) < 0.5) return true; return false; }
+function sendSit(on) { Net.update({ emote: on ? "sit" : "stand", emoteAt: Date.now() }); }
+function sitDown(seat) {
+  if (follow) stopFollow();
+  player.back = [player.x, player.z]; player.seat = seat; player.seatYaw = seatPose(seat).yaw; sendSit(true);
+}
+function standUp() {
+  if (!player.seat) return;
+  const p = seatPose(player.seat); player.seat = null;
+  let spot = player.back && free(player.back[0], player.back[1]) ? player.back : null;
+  for (let r = 0.9; !spot && r < 4; r += 0.5) for (let k = 0; k < 12 && !spot; k++) { const a = Math.atan2(-Math.cos(p.yaw), -Math.sin(p.yaw)) + (k % 2 ? 1 : -1) * Math.ceil(k / 2) / 12 * PI * 2, x = p.x + Math.cos(a) * r, z = p.z + Math.sin(a) * r; if (free(x, z) && groundAt(x, z) < 0.05) spot = [x, z]; } // ưu tiên phía trước mặt ghế
+  if (spot) { player.x = spot[0]; player.z = spot[1]; }
+  player.jy = groundAt(player.x, player.z); player.vy = 0; player.grounded = true; sendSit(false);
+}
+function seatPrompt() {
+  if (player.seat) { const act = () => standUp(); act.label = "Đứng dậy"; act.icon = "directions_walk"; act.quiet = true; return act; }
+  if (levelOf() || !player.grounded || player.jy > 0.3) return null;
+  let best = null, bd = 1.9;
+  for (const seat of SEATS) { const p = seatPose(seat), d = Math.hypot(p.x - player.x, p.z - player.z); if (d < bd && !seatTaken(p)) { bd = d; best = seat; } }
+  if (!best) return null;
+  const act = () => sitDown(best); act.label = best.label; act.icon = best.icon; act.quiet = true; return act;
+}
+
 function buildBenches() {
   const cfg = (window.REAL_MODELS || {}).bench;
   if (!cfg) return;
@@ -2484,6 +2517,7 @@ function buildBenches() {
       b.rotation.y = s > 0 ? -H2 : H2; // mặt ghế hướng về lối đi
       scene.add(b);
       CIRCLES.push([s * 15.1, z, 0.75]);
+      for (const dz of [-0.42, 0.42]) addSeat(scene, s * 15.1, 0.46, z + dz, s * H2, "Ngồi ghế đá");
     }
   }).catch(() => {});
 }
@@ -2528,11 +2562,13 @@ function buildHall() {
   // portrait of President Hồ Chí Minh in the middle of the back wall, facing the entrance, with the two flags
   const back = { x: 0, z: -23.8, ry: 0 };
   buildPortraitWall(back);
-  // the big title moves above the entrance (inside), so it greets people on the way out
-  onWall(textPlane([
-    { text: "LỊCH SỬ ĐẢNG CỘNG SẢN VIỆT NAM", size: 64, weight: 700, color: GOLD_TXT, gap: 10 },
-    { text: "1930 – nay", size: 44, font: UI_FONT, color: "#f3ead8" },
-  ], 6.6, 1.3, { bg: "#6e1414", ppm: 150, pad: 0.05 }), { x: 0, z: -0.2, ry: PI }, 6.0, 6.3);
+  // the big title hangs under the ceiling above the mezzanine edge, facing the hall, so it greets people on the way out
+  // (the wall behind the mezzanine is kept free for the 1939 – 1945 photos, see MUSEUM.corridor)
+  box(4.4, 0.92, 0.08, 0, 7.52, -3.42, M.dark);
+  placeAt(textPlane([
+    { text: "LỊCH SỬ ĐẢNG CỘNG SẢN VIỆT NAM", size: 44, weight: 700, color: GOLD_TXT, gap: 10 },
+    { text: "1930 – nay", size: 34, font: UI_FONT, color: "#f3ead8" },
+  ], 4.3, 0.85, { bg: "#6e1414", ppm: 230, pad: 0.05 }), 0, 7.52, -3.47, PI);
   onWall(textPlane([
     { text: "“Không có gì quý hơn độc lập, tự do.”", size: 64, weight: 700, gap: 18 },
     { text: "Hồ Chí Minh, 1966", size: 40, font: UI_FONT, color: GOLD_TXT },
@@ -2813,7 +2849,7 @@ function buildUpperFloor() {
   // gold frame around the balcony door
   box(0.2, 2.5, 0.5, -1.3, UP + 1.2, 0.05, M.gold); box(0.2, 2.5, 0.5, 1.3, UP + 1.2, 0.05, M.gold); box(2.8, 0.2, 0.5, 0, UP + 2.45, 0.05, M.gold);
   // signs
-  onWall(textPlane([{ text: "BAN CÔNG NGẮM CẢNH", size: 52, weight: 700, color: GOLD_TXT, gap: 6 }, { text: "Cửa giữa ra ban công · Hai đầu hành lang vào Phòng ảnh tư liệu", size: 30, font: UI_FONT }], 4.2, 0.9, { ppm: 200 }), { x: 0, z: -0.2, ry: PI }, -5.6, 6.3);
+  onWall(textPlane([{ text: "BAN CÔNG NGẮM CẢNH", size: 52, weight: 700, color: GOLD_TXT, gap: 6 }, { text: "Cửa giữa ra ban công · Hai đầu hành lang vào Phòng ảnh tư liệu", size: 30, font: UI_FONT }], 2.6, 0.9, { ppm: 240 }), { x: 0, z: -0.2, ry: PI }, -9.9, 6.3);
 
   // glass elevator shaft: three glass sides, open towards +z at both floors
   const top = UP + 2.7, cx = (ELEV.x0 + ELEV.x1) / 2, cz = (ELEV.z0 + ELEV.z1) / 2, w = ELEV.x1 - ELEV.x0, d = ELEV.z1 - ELEV.z0;
@@ -2887,6 +2923,7 @@ function buildUpperRooms() {
   const FY = UP + 2.55;
   // L = bố cục một khung: y tâm ảnh, h cao ảnh, mw rộng tối đa, small = hàng đôi (biển tên 1 dòng, không đèn)
   const BIG = { y: FY, h: 1.4, mw: 1.5 }, TOP = { y: UP + 3.02, h: 0.78, mw: 1.5, small: true }, BOT = { y: UP + 1.84, h: 0.78, mw: 1.5, small: true };
+  const TOPD = { ...TOP, mw: 1.25, pw: 1.3 }, BOTD = { ...BOT, mw: 1.25, pw: 1.3 };
   const holder = (wall, off, id, L = BIG) => {
     const g = new THREE.Group(), k = L.h / 1.1;
     const f = new THREE.Mesh(gFrame, M.gold); f.position.z = 0.03; f.scale.set(k, k, 1);
@@ -2905,7 +2942,7 @@ function buildUpperRooms() {
       const frame = new THREE.Mesh(new THREE.BoxGeometry(w + 0.12, h + 0.12, 0.06), M.gold); frame.position.z = 0.03;
       const pic = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex })); pic.position.z = 0.065;
       const plq = L.small
-        ? textPlane([{ text: fr.title || "", size: 38, weight: 700 }], 1.5, 0.26, { ppm: 300, pad: 0.04 })
+        ? textPlane([{ text: fr.title || "", size: 38, weight: 700 }], L.pw || 1.5, 0.26, { ppm: 300, pad: 0.04 })
         : textPlane([{ text: fr.date || "", size: 30, weight: 600, font: UI_FONT, color: GOLD_TXT, gap: 4 }, { text: fr.title || "", size: 42, weight: 700 }], 1.6, 0.42, { ppm: 300, pad: 0.05 });
       plq.position.set(0, L.small ? -L.h / 2 - 0.24 : -h / 2 - 0.38, 0.02);
       grp.add(frame, pic, plq);
@@ -2915,17 +2952,28 @@ function buildUpperRooms() {
       [frame, pic, plq].forEach((m) => { m.userData.ex = ex; interactive.push(m); });
     }, undefined, () => {});
   };
-  // vị trí khung trên một tường: cols = các off có thể treo; n ảnh -> 1 hàng lớn (n <= số cột) hoặc 2 hàng nhỏ
-  const SP = 1.75, DOOR_COLS = [-3.95, -2.3, 2.3, 3.95];
-  const wallCols = (w, u, k) => k === u.door ? DOOR_COLS.length : Math.floor((wallLen(w, u.rect) - 0.6) / SP);
-  const rowOffs = (n, cols, isDoor) => isDoor ? [1, 2, 0, 3].slice(0, n).sort().map((i) => DOOR_COLS[i]) : Array.from({ length: n }, (_, i) => (i - (n - 1) / 2) * SP);
-  const hang = (w, u, k, list) => {
-    const cols = wallCols(w, u, k), isDoor = k === u.door;
+  // vị trí khung trên một tường (cols = các off có thể treo): n ảnh -> 1 hàng lớn (n <= số cột) hoặc 2 hàng nhỏ
+  const DOOR_COLS = [-3.95, -2.3, 2.3, 3.95]; // vách ngăn có cửa ở giữa: 2 cột mỗi bên
+  const plainCols = (len, sp) => { const c = Math.floor((len - 0.6) / sp); return Array.from({ length: c }, (_, i) => (i - (c - 1) / 2) * sp); };
+  // tường phía hội trường: chừa cửa ra hành lang (±1.45) và biển tên phòng (±1.2), xếp cột vào các đoạn còn trống
+  const hallCols = (hw, len, sp) => {
+    const blocks = [[hw.title - 1.2, hw.title + 1.2]]; if (hw.door != null) blocks.push([hw.door - 1.45, hw.door + 1.45]);
+    blocks.sort((a, b) => a[0] - b[0]);
+    const out = []; let a = -len / 2 + 0.3;
+    for (const [b0, b1] of [...blocks, [len / 2 - 0.3, 99]]) {
+      const c = Math.floor((b0 - a + 1e-6) / sp); for (let i = 0; i < c; i++) out.push((a + b0) / 2 + (i - (c - 1) / 2) * sp);
+      a = Math.max(a, b1);
+    }
+    return out;
+  };
+  const rowOffs = (n, cols, sp, plain) => n >= cols.length ? cols : plain ? Array.from({ length: n }, (_, i) => (i - (n - 1) / 2) * sp)
+    : cols === DOOR_COLS ? [1, 2, 0, 3].slice(0, n).sort().map((i) => cols[i]) : cols.slice(0, n);
+  const hang = (w, cols, sp, plain, list, dense) => {
     const put = (fr, off, L) => fr.img ? photo(w, off, fr, fr.id, L) : holder(w, off, fr.id, L);
-    if (list.length <= cols) { rowOffs(list.length, cols, isDoor).forEach((off, i) => put(list[i], off, BIG)); return; }
-    const nTop = Math.min(cols, Math.ceil(list.length / 2)), nBot = Math.min(cols, list.length - nTop);
-    rowOffs(nTop, cols, isDoor).forEach((off, i) => put(list[i], off, TOP));
-    rowOffs(nBot, cols, isDoor).forEach((off, i) => put(list[nTop + i], off, BOT));
+    if (!dense && list.length <= cols.length) { rowOffs(list.length, cols, sp, plain).forEach((off, i) => put(list[i], off, BIG)); return; }
+    const nTop = Math.min(cols.length, Math.ceil(list.length / 2)), nBot = Math.min(cols.length, list.length - nTop);
+    rowOffs(nTop, cols, sp, plain).forEach((off, i) => put(list[i], off, dense ? TOPD : TOP));
+    rowOffs(nBot, cols, sp, plain).forEach((off, i) => put(list[nTop + i], off, dense ? BOTD : BOT));
   };
   // trang trí tường: ốp chân tường + phào trần; doors = vị trí các ô cửa (theo off) để ốp chân tường chừa ra
   const trimUp = (w, len, doors) => {
@@ -2967,9 +3015,17 @@ function buildUpperRooms() {
       { text: r.period, size: 66, weight: 700, gap: 12 },
       { text: "Ảnh tư liệu", size: 44, weight: 500, color: "#e8dcc4" },
     ], 2.4, 1.6, { ppm: 240 }), hw, hw.title, UP + 2.5, 0.04);
-    // các khung ảnh: chia cho 3 tường theo tỉ lệ chiều dài (tối đa 2 hàng mỗi tường), lần lượt trái -> phải, hàng trên rồi hàng dưới
+    // các khung ảnh: chia cho các tường theo tỉ lệ số cột (tối đa 2 hàng mỗi tường), lần lượt trái -> phải, hàng trên rồi hàng dưới.
+    // Phòng quá 30 ảnh chuyển sang kiểu "dày": khung nhỏ hơn, cách nhau 1.4 m và treo thêm lên tường phía hội trường.
     const frames = (r.frames || []).map((fr, n) => ({ ...fr, id: fr.id || `U${i + 1}-${String(n + 1).padStart(2, "0")}` }));
-    const caps = u.walls.map((w, k) => wallCols(w, u, k)), capSum = caps.reduce((a, b) => a + b, 0);
+    const mk = (sp, withHall) => {
+      const ws = u.walls.map((w, k) => ({ w, cols: k === u.door ? DOOR_COLS : plainCols(wallLen(w, u.rect), sp), plain: k !== u.door }));
+      if (withHall) ws.push({ w: u.hall, cols: hallCols(u.hall, wallLen(u.hall, u.rect), sp), plain: false });
+      return ws;
+    };
+    let ws = mk(1.75, false), sp = 1.75, dense = false;
+    if (frames.length > ws.reduce((a, x) => a + x.cols.length, 0) * 2) { ws = mk(1.4, true); sp = 1.4; dense = true; }
+    const caps = ws.map((x) => x.cols.length), capSum = caps.reduce((a, b) => a + b, 0);
     const N = Math.min(frames.length, capSum * 2);
     const share = caps.map((c) => Math.min(c * 2, Math.floor(N * c / capSum)));
     for (let left = N - share.reduce((a, b) => a + b, 0); left > 0;) {
@@ -2977,11 +3033,24 @@ function buildUpperRooms() {
       share[k]++; left--;
     }
     let n = 0;
-    u.walls.forEach((w, k) => { hang(w, u, k, frames.slice(n, n + share[k])); n += share[k]; });
+    ws.forEach((x, k) => { hang(x.w, x.cols, sp, x.plain, frames.slice(n, n + share[k]), dense); n += share[k]; });
     if (frames.length > N) console.warn(`Phòng ${r.num}: có ${frames.length} ảnh nhưng tường chỉ treo được ${N}`);
     // đèn: mỗi cặp phòng chung một đèn đặt trên vách ngăn
     if (i % 2 === 0) { const l = new THREE.PointLight(0xffd6a0, 0.75, 15, 1.5); l.position.set(cx, UP + 2.9, -12); scene.add(l); }
   });
+  // hành lang tầng 2 (mặt trong tường mặt tiền, hai bên cửa ra ban công): ảnh tư liệu 1939 – 1945, dữ liệu ở MUSEUM.corridor.
+  // Vị trí lần lượt trái -> phải khi đứng trong hành lang nhìn ra ban công; tối đa 9 ảnh (từ 8 ảnh trở xuống thì ô đầu là biển tiêu đề).
+  const cor = DATA.corridor;
+  if (cor && cor.frames && cor.frames.length) {
+    const cw = { x: 0, z: -0.2, ry: PI }, CL = { y: UP + 2.0, h: 1.3, mw: 1.5 }, all = [-7.7, -6.0, -4.3, -2.6, 2.6, 4.35, 6.1, 7.85, 9.6], head = cor.frames.length < all.length, offs = head ? all.slice(1) : all;
+    cor.frames.slice(0, offs.length).forEach((fr, n) => { const id = fr.id || `H2-0${n + 1}`; if (fr.img) photo(cw, offs[n], fr, id, CL); else holder(cw, offs[n], id, CL); });
+    if (cor.frames.length > offs.length) console.warn(`Hành lang tầng 2: có ${cor.frames.length} ảnh nhưng chỉ treo được ${offs.length}`);
+    if (head) onWall(textPlane([
+      { text: "ẢNH TƯ LIỆU", size: 40, weight: 600, font: UI_FONT, color: GOLD_TXT, gap: 8 },
+      { text: cor.period, size: 64, weight: 700, gap: 12 },
+      { text: cor.name, size: 40, weight: 500, color: "#e8dcc4" },
+    ], 1.5, 1.3, { ppm: 240 }), cw, all[0], UP + 2.0, 0.04);
+  }
   // mặt hành lang (trong hội trường): khung cửa vàng + biển chỉ dẫn bên cạnh mỗi cửa lên phòng ảnh
   UPPER_GEO.forEach((u, i) => {
     const r = rooms[i]; if (!r || u.hall.door == null) return;
@@ -3021,7 +3090,7 @@ function flowerBed(x0, x1, z0, z1) {
 function bench(x, z, ry) {
   const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g);
   mbox(1.6, 0.08, 0.46, 0, 0.46, 0, fmat(0x9a6a3c, 0.6), false, g); mbox(1.6, 0.4, 0.06, 0, 0.74, -0.22, fmat(0x9a6a3c, 0.6), false, g);
-  for (const s of [-1, 1]) mbox(0.08, 0.46, 0.4, s * 0.7, 0.23, 0, M.dark, false, g);
+  for (const s of [-1, 1]) { mbox(0.08, 0.46, 0.4, s * 0.7, 0.23, 0, M.dark, false, g); addSeat(g, s * 0.38, 0.5, 0.03, PI, "Ngồi ghế"); }
   CIRCLES.push([x, z, 0.8]);
 }
 function fence(x0, z0, x1, z1) {
@@ -3144,7 +3213,7 @@ function buildPlayground() {
   BALL.mesh.position.set(BALL.x, BALL.y, BALL.z); BALL.mesh.castShadow = true; scene.add(BALL.mesh);
   signBoard(-33.6, 5.4, H2, 2.3, 1.55, [
     { text: "KHU VUI CHƠI", size: 46, weight: 700, color: GOLD_TXT, gap: 8 },
-    { text: "Đi vào quả bóng để đá · Leo bậc thang rồi đi xuống dốc để trượt", size: 28, font: UI_FONT, color: "#e8dcc4" },
+    { text: "Đi vào quả bóng để đá · Leo bậc thang rồi đi xuống dốc để trượt · Lại gần ghế, xích đu, đu quay, bập bênh rồi nhấn E để ngồi", size: 26, font: UI_FONT, color: "#e8dcc4" },
   ], { ppm: 220 });
   for (const z of [29.5, 38.5]) bench(-33.0, z, -H2);
   bench(-48.5, 21, H2); bench(-60.2, 25, H2);
@@ -3153,7 +3222,7 @@ function buildPlayground() {
 }
 function buildCarousel(cx, cz) {
   const base = new THREE.Mesh(new THREE.CylinderGeometry(3.1, 3.2, 0.3, 32), fmat(0xb08968, 0.7)); base.position.set(cx, 0.15, cz); base.receiveShadow = true; scene.add(base);
-  const rot = new THREE.Group(); rot.position.set(cx, 0.3, cz); scene.add(rot); spinners.push({ obj: rot, speed: 0.5 });
+  const rot = new THREE.Group(); rot.position.set(cx, 0.3, cz); scene.add(rot); anims.push((t) => { rot.rotation.y = t * 0.5; });
   const floor = new THREE.Mesh(new THREE.CylinderGeometry(2.95, 2.95, 0.08, 28), fmat(0xf4e3c1, 0.6)); floor.position.y = 0.04; rot.add(floor);
   rod(rot, [0, 0, 0], [0, 3.0, 0], 0.14, M.gold);
   const sc = document.createElement("canvas"); sc.width = 192; sc.height = 32; { const g = sc.getContext("2d"); for (let i = 0; i < 12; i++) { g.fillStyle = i % 2 ? "#fff3dd" : "#d62b3a"; g.fillRect(i * 16, 0, 16, 32); } }
@@ -3167,6 +3236,7 @@ function buildCarousel(cx, cz) {
     mbox(0.32, 0.4, 0.95, 0, 0, 0, col, false, h); mbox(0.18, 0.46, 0.2, 0, 0.32, 0.4, col, false, h); mbox(0.2, 0.2, 0.34, 0, 0.58, 0.55, col, false, h); mbox(0.06, 0.34, 0.06, 0, -0.02, -0.52, M.dark, false, h);
     for (const [lx, lz] of [[-0.1, 0.3], [0.1, 0.3], [-0.1, -0.3], [0.1, -0.3]]) mbox(0.08, 0.32, 0.08, lx, -0.34, lz, col, false, h);
     anims.push((t) => { h.position.y = 1.0 + Math.sin(t * 2.4 + k * 1.1) * 0.25; });
+    addSeat(h, 0, 0.2, -0.05, PI, "Cưỡi ngựa đu quay", "attractions");
   }
   CIRCLES.push([cx, cz, 3.2]);
 }
@@ -3179,6 +3249,7 @@ function buildSwings(cx, cz) {
     for (const dx of [-0.22, 0.22]) rod(piv, [dx, 0, 0], [dx, -2.0, 0], 0.012, M.dark);
     mbox(0.56, 0.06, 0.22, 0, -2.04, 0, fmat(FUN[k * 3 + 2], 0.5), false, piv);
     anims.push((t) => { piv.rotation.x = Math.sin(t * 1.7 + k * 1.3) * 0.45; });
+    addSeat(piv, 0, -2.01, 0, 0, "Ngồi xích đu", "attractions");
   });
 }
 function buildSeesaw(cx, cz) {
@@ -3187,6 +3258,7 @@ function buildSeesaw(cx, cz) {
   mbox(3.6, 0.1, 0.4, 0, 0, 0, fmat(0xffd166, 0.5), false, pl);
   for (const s of [-1, 1]) { mbox(0.06, 0.28, 0.4, s * 1.4, 0.19, 0, M.dark, false, pl); mbox(0.3, 0.05, 0.36, s * 1.65, 0.07, 0, fmat(0xe63946, 0.5), false, pl); }
   anims.push((t) => { pl.rotation.z = Math.sin(t * 1.3) * 0.2; });
+  for (const s of [-1, 1]) addSeat(pl, s * 1.62, 0.1, 0, s * H2, "Ngồi bập bênh", "attractions");
 }
 // cầu trượt: bậc thang (mỗi bậc cao 0.3 m, đi bộ lên được) -> sàn tháp cao 1.8 m -> dốc 14 bậc nhỏ 0.12 m đi xuống (và trượt kiểu "đi xuống")
 function buildSlide(cx, cz) {
@@ -4131,11 +4203,31 @@ function makeFigure(modelKey, color) {
 }
 
 // walk: 0 = đứng, 1 = đi bộ, 2 = chạy (giá trị ở giữa được làm tròn); emote: "wave" | "clap" | null; inAir: boolean
-function pose(g, phase, walk, emote, t, dt = 0.016, inAir = false) {
+// Tư thế ngồi: gập đùi ra trước, cẳng chân buông xuống, hạ người để hông nằm ngay trên mặt ghế (gốc nhân vật đặt ở mặt ghế).
+const SIT = { thigh: 1.45, shin: 1.5, lift: 0.1 };
+const _sq = new THREE.Quaternion(), _sx = new THREE.Vector3(1, 0, 0), _sp = new THREE.Vector3(), _sg = new THREE.Vector3();
+function applySit(g, sit) {
+  const u = g.userData;
+  if (!u.body) return;
+  if (!u.sitBones) {
+    const b = {}; u.body.traverse((o) => { if (!o.isBone) return; const m = /^(thigh|shin|hips)[._]?([LR])?$/i.exec(o.name); if (m) b[m[1].toLowerCase() + (m[2] || "").toUpperCase()] = o; });
+    for (const k in b) b[k].userData.rest = b[k].quaternion.clone();
+    u.sitBones = b; u.hipH = 0.72;
+    if (b.hips) { g.updateMatrixWorld(true); u.hipH = b.hips.getWorldPosition(_sp).y - g.getWorldPosition(_sg).y - u.pivot.position.y; }
+  }
+  const b = u.sitBones;
+  if (sit) {
+    for (const [k, ang] of [["thighL", SIT.thigh], ["thighR", SIT.thigh], ["shinL", SIT.shin], ["shinR", SIT.shin]]) if (b[k]) b[k].quaternion.copy(b[k].userData.rest).multiply(_sq.setFromAxisAngle(_sx, ang));
+  } else if (u.wasSit) { for (const k of ["thighL", "thighR", "shinL", "shinR"]) if (b[k]) b[k].quaternion.copy(b[k].userData.rest); }
+  u.wasSit = sit;
+}
+function pose(g, phase, walk, emote, t, dt = 0.016, inAir = false, sit = false) {
 window.pose = pose;
   if (!g || !g.userData) return;
   if (g.userData.fallback && g.userData.fallback.userData && g.userData.fallback.userData.armL) {
-    poseStick(g.userData.fallback, phase, walk, emote, t);
+    poseStick(g.userData.fallback, phase, sit ? 0 : walk, emote, t);
+    const fb = g.userData.fallback.userData; if (sit) { fb.legL.rotation.x = fb.legR.rotation.x = -1.45; }
+    g.userData.fallback.position.y = sit ? -0.42 : 0;
     return;
   }
   const pivot = g.userData.pivot;
@@ -4146,7 +4238,9 @@ window.pose = pose;
   const actions = g.userData.actions;
   if (mixer && actions) {
     let target = actions.idle;
-    if (inAir && actions.jump) {
+    if (sit) {
+      if ((emote === "wave" || emote === "clap") && actions[emote]) target = actions[emote];
+    } else if (inAir && actions.jump) {
       target = actions.jump;
     } else if ((emote === "wave" || emote === "clap") && actions[emote] && walk < 0.5) {
       target = actions[emote];
@@ -4168,6 +4262,8 @@ window.pose = pose;
     }
     mixer.update(dt);
   }
+  applySit(g, sit);
+  if (sit) { pivot.position.y = SIT.lift - (g.userData.hipH || 0.72); pivot.rotation.set(0, 0, 0); return; }
 
   // Secondary body tilt when moving
   const lean = Math.min(1, walk);
@@ -4230,6 +4326,7 @@ function ensureAvatar(id) {
       }
     }
   }
+  if (s.emote === "sit") a.sit = true; else if (s.emote === "stand") a.sit = false; // vẫy/vỗ tay khi đang ngồi không làm mất tư thế ngồi
   if (s.emoteAt !== a.emoteAt) { a.emoteAt = s.emoteAt; if (EMOTES[s.emote]) { a.emote = s.emote; a.emoteUntil = performance.now() + 1800; showBubble(a, EMOTES[s.emote]); } }
   return a;
 }
@@ -4410,11 +4507,11 @@ function openInfo(ex) {
   $("info-date").textContent = ex.date || ""; $("info-title").textContent = ex.title;
   $("info-text").textContent = ex.text + (ex.credit ? "\n\nẢnh: " + ex.credit : ""); $("info-lesson").textContent = ex.lesson || "";
   $("lesson").hidden = !ex.lesson;
-  $("info").hidden = false; $("prompt").hidden = true; $("close").focus();
+  $("info").hidden = false; $("prompt").hidden = true; $("close").focus(); updateLookHint();
 }
-function closeInfo() { stopSpeech(); infoOpen = false; $("info").hidden = true; }
+function closeInfo() { stopSpeech(); infoOpen = false; $("info").hidden = true; lockPointer(); updateLookHint(); }
 $("close").addEventListener("click", closeInfo);
-$("prompt").addEventListener("click", () => { if (elevAction) { SFX.bell(); elevAction(); } else if (target) openInfo(target); });
+$("prompt").addEventListener("click", () => { if (elevAction) { if (!elevAction.quiet) SFX.bell(); elevAction(); } else if (target) openInfo(target); });
 
 /* ================= Fireworks Engine (Lễ hội pháo hoa nghệ thuật đằng sau ngôi nhà) ================= */
 const FW_PALETTES = {
@@ -4887,7 +4984,6 @@ window.keys = keys;
 let started = false;
 const isTouch = matchMedia("(pointer: coarse)").matches;
 if (isTouch) document.body.classList.add("touch");
-const GAME_KEYS = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "KeyE", "KeyF", "KeyV", "KeyT"]);
 addEventListener("keydown", (e) => {
   if (e.target && e.target.tagName === "INPUT") { if (e.key === "Escape") e.target.blur(); return; }
   if (e.key === "Escape" && !$("emote-wheel").hidden) { toggleWheel(false); return; }
@@ -4902,16 +4998,14 @@ addEventListener("keydown", (e) => {
   if (e.code === "F2" || e.key === "F2") { e.preventDefault(); toggleDayNight(); return; }
   if (!started || infoOpen) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
-  if (e.code === "KeyT" || e.key === "Enter") { e.preventDefault(); $("say").focus(); return; }
+  if (e.key === "Enter") { e.preventDefault(); $("say").focus(); return; } // chỉ Enter mới bắt đầu chat
   if (e.code === "KeyV") { if (!e.repeat) toggleView(); return; }
   if (e.code === "KeyF") { if (!e.repeat) toggleWheel(); return; }
   if (!$("emote-wheel").hidden && (e.key === "1" || e.key === "2")) { doEmote(e.key === "1" ? "wave" : "clap"); toggleWheel(false); return; }
   if (e.code === "Space") { e.preventDefault(); jump(); return; }
-  // Phím chữ/số không dùng để điều khiển => mở ô chat và gõ luôn ký tự đó
-  if (e.key.length === 1 && !GAME_KEYS.has(e.code) && e.key.trim()) { $("say").focus(); return; }
   keys[e.code] = true;
   if (e.code === "KeyE") {
-    if (elevAction) { SFX.bell(); elevAction(); } else if (target) openInfo(target);
+    if (elevAction) { if (!elevAction.quiet) SFX.bell(); elevAction(); } else if (target) openInfo(target);
   }
 });
 addEventListener("keyup", (e) => { keys[e.code] = false; });
@@ -4939,30 +5033,38 @@ addEventListener("blur", () => { for (const k in keys) keys[k] = false; });
 // });
 // canvas.addEventListener("pointercancel", () => { drag = null; });
 
-// Desktop: GIỮ chuột (trái/phải) và kéo để xoay; chỉ khóa con trỏ trong lúc giữ, thả ra là con trỏ hiện lại
-// để vẫn bấm được các nút (Vẫy tay, Nhảy, Góc nhìn, Chat...). Bấm nhanh không kéo = xem hiện vật.
+// Desktop: bấm vào màn hình một lần để khóa con trỏ, sau đó chỉ cần DI CHUỘT là xoay góc nhìn (không phải giữ nút).
+// Esc để hiện lại con trỏ (bấm các nút trên màn hình); bấm vào màn hình để điều khiển tiếp.
+// Khi đang khóa: bấm chuột trái = xem hiện vật ở giữa màn hình. Trình duyệt không cho khóa con trỏ thì vẫn giữ-kéo như cũ.
 let look = null;
+const lookLocked = () => document.pointerLockElement === canvas;
+function lockPointer() {
+  if (isTouch || !started || infoOpen || lookLocked()) return;
+  try { const p = canvas.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (err) {}
+}
+function updateLookHint() { $("look-hint").hidden = !(started && !isTouch && !infoOpen && !lookLocked()); }
+document.addEventListener("pointerlockchange", () => { if (lookLocked()) look = null; updateLookHint(); });
 canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 canvas.addEventListener("mousedown", (e) => {
   if (!started || infoOpen || isTouch || (e.button !== 0 && e.button !== 2)) return;
   if (document.activeElement && document.activeElement.tagName === "INPUT") document.activeElement.blur();
+  if (lookLocked()) { if (e.button === 0) { const hit = pick(innerWidth / 2, innerHeight / 2, 8); if (hit) openInfo(hit); } return; }
   look = { sx: e.clientX, sy: e.clientY, x: e.clientX, y: e.clientY, moved: 0, t: performance.now(), button: e.button };
-  try { const p = canvas.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (err) {}
+  lockPointer();
 });
 document.addEventListener("mousemove", (e) => {
-  if (!look || !started || infoOpen) return;
+  if (!started || infoOpen) return;
   let dx, dy;
-  if (document.pointerLockElement === canvas) { dx = e.movementX; dy = e.movementY; }
-  else { dx = e.clientX - look.x; dy = e.clientY - look.y; look.x = e.clientX; look.y = e.clientY; } // trình duyệt không cho khóa chuột
-  look.moved += Math.abs(dx) + Math.abs(dy);
-  player.yaw -= dx * 0.0035;
-  player.pitch = Math.max(-1.2, Math.min(1.2, player.pitch - dy * 0.0035));
+  if (lookLocked()) { dx = e.movementX; dy = e.movementY; if (Math.abs(dx) > 400 || Math.abs(dy) > 400) return; } // bỏ các cú giật bất thường của trình duyệt
+  else if (look) { dx = e.clientX - look.x; dy = e.clientY - look.y; look.x = e.clientX; look.y = e.clientY; look.moved += Math.abs(dx) + Math.abs(dy); } // dự phòng: giữ và kéo
+  else return;
+  player.yaw -= dx * 0.0028;
+  player.pitch = Math.max(-1.2, Math.min(1.2, player.pitch - dy * 0.0028));
 });
 const endLook = () => {
   if (!look) return;
   const l = look; look = null;
-  if (document.pointerLockElement === canvas) document.exitPointerLock();
-  if (l.button === 0 && l.moved < 8 && performance.now() - l.t < 400 && !infoOpen) {
+  if (!lookLocked() && l.button === 0 && l.moved < 8 && performance.now() - l.t < 400 && !infoOpen) {
     const hit = pick(l.sx, l.sy, 8); if (hit) openInfo(hit);
   }
 };
@@ -5116,12 +5218,14 @@ document.querySelectorAll("[data-emote]").forEach((b) => b.addEventListener("cli
 function toggleWheel(show) {
   const w = $("emote-wheel"); show = show === undefined ? w.hidden : show;
   w.hidden = !show; $("emote-btn").setAttribute("aria-expanded", String(show));
+  if (show) { if (lookLocked()) document.exitPointerLock(); } else lockPointer(); // mở vòng biểu cảm thì hiện con trỏ để bấm chọn
 }
 $("emote-btn").addEventListener("click", (e) => { e.stopPropagation(); toggleWheel(); });
 document.addEventListener("pointerdown", (e) => { if (!$("emote-wheel").hidden && !e.target.closest("#emote-wheel, #emote-btn")) toggleWheel(false); });
 function doEmote(em) {
   Net.update({ emote: em, emoteAt: Date.now() });
   me.emote = em; me.emoteUntil = performance.now() + 1800; showMyBubble(EMOTES[em]);
+  if (player.seat) setTimeout(() => { if (player.seat) sendSit(true); }, 1900); // báo lại là vẫn đang ngồi
   addLog("Bạn", EMOTES[em]);
 }
 $("chatbox").addEventListener("submit", (e) => {
@@ -5198,6 +5302,7 @@ function frame(now) {
     f -= joyY; s += joyX;
     const len = Math.hypot(f, s);
     if (len > 0.08) {
+      if (player.seat) standUp();
       if (follow) stopFollow();
       const run = keys.ShiftLeft || keys.ShiftRight;
       const sp = (run ? 10 : 5.5) * Math.min(1, len) * dt;
@@ -5234,11 +5339,13 @@ function frame(now) {
   {
     fwd.set(-Math.sin(player.yaw) * Math.cos(player.pitch), Math.sin(player.pitch), -Math.cos(player.yaw) * Math.cos(player.pitch));
     // đứng trên mặt đất/bệ: bước khỏi mép bệ thì rơi (vy=0); đang bay thì rơi tới khi chạm mặt đất/bệ bên dưới
-    { const gy = groundAt(player.x, player.z);
+    if (player.seat) { // đang ngồi: bám theo chỗ ngồi (kể cả khi nó chuyển động)
+      const p = seatPose(player.seat); player.x = p.x; player.z = p.z; player.jy = p.y; player.vy = 0; player.grounded = true; player.seatYaw = p.yaw;
+    } else { const gy = groundAt(player.x, player.z);
       if (player.grounded) { if (player.jy > gy + 0.02) { player.grounded = false; player.vy = 0; } else player.jy = gy; }
       if (!player.grounded) { player.vy -= 15 * dt; player.jy += player.vy * dt; if (player.vy <= 0 && player.jy <= gy) { player.jy = gy; player.vy = 0; player.grounded = true; } } }
     updateElevator(dt);
-    head.set(player.x, player.base + EYE + player.jy + (thirdPerson ? 0.25 : 0), player.z);
+    head.set(player.x, player.base + (player.seat ? 0.8 : EYE) + player.jy + (thirdPerson ? 0.25 : 0), player.z);
     if (thirdPerson) {
       ray.set(head, fwd.clone().negate()); ray.far = 3.4;
       const hit = ray.intersectObjects(solids, false)[0];
@@ -5250,8 +5357,8 @@ function frame(now) {
     // --- my figure
     if (me.fig) {
       me.fig.visible = thirdPerson && started;
-      me.fig.position.set(player.x, player.base + player.jy, player.z); me.fig.rotation.y = player.yaw;
-      pose(me.fig, player.phase, player.moving ? (player.running ? 2 : 1) : 0, now < me.emoteUntil ? me.emote : null, t, dt, !player.grounded);
+      me.fig.position.set(player.x, player.base + player.jy, player.z); me.fig.rotation.y = player.seat ? player.seatYaw : player.yaw;
+      pose(me.fig, player.phase, player.moving ? (player.running ? 2 : 1) : 0, now < me.emoteUntil ? me.emote : null, t, dt, !player.grounded, !!player.seat);
       if (me.bubble) me.bubble.visible = now < me.bubbleUntil;
     }
   }
@@ -5268,7 +5375,7 @@ function frame(now) {
     a.phase += dt * 9 * a.walk;
     a.y += ((s.y || 0) - a.y) * Math.min(1, dt * 12); a.fig.position.set(a.x, a.y, a.z); a.fig.rotation.y = a.yaw;
     { const sy = s.y || 0; if (Math.abs(sy - (a.sy == null ? sy : a.sy)) > 0.02 && !inElev(s.x, s.z)) a.airUntil = now + 220; a.sy = sy; }
-    pose(a.fig, a.phase, a.walk * (a.speed > 7.5 ? 2 : 1), now < a.emoteUntil ? a.emote : null, t, dt, now < (a.airUntil || 0));
+    pose(a.fig, a.phase, a.walk * (a.speed > 7.5 ? 2 : 1), now < a.emoteUntil ? a.emote : null, t, dt, !a.sit && now < (a.airUntil || 0), !!a.sit);
     if (a.bubble) a.bubble.visible = now < a.bubbleUntil;
   }
 
@@ -5276,9 +5383,9 @@ function frame(now) {
   const sendInterval = Net.mode === "signalr" ? 66 : (!player.grounded ? 80 : 200);
   const stoppedJustNow = !player.moving && sent.m;
   if (started && Net.mode !== "solo" && (stoppedJustNow || now - sent.t > sendInterval)) {
-    if (Math.abs(player.x - sent.x) > 0.04 || Math.abs(player.z - sent.z) > 0.04 || Math.abs(player.yaw - sent.yaw) > 0.04 || player.moving !== sent.m || Math.abs(player.base + player.jy - sent.y) > 0.04) {
-      sent.t = now; sent.y = player.base + player.jy; sent.x = player.x; sent.z = player.z; sent.yaw = player.yaw; sent.m = player.moving;
-      Net.update({ x: +player.x.toFixed(2), z: +player.z.toFixed(2), yaw: +player.yaw.toFixed(2), m: player.moving, y: +(player.base + player.jy).toFixed(2), av: me.modelKey });
+    if (Math.abs(player.x - sent.x) > 0.04 || Math.abs(player.z - sent.z) > 0.04 || Math.abs((player.seat ? player.seatYaw : player.yaw) - sent.yaw) > 0.04 || player.moving !== sent.m || Math.abs(player.base + player.jy - sent.y) > 0.04) {
+      sent.t = now; sent.y = player.base + player.jy; sent.x = player.x; sent.z = player.z; sent.yaw = player.seat ? player.seatYaw : player.yaw; sent.m = player.moving;
+      Net.update({ x: +player.x.toFixed(2), z: +player.z.toFixed(2), yaw: +sent.yaw.toFixed(2), m: player.moving, y: +(player.base + player.jy).toFixed(2), av: me.modelKey });
     }
   }
 
@@ -5299,7 +5406,7 @@ function frame(now) {
     dp.needsUpdate = true;
   }
   for (const sp of spinners) sp.obj.rotation.y += sp.speed * dt;
-  for (const a of anims) a(t, dt);
+  { const wt = (Date.now() / 1000) % 86400; for (const a of anims) a(wt, dt); }
   updateBall(dt); updateParkour(now);
   animatePond(t, dt);
   updateStatueSprite();
@@ -5318,10 +5425,10 @@ function frame(now) {
   if (started && !infoOpen) {
     target = pick(innerWidth / 2, innerHeight / 2, 4.5);
     const pr = $("prompt");
-    elevAction = elevatorPrompt();
+    elevAction = elevatorPrompt() || seatPrompt();
     if (elevAction) {
       pr.textContent = "";
-      const ic = document.createElement("span"); ic.className = "g-icon"; ic.textContent = "elevator";
+      const ic = document.createElement("span"); ic.className = "g-icon"; ic.textContent = elevAction.icon || "elevator";
       const b = document.createElement("b"); b.textContent = elevAction.label;
       pr.append(ic, b, document.createTextNode(isTouch ? " · Chạm vào đây" : " · Nhấn E"));
       pr.hidden = false;
@@ -5383,7 +5490,7 @@ $("go").addEventListener("click", () => {
   SFX.ensure();
   me.name = $("nick").value.replace(/\s+/g, " ").trim().slice(0, 24) || "Khách " + Math.floor(100 + Math.random() * 900);
   try { localStorage.setItem("museum-me", JSON.stringify({ n: me.name, c: me.color, m: me.modelKey })); } catch (e) {}
-  started = true; window.started = true; joinedAt = performance.now();
+  started = true; window.started = true; joinedAt = performance.now(); lockPointer(); updateLookHint();
   $("start").hidden = true; $("hud").hidden = false; $("dot").hidden = thirdPerson; $("people-btn").hidden = false;
   if (isTouch) joy.hidden = false;
   setMyFigure();
@@ -5391,7 +5498,7 @@ $("go").addEventListener("click", () => {
   Net.start({ x: +player.x.toFixed(2), z: +player.z.toFixed(2), yaw: 0, n: me.name, c: me.color, av: me.modelKey, m: false });
 });
 
-window.__museum = { player, avatars, scene, camera, free, PLATFORMS, BLOCKS, BALL }; // tiện kiểm tra khi phát triển
+window.__museum = { player, avatars, scene, camera, free, PLATFORMS, BLOCKS, BALL, SEATS, SIT, seatPose, sitDown, standUp, makeFigure, pose, me }; // tiện kiểm tra khi phát triển
 async function init() {
   try {
     await Promise.race([

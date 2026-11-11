@@ -6,7 +6,7 @@
         "$pid": {
           ".write": true,
           ".validate": "newData.hasChildren(['x','z','yaw','t']) || !newData.exists()",
-          "x": { ".validate": "newData.isNumber() && newData.val() >= -50 && newData.val() <= 50" },
+          "x": { ".validate": "newData.isNumber() && newData.val() >= -66 && newData.val() <= 66" },
           "z": { ".validate": "newData.isNumber() && newData.val() >= -50 && newData.val() <= 70" },
           "yaw": { ".validate": "newData.isNumber()" },
           "t": { ".validate": "newData.isNumber() && newData.val() <= now + 60000" },

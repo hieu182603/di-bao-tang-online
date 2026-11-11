@@ -23,6 +23,7 @@
   <div id="room">Sân bảo tàng</div>
 </div>
 <div id="dot" hidden></div>
+<div id="look-hint" hidden>Bấm vào màn hình để xoay góc nhìn bằng chuột · <kbd>Esc</kbd> để hiện con trỏ</div>
 <div id="prompt" hidden></div>
 <div id="pk-timer" hidden role="status" aria-live="off">
   <p class="eyebrow"><span class="g-icon sm">timer</span> Thử thách parkour</p>
@@ -53,7 +54,7 @@
   <button class="act" type="button" id="view-btn"><span class="g-icon" id="view-icon">visibility</span> <span id="view-label">Góc nhìn: thứ nhất</span> <kbd class="hk">V</kbd></button>
   <button class="act" type="button" id="sfx-btn" title="Bật/tắt âm thanh bước chân & môi trường"><span class="g-icon" id="sfx-icon">volume_up</span></button>
   <form id="chatbox">
-    <input id="say" maxlength="80" placeholder="Gõ để chat · Enter để gửi" autocomplete="off" aria-label="Tin nhắn">
+    <input id="say" maxlength="80" placeholder="Nhấn Enter để chat · Enter để gửi" autocomplete="off" aria-label="Tin nhắn">
     <button class="act" type="submit"><span class="g-icon">send</span> Gửi</button>
   </form>
 </div>
@@ -93,10 +94,10 @@
         <p class="guide-title"><span class="g-icon sm">sports_esports</span> Phím điều khiển</p>
         <div class="keys">
           <kbd>W A S D / ↑ ↓</kbd><span>Đi lại (giữ Shift để chạy nhanh)</span>
-          <kbd>Kéo chuột</kbd><span>Nhìn xung quanh 360°</span>
+          <kbd>Di chuột</kbd><span>Nhìn xung quanh 360° (Esc để hiện con trỏ)</span>
           <kbd>Bấm hiện vật / E</kbd><span>Xem thông tin & nghe thuyết minh AI</span>
           <kbd>F · Space · V</kbd><span>Biểu cảm · Nhảy · Đổi góc nhìn</span>
-          <kbd>Gõ phím / Enter</kbd><span>Chat với mọi người, Enter để gửi</span>
+          <kbd>Enter</kbd><span>Mở ô chat, gõ rồi Enter để gửi</span>
           <kbd>Điện thoại</kbd><span>Cần gạt ảo để đi, vuốt để xoay</span>
         </div>
       </div>
