@@ -45,7 +45,7 @@ namespace Backend.Hubs
             player.Timestamp = now;
 
             bool moved = false;
-            if (patch.X.HasValue) { player.X = MuseumRoomRepository.Clamp(patch.X.Value, -40, 40); moved = true; }
+            if (patch.X.HasValue) { player.X = MuseumRoomRepository.Clamp(patch.X.Value, -66, 66); moved = true; }
             if (patch.Y.HasValue) { player.Y = MuseumRoomRepository.Clamp(patch.Y.Value, 0, 9); moved = true; }
             if (patch.Z.HasValue) { player.Z = MuseumRoomRepository.Clamp(patch.Z.Value, -36, 64); moved = true; }
             if (patch.Yaw.HasValue) { player.Yaw = MuseumRoomRepository.ClampAngle(patch.Yaw.Value); moved = true; }

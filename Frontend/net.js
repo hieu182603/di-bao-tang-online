@@ -18,7 +18,7 @@
   function clean(raw) {
     if (!raw || typeof raw !== "object" || !num(raw.x) || !num(raw.z) || !num(raw.yaw)) return null;
     return {
-      x: Math.max(-40, Math.min(40, raw.x)),
+      x: Math.max(-66, Math.min(66, raw.x)),
       z: Math.max(-36, Math.min(64, raw.z)),
       yaw: raw.yaw,
       n: str(raw.n, 24) || "Khách",
