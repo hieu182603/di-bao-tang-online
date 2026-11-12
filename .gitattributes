@@ -1,0 +1,2 @@
+# Blender drone export: byte-exact (export_manifest.json is SHA-256 pinned; CRLF must survive).
+Frontend/drone-show/** -text

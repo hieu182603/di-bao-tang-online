@@ -3,8 +3,9 @@
 'use strict';
 const Config = {
   duration: 150, fadeOut: 4.5, tail: 8,
-  revision: DroneBlender.REVISION, assetTag: 'b2-117584ae41fb',
-  base: 'drone-show/blender-v2/', music: 'audio/thinh-vuong-viet-nam-sang-ngoi.mp3',
+  revision: DroneBlender.REVISION, assetTag: 'b3-6d4770113720',
+  landing: false,   // true = play the Blender split + descent (150–168 s) after the flag
+  base: 'drone-show/blender-v3/', music: 'audio/thinh-vuong-viet-nam-sang-ngoi.mp3',
   // pLocal = pExport - (0,85,0). One common transform for all formations and QA camera.
   stage: { x: 0, height: 120, z: -100, scale: 1.15, pivot: 85 },
   tiers: { LOW: { glow: false }, BALANCED: { glow: true }, HIGH: { glow: true } },
@@ -59,14 +60,28 @@ const Show = {
     if (!this.loading) {
       const begun = performance.now();
       this.loading = DroneBlender.load(Config.base).then(D => {
+        const fwEnd = D.timeline.fireworks.find(c => c.name === 'FIREWORKS_END'); Config.fireworksEnd = fwEnd ? fwEnd.time : D.timeline.duration;
+        // landing:false ends the show on the flag at FIREWORKS_END (it fades out like v2) instead of the 150–168 s split/descent.
+        if (!Config.landing && Config.fireworksEnd < D.timeline.duration) {
+          D.timeline.transitions = D.timeline.transitions.filter(c => c.start < Config.fireworksEnd);
+          D.timeline.duration = Config.fireworksEnd;
+        }
         this.data = D; Config.duration = D.timeline.duration;
         Config.scenes = D.timeline.formations.map(c => [c.start,c.end,c.formation]);
         this.buildGpu(D.N);
-        this.renderer.compile(this.group,this.camera);
+        this.warmShaders();
         this.stats.loadMs = performance.now() - begun; return D;
       }).finally(() => { this.loading = null; });
     }
     return this.loading;
+  },
+  // Compile drone + fireworks programs while the user is already waiting for the download. Otherwise the first
+  // finale shell (~137–140 s) compiled them mid-show: a 0.7–4 s freeze measured on a real GPU.
+  warmShaders() {
+    const FS=window.FireworksShow, meshes=FS && FS.points ? [FS.points.mesh,FS.trails.mesh] : [], vis=meshes.map(m=>m.visible), gv=this.group.visible;
+    meshes.forEach(m=>{ m.visible=true; }); this.group.visible=true;
+    try { this.renderer.compile(this.scene,this.camera); }
+    finally { meshes.forEach((m,i)=>{ m.visible=vis[i]; }); this.group.visible=gv; }
   },
   buildGpu(N) {
     this.disposeGpu();
@@ -74,8 +89,8 @@ const Show = {
     const g = this.geo = new THREE.BufferGeometry();
     g.setAttribute('position',new THREE.BufferAttribute(this.posArr,3).setUsage(THREE.DynamicDrawUsage));
     g.setAttribute('aCol',new THREE.BufferAttribute(this.colArr,4).setUsage(THREE.DynamicDrawUsage));
-    // Tight local bound measured over the whole v2 timeline (x±107, y-48..67, z-52..26) + margin for glow sprites.
-    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0,9,-13),140);
+    // Tight local bound measured over the whole v3 timeline incl. landing (x±107, y-81..67, z-52..26) + margin for glow sprites.
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0,-7,-13),145);
     this.applyStage();
     this.frustum = new THREE.Frustum(); this.viewProj = new THREE.Matrix4(); this.lastT = NaN;
     this.uniforms = { uProj:{value:600}, uDiameter:{value:this.data.manifest.render_contract.led_radius_m*2}, uEmission:{value:this.data.manifest.render_contract.emission_strength} };
@@ -110,13 +125,18 @@ const Show = {
     a.volume=0.55*Math.min(1,Math.max(0,(end-t)/(this.combo?5:2)));
     if(a.paused) { const p=a.play(); if(p) p.then(()=>{this.audioBlocked=false;}).catch(e=>{ if(e.name==='AbortError') return; if(!this.audioBlocked) console.warn('[DroneShow] Nhạc cần tương tác người dùng:',e.name); this.audioBlocked=true; }); }
   },
-  // F10 combo: drones (0–150 s) hand over to the 60 s F8 show at 150 s; the 235 s track keeps playing until F8's last bursts.
+  // F10 combo: at the drone finale's FIREWORKS_END marker (150 s) the 60 s F8 show takes over while the fleet
+  // splits and lands (150–168 s); the 235 s track keeps playing until F8's last bursts.
   fwConfig() { return window.FireworksConfig || { duration: 60, tail: 7.5 }; },
-  musicEnd() { return this.combo ? Config.duration+this.fwConfig().duration+4 : Config.duration; },
-  showEnd() { return this.combo ? Config.duration+this.fwConfig().duration+this.fwConfig().tail : Config.duration+Config.fadeOut+Config.tail; },
+  fwStart() { return Config.fireworksEnd || Config.duration; },
+  musicEnd() { return this.combo ? Math.max(Config.duration,this.fwStart()+this.fwConfig().duration+4) : Config.duration; },
+  showEnd() {
+    const drones=Config.duration+Config.fadeOut+Config.tail;
+    return this.combo ? Math.max(drones,this.fwStart()+this.fwConfig().duration+this.fwConfig().tail) : drones;
+  },
   syncCombo() {
     const FS=window.FireworksShow; if(!this.combo || !FS) return;
-    const fwT=this.t-Config.duration;
+    const fwT=this.t-this.fwStart();
     if(fwT<0) { if(this.fwStarted) { FS.stop(false); this.fwStarted=false; } return; }
     if(this.fwStarted || fwT>=this.fwConfig().duration) return;
     this.fwStarted=true;
@@ -218,7 +238,7 @@ const Show = {
   },
   buildDebug() {
     const el=document.createElement('div'); el.id='ds-debug'; el.style.cssText='position:fixed;bottom:12px;left:12px;z-index:60;background:#111d;color:white;padding:12px;max-width:340px;font:12px monospace';
-    el.innerHTML='<button data-a="play">F9</button> <button data-a="pause">Pause/Resume</button><input type="range" min="0" max="154.5" step="0.1"><pre><output></output></pre>';
+    el.innerHTML='<button data-a="play">F9</button> <button data-a="pause">Pause/Resume</button><input type="range" min="0" max="180" step="0.1"><pre><output></output></pre>';
     el.querySelector('[data-a="play"]').onclick=()=>this.isRunning||this.pending?this.stop():this.start();
     el.querySelector('[data-a="pause"]').onclick=()=>this.paused?this.resume():this.pause();
     el.querySelector('input').oninput=e=>this.seek(+e.target.value);

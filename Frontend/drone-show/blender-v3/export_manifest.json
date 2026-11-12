@@ -1,0 +1,686 @@
+{
+  "schema": "vn-source-guided-drone/1.1",
+  "drone_count": 14000,
+  "id_order": "row i is fixed drone ID i in every exported file; no permutation required by consumer",
+  "coordinate_system": "Blender(X,Y,Z) -> Three.js(X,Z,-Y), right-handed rotation, determinant +1",
+  "units": "metres",
+  "endianness": "little",
+  "files": [
+    {
+      "path": "dong_son.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "319daf78dacaa86e070db3331aa50ada58cd311124325182c02c9665c43e2c14"
+    },
+    {
+      "path": "dong_son.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "c4b9b4eb37280d420ad7ccc4fdb0c6e1dbaf8b773abab9867189244de5fc5d1b"
+    },
+    {
+      "path": "dong_son.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "3273f44072315ee750ea45eaa282c4621a06eca77d3a2f2b8b02cbb6c853ff0c"
+    },
+    {
+      "path": "dong_son.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "52c4b22f0efdbd5e9d64c947e866f3f0c09b96938cdba772e68a6363f7d6cf2d"
+    },
+    {
+      "path": "dong_son.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        33,
+        14000,
+        3
+      ],
+      "bytes": 2772000,
+      "sha256": "8cc4e6e4010577848e38422a2141af0dace2bc15fb699bceb130ce5ca30e4d84"
+    },
+    {
+      "path": "dong_son.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        33,
+        14000
+      ],
+      "bytes": 462000,
+      "sha256": "9648eae1f888a3541fd2185681b02d457de9f133298ddd9e483b935a773a9a42"
+    },
+    {
+      "path": "ly_thai_to.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "4eef9dd25766cec6dee7b1a61157ceddaa5c5ebc5de3733faa1bfe75d7c763b2"
+    },
+    {
+      "path": "ly_thai_to.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "2aa751ccda1b0ccd01a9dbe38679054271a5ba9ed4274723e401d5a6129d7db2"
+    },
+    {
+      "path": "ly_thai_to.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "763e77b50d6b702c4832d9c6a1bd9a88bee528644b084f6daba17c1b65b864cc"
+    },
+    {
+      "path": "ly_thai_to.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "79c4b32c67739af58d4eaa109f16a51d48a1d6c4e5c329caa2a392d63b72aa86"
+    },
+    {
+      "path": "ly_thai_to.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        41,
+        14000,
+        3
+      ],
+      "bytes": 3444000,
+      "sha256": "853bf647aed1527f6232fa88857f2e02239088540e8e55039169bd45a9dfaecd"
+    },
+    {
+      "path": "ly_thai_to.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        41,
+        14000
+      ],
+      "bytes": 574000,
+      "sha256": "a5865cebc952cb12445e0767f9da07eb287e0ddceba899b8d1c4d93735622d30"
+    },
+    {
+      "path": "ly_dragon.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "6c2a3b09e7bc994852080c6af626ea9a188758e02b42108f1ef405205bac64fa"
+    },
+    {
+      "path": "ly_dragon.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "f91ac3ce810ff77b9742193b7f8ce2f7a3abeb5907947f2d357b1d88458a6786"
+    },
+    {
+      "path": "ly_dragon.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "7f4f3ebb0b942d79ca075510066f00463767d7ec05b364c719ede9e0441abefe"
+    },
+    {
+      "path": "ly_dragon.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "4792ddd89229d546affb17df0d7d929debf1136491f5f2343d56ba583a6c35b7"
+    },
+    {
+      "path": "ly_dragon.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        49,
+        14000,
+        3
+      ],
+      "bytes": 4116000,
+      "sha256": "94fb5c120b3720bc3c121392fd42e8e0a8a735f6789ae37f2b1c303dc20a02de"
+    },
+    {
+      "path": "ly_dragon.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        49,
+        14000
+      ],
+      "bytes": 686000,
+      "sha256": "e9a0068990d87d49971719e7f57ed30927dc9f0a5f551cb5a4147f2eb4d665ac"
+    },
+    {
+      "path": "ho_chi_minh_lotus.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "2312a0a42b96c4a58480c8565af700c2d4717ace9f154c402986e179d94020b3"
+    },
+    {
+      "path": "ho_chi_minh_lotus.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "7070e9ef65309b500bba80705aa691d8230c456f5c7e1dc35afc15b19dc064e1"
+    },
+    {
+      "path": "ho_chi_minh_lotus.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "c9d08439a083bcd900a173d76b09fccf7751ba0e669b2c81ff1e423ccf4c3cbf"
+    },
+    {
+      "path": "ho_chi_minh_lotus.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "3cc9b391c202c8f050dcdbb5337eb264e1359ec54ed7b82050a06e8b9f5908f5"
+    },
+    {
+      "path": "ho_chi_minh_lotus.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        49,
+        14000,
+        3
+      ],
+      "bytes": 4116000,
+      "sha256": "9504a9398b131d74728da28eb4b30c9ad41c55e77c3f7b416c09e40de35cb7e5"
+    },
+    {
+      "path": "ho_chi_minh_lotus.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        49,
+        14000
+      ],
+      "bytes": 686000,
+      "sha256": "be99b9f6ae927298ceb9d5dcb0f91c09d162458cf33f58153ac8af8e661fd034"
+    },
+    {
+      "path": "dien_bien.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "ceb2629ad8726f2f0d0de0aedc3380bcf332e67df87c4ae7ee3113966ffbac1f"
+    },
+    {
+      "path": "dien_bien.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "f4951f864dae82a3cf4ea5693ad08b47d5db154753e7ad053987ddbb60b232d7"
+    },
+    {
+      "path": "dien_bien.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "d806f8d3f969758ec63b2b31deec6ec7918e57401b712e2df5de74c7a68ac7e5"
+    },
+    {
+      "path": "dien_bien.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "a3b1d827df4945430ffc9ac458e23a6a0e3e93319fecc6aa60fe1d47b210a93f"
+    },
+    {
+      "path": "dien_bien.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        49,
+        14000,
+        3
+      ],
+      "bytes": 4116000,
+      "sha256": "10504757b92ab0da56ff11151f3046819507779240f32a242b5924649e9e6058"
+    },
+    {
+      "path": "dien_bien.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        49,
+        14000
+      ],
+      "bytes": 686000,
+      "sha256": "f186b8acf21118f7dc5e2617b86e917dd139ef92330b25edf597960e189fb82c"
+    },
+    {
+      "path": "reunification.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "75bda7c3bd92e82accf546f0facaa0d68d53d8546f989a4a5e07273ff2812ee2"
+    },
+    {
+      "path": "reunification.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "dc6367e8605d8debb6d22cd03c0cc1e58fec29c79387e63228ef26ca27acc746"
+    },
+    {
+      "path": "reunification.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "eb9de5433a6b7541f9fe6eef345c4f371760172e20cb00444c9c40cef12201b4"
+    },
+    {
+      "path": "reunification.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "2946d45be3cb0061768ece7dd02a3430e0fadaa2b919b7a4594cd43733119c22"
+    },
+    {
+      "path": "reunification.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        41,
+        14000,
+        3
+      ],
+      "bytes": 3444000,
+      "sha256": "603916eba8724b79921f12261b1c7a80e0a3d262ab5251407921c3cd59d92033"
+    },
+    {
+      "path": "reunification.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        41,
+        14000
+      ],
+      "bytes": 574000,
+      "sha256": "ad6d4c9533f9313ee8078d88a36ef65d8c90ded0768ea6d674f3ea9b7b8fb8b7"
+    },
+    {
+      "path": "vietnam_flag.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "fe5be43f5a4e215cdb60fbc3d2810fb71ba8b87a1553ed0b21426d7bb817802d"
+    },
+    {
+      "path": "vietnam_flag.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "90eea40d4679dcf94589f7a4b979e8b4c34ee3a7924373c4c901f4f250da33bd"
+    },
+    {
+      "path": "vietnam_flag.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "382abbecdaf26cfcdae5030cb2dcac4280e91109f2005953aa85df4ddb4e48e4"
+    },
+    {
+      "path": "vietnam_flag.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "8ebc2ada2fa5486fa6e308e4071e0e943f96a1af1353cf1e8ff0a4b526bd4fc3"
+    },
+    {
+      "path": "vietnam_flag.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        261,
+        14000,
+        3
+      ],
+      "bytes": 21924000,
+      "sha256": "7a04cf29f92aabaa9a51df89f8b50d93ea3a98d8a56fae968cb83067daf3804a"
+    },
+    {
+      "path": "vietnam_flag.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        261,
+        14000
+      ],
+      "bytes": 3654000,
+      "sha256": "60d2575dcbcb7432801548177f843818b4c43f574444bd8fa1a5e9cce4f878a2"
+    },
+    {
+      "path": "vietnam_flag.color_ids.u32",
+      "dtype": "<u4",
+      "shape": [
+        534
+      ],
+      "bytes": 2136,
+      "sha256": "f8777a8e2c28188d6cd3aaaeebbe9f2fb31a381c97dbe56195e0ea93c89dc4c5"
+    },
+    {
+      "path": "vietnam_flag.color_motion.u8",
+      "dtype": "u1",
+      "shape": [
+        781,
+        534,
+        3
+      ],
+      "bytes": 1251162,
+      "sha256": "02e854ab04ef6f4d1c0b912d9302655f6056d3f051d56f7929f88621202fdaf2"
+    },
+    {
+      "path": "launch.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "99fc4f826b5cc661ca97106240db24c4507d12b167c88a682ea277fad216fbf5"
+    },
+    {
+      "path": "launch.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "115a728c04e467a0ae6bfd9760442f2d7f4bcda62ed32c2e00df0e3353d1385d"
+    },
+    {
+      "path": "transition_00.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "0c822726ee4ba90f6fc144a05b92db97748a35334005ede60651d02aa0216eba"
+    },
+    {
+      "path": "transition_00.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "016df6e08ba2bf3726ef6924407bb1c2830ce74625fecc77c5bfa0e96206f5b0"
+    },
+    {
+      "path": "transition_01.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "062ccd93cc6400563b29de662b17e6c63572baebefb322fcecac05f8ba7a004a"
+    },
+    {
+      "path": "transition_01.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "8f9c7c58e3eaa1633ca14f9806a84d433233aaf50eea74a82213ce00d984c08e"
+    },
+    {
+      "path": "transition_02.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "738bf5afa3dd795984cb0279be007ff88ae984da45752c9d03c79ebdbdda7893"
+    },
+    {
+      "path": "transition_02.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "cf62dbfbe07cd0561357643ab26db857c6315844c336f264571f8309c0517bcd"
+    },
+    {
+      "path": "transition_03.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "b65e58b539416cb3ed172aecaf1d5edb1ed15421076630260b77f59fde96f433"
+    },
+    {
+      "path": "transition_03.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "ce3e0462475d337b782febc789bb11a2e3b1049dc3b075c4d34be8c375c823a5"
+    },
+    {
+      "path": "transition_04.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "289be3d4724db9395164f0576abe642d4654d62f4a6aff942cbed179b29eeb98"
+    },
+    {
+      "path": "transition_04.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "684f1a07341a342ddb37a6326ade8e82a7d806416d7215a485c92de908076059"
+    },
+    {
+      "path": "transition_05.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "14609c2a9a3437100570d18eb1631c6b3cc20d3525227427eadabcddef4ed156"
+    },
+    {
+      "path": "transition_05.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "502f4d88760557758f8f5009b366aee6420869f42b3bc7ffa10071d65f92d95f"
+    },
+    {
+      "path": "transition_06.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "f5377e9243b0cacf2a09d03216f3227a3af76ba0ef759f0255ae9c67e4a3a75e"
+    },
+    {
+      "path": "transition_06.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "e6c59edb1bab4153babeae90e312d08e9d92d5787b7a9b14eaadbea0082ab9ea"
+    },
+    {
+      "path": "landing_00.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "68ed4d966b59fa9a7fba4817b8697b0793602608b4cd54908d4eaa1dac2cf95a"
+    },
+    {
+      "path": "landing_00.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "0bb642740ba3bd82bd190fcf690216c5ae153599bb0f6efe3e56e3f64808b0bb"
+    },
+    {
+      "path": "landing_01.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "4e5c9b51f76847be41ff12b8dacd790170ed74828d6882fd1284635ecdfff203"
+    },
+    {
+      "path": "landing_01.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "9d269beae42ac4a8f53263775bec003346a7edc506d0ba845ff2dc3a6cc0def1"
+    }
+  ],
+  "timeline": "show_timeline.json",
+  "total_binary_bytes": 60893298,
+  "art_geometry": "Authored 2.5D relief based on supplied image; no textured planes in rendered show",
+  "revision": "box-launch-landing-v3-2026-11-12",
+  "scene_order": [
+    "dong_son",
+    "ly_thai_to",
+    "ly_dragon",
+    "ho_chi_minh_lotus",
+    "dien_bien",
+    "reunification",
+    "vietnam_flag"
+  ],
+  "render_contract": {
+    "rgb_encoding": "linear emission RGB, Uint8 divided by 255; not sRGB texture decoding",
+    "brightness": "multiply decoded linear RGB by brightness/255 exactly once",
+    "visibility": "show when max(linear_rgb * brightness) >= 0.004; use interpolated brightness through morphs, not hold active masks",
+    "led_radius_m": 0.16,
+    "emission_strength": 1.65,
+    "background_linear_rgb": [
+      8e-05,
+      0.0001,
+      0.00018
+    ],
+    "camera_position": [
+      0.0,
+      1.7,
+      300.0
+    ],
+    "camera_target": [
+      0.0,
+      85.0,
+      -0.0
+    ],
+    "camera_up": [
+      0.0,
+      0.9635455132575453,
+      0.2675444708478451
+    ],
+    "horizontal_fov_degrees": 34.94364593640624,
+    "aspect_ratio": 1.7777777777777777,
+    "note": "Projection and colour contract only; web renderer has not been implemented or tested."
+  }
+}

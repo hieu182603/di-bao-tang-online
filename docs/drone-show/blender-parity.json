@@ -1,9 +1,9 @@
 {
-  "revision": "launch-assembly-v2-2026-11-12",
+  "revision": "box-launch-landing-v3-2026-11-12",
   "ids": 14000,
-  "samples": 64,
+  "samples": 73,
   "hashes_verified": true,
-  "max_position_component_error_m": 7.626888503864393e-06,
+  "max_position_component_error_m": 7.628185187513736e-06,
   "max_rgba_error": 2.980227353788223e-08,
   "hold_led_counts": {
     "dong_son": 9967,

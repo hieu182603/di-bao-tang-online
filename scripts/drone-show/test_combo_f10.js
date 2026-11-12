@@ -28,9 +28,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     await page.keyboard.press('F8'); await sleep(200);
     check('F8 cannot interfere during combo', (await S()).ds.running && !(await S()).fw.running);
 
-    await page.evaluate(() => DroneShow.seek(148)); await sleep(2600);
+    await page.evaluate(() => DroneShow.seek(148)); await sleep(1000);
+    check('no F8 before 150 s', !(await S()).fw.running);
+    await page.waitForFunction('FireworksShow.isRunning', { timeout: 15000 }); await sleep(600);
     s = await S();
-    check('handoff: F8 fireworks start at 150 s', s.fw.running && s.ds.fireworks && s.fw.elapsed > 0 && s.fw.elapsed < 1.5, { t: s.ds.t, fw: s.fw.elapsed });
+    // F8 clock must equal drone clock minus the 150 s FIREWORKS_END handoff (headless frame rate varies).
+    check('handoff: F8 fireworks start at 150 s', s.ds.fireworks && Math.abs(s.fw.elapsed - (s.ds.frameT - 150)) < 0.2, { frameT: s.ds.frameT, fw: s.fw.elapsed });
     check('music keeps playing after 150 s', !s.musicPaused && s.vol > 0.5 && Math.abs(s.audio - s.ds.t) < 0.6, { audio: s.audio, t: s.ds.t, vol: s.vol });
     check('same seed drives F8 choreography', s.fw.seed === s.ds.seed, { fw: s.fw.seed, ds: s.ds.seed });
 

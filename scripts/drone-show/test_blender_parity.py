@@ -2,7 +2,7 @@
 import json, hashlib, subprocess, tempfile
 from pathlib import Path
 import numpy as np
-ROOT=Path(__file__).resolve().parents[2]; folder=ROOT/'Frontend/drone-show/blender-v2'
+ROOT=Path(__file__).resolve().parents[2]; folder=ROOT/'Frontend/drone-show/blender-v3'
 m=json.loads((folder/'export_manifest.json').read_text()); tl=json.loads((folder/'show_timeline.json').read_text()); N=m['drone_count']
 B={}
 for e in m['files']:
@@ -22,10 +22,10 @@ def decode(t):
    g=B[c['geometry']].astype(float); rgba=B[c['colors']].astype(float)/255; u=np.clip((t-c['start']-g[:,9])/(c['end']-c['start']-g[:,9]),0,1); q=6*u**5-15*u**4+10*u**3
    return g[:,:3]+(g[:,3:6]-g[:,:3])*q[:,None]+g[:,6:9]*(16*q*q*(1-q)**2)[:,None],rgba[:,:4]*(1-q[:,None])+rgba[:,4:]*q[:,None]
  raise ValueError(t)
-times=sorted(set([0,1,3,5.99,6,9,12,150,14.5,30.5,48.5,68.5,88.5,108.5,126.5,46,51,55]+[v for c in tl['transitions'] for v in [c['start'],c['start']+1e-5,(c['start']+c['end'])/2,c['end']-1e-5,c['end']]]+[c['start']+.137 for c in tl['formations']]))
+times=sorted(set([0,1,3,5.99,6,9,12,150,153,160,168,14.5,30.5,48.5,68.5,88.5,108.5,126.5,46,51,55]+[v for c in tl['transitions'] for v in [c['start'],c['start']+1e-5,(c['start']+c['end'])/2,c['end']-1e-5,c['end']]]+[c['start']+.137 for c in tl['formations']]))
 # Reverse + disordered accesses verify evaluator needs no preceding frames.
 times=times[::-1]+[19.123,126.543,0,99.9,42.017,104.5]
-script="""const fs=require('fs'),D=require('./Frontend/drone-blender.js');const dir='Frontend/drone-show/blender-v2/'; const m=JSON.parse(fs.readFileSync(dir+'export_manifest.json')),tl=JSON.parse(fs.readFileSync(dir+'show_timeline.json')),B={};for(const e of m.files){const b=fs.readFileSync(dir+e.path); const raw=b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength); B[e.path]=new D.types[e.dtype](raw);}const data=D.validate(m,tl,B),p=new Float32Array(data.N*3),c=new Float32Array(data.N*4);const times=JSON.parse(process.argv[1]);for(let i=0;i<times.length;i++){D.evaluate(data,times[i],p,c);fs.writeFileSync(process.argv[2]+'/'+i+'.bin',Buffer.concat([Buffer.from(p.buffer),Buffer.from(c.buffer)]));}"""
+script="""const fs=require('fs'),D=require('./Frontend/drone-blender.js');const dir='Frontend/drone-show/blender-v3/'; const m=JSON.parse(fs.readFileSync(dir+'export_manifest.json')),tl=JSON.parse(fs.readFileSync(dir+'show_timeline.json')),B={};for(const e of m.files){const b=fs.readFileSync(dir+e.path); const raw=b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength); B[e.path]=new D.types[e.dtype](raw);}const data=D.validate(m,tl,B),p=new Float32Array(data.N*3),c=new Float32Array(data.N*4);const times=JSON.parse(process.argv[1]);for(let i=0;i<times.length;i++){D.evaluate(data,times[i],p,c);fs.writeFileSync(process.argv[2]+'/'+i+'.bin',Buffer.concat([Buffer.from(p.buffer),Buffer.from(c.buffer)]));}"""
 maxp=maxc=0.; counts={}
 with tempfile.TemporaryDirectory() as tmp:
  subprocess.run(['node','-e',script,json.dumps(times),tmp],cwd=ROOT,check=True)

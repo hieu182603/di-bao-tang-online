@@ -9,7 +9,7 @@
       "ok": true,
       "detail": {
         "initialAt": 0,
-        "observedAt": 6.113
+        "observedAt": 1.322
       }
     },
     {
@@ -19,19 +19,19 @@
         "running": true,
         "pending": false,
         "paused": false,
-        "t": 6.141,
-        "frameT": 6.1160000000029795,
+        "t": 1.324,
+        "frameT": 1.2899000000000014,
         "combo": false,
         "fireworks": false,
         "musicEnd": 150,
         "tier": "BALANCED",
         "drones": 14000,
-        "revision": "b2-117584ae41fb",
-        "showId": "b2-117584ae41fb-1672516738",
-        "seed": 1672516738,
+        "revision": "b3-6d4770113720",
+        "showId": "b3-6d4770113720-94514648",
+        "seed": 94514648,
         "scene": 1,
-        "avgMs": 0.6088235301568228,
-        "loadMs": 872,
+        "avgMs": 0.5200000000128057,
+        "loadMs": 6845.199999999953,
         "initialAt": 0,
         "musicPlaying": true,
         "audioBlocked": false
@@ -57,8 +57,8 @@
       "name": "music catches seek time",
       "ok": true,
       "detail": {
-        "audio": 69.469617,
-        "show": 69.544
+        "audio": 69.441313,
+        "show": 69.512
       }
     },
     {
@@ -131,11 +131,11 @@
       "ok": true,
       "detail": [
         {
-          "url": "http://localhost:5191/favicon.ico",
+          "url": "http://localhost:5174/favicon.ico",
           "status": 404
         },
         {
-          "url": "http://localhost:5191/favicon.ico",
+          "url": "http://localhost:5174/favicon.ico",
           "status": 404
         }
       ]
@@ -174,20 +174,20 @@
   "errors": [],
   "networkFailures": [
     {
-      "url": "http://localhost:5191/favicon.ico",
+      "url": "http://localhost:5174/favicon.ico",
       "status": 404
     },
     {
-      "url": "http://localhost:5191/favicon.ico",
+      "url": "http://localhost:5174/favicon.ico",
       "status": 404
     }
   ],
   "performance": {
-    "fps": 77.782209812525,
-    "p95ms": 16.80000000000291,
-    "cpuMs": 0.34042553273921317,
+    "fps": 33.25573661456601,
+    "p95ms": 41.69999999999709,
+    "cpuMs": 0.1514851485176178,
     "calls": 1628,
     "geometries": 3247,
-    "heap": 138393533
+    "heap": 140301517
   }
 }
