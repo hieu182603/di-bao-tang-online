@@ -11,7 +11,7 @@ const path = require("path");
 const CHROME = process.env.CHROME || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const APP = process.env.APP_URL || "http://localhost:5191";
 const BACKEND = process.env.BACKEND || "http://localhost:5089";
-const OUT = path.join(__dirname, "..", "..", "docs", "drone-show", "screenshots");
+const OUT = path.join(__dirname, "..", "..", "docs", "drone-show", "blender-qa-v2");
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -77,7 +77,10 @@ const state = (c) => c.ev(`JSON.stringify({ ds: window.DroneShow.getState(), fw:
 
   // 1. F9 trên A -> cả hai cùng chạy, cùng seed, cùng thời điểm
   await A.key("F9", "F9", 120);
-  await sleep(4000);
+  for (let i = 0; i < 60; i++) {
+    if ((await state(A)).ds.running && (await state(B)).ds.running) break;
+    await sleep(500);
+  }
   a = await state(A); b = await state(B);
   check("F9 trên A khởi động show trên A", a.ds.running, a.ds);
   check("B nhận đồng bộ và chạy cùng show (cùng seed)", b.ds.running && a.ds.seed === b.ds.seed, { seedA: a.ds.seed, seedB: b.ds.seed });
@@ -110,20 +113,23 @@ const state = (c) => c.ev(`JSON.stringify({ ds: window.DroneShow.getState(), fw:
   a = await state(A);
   check("Vị trí & camera của A không bị đổi bởi show hay người khác", a.me[0] === meA0[0] && a.me[1] === meA0[1] && JSON.stringify(a.cam) === JSON.stringify(camA0), { me: [meA0, a.me], cam: [camA0, a.cam] });
 
-  // 5. Camera điện ảnh trên A không ảnh hưởng B
+  // C was removed: verify it cannot take over either client's camera.
   const camB0 = (await state(B)).cam;
-  await A.key("KeyC", "c", 67);
-  await sleep(2500);
+  await A.key("KeyC", "c", 67); await sleep(500);
+  await A.ev("document.activeElement.blur(); true");
   a = await state(A); b = await state(B);
-  check("C bật góc điện ảnh trên A", a.ds.cinematic && JSON.stringify(a.cam) !== JSON.stringify(camA0), a.cam);
-  check("Camera của B giữ nguyên khi A bật điện ảnh", JSON.stringify(b.cam) === JSON.stringify(camB0), { before: camB0, after: b.cam });
-  await A.shot("mp_A_cinematic.png"); await B.shot("mp_B_normal.png");
-  await A.key("KeyC", "c", 67);
+  check("C không đổi camera, không khôi phục cinematic", !a.ds.cinematic && JSON.stringify(a.cam) === JSON.stringify(camA0), a.cam);
+  check("Camera B không bị tác động", JSON.stringify(b.cam) === JSON.stringify(camB0));
+  check("Đủ 14000 ID và đúng revision Blender trên A/B", a.ds.drones === 14000 && b.ds.drones === 14000 && a.ds.revision === b.ds.revision, { a: a.ds.revision, b: b.ds.revision });
 
   // 6. Người vào muộn: C vào giữa show -> chạy cùng show, đúng thời điểm
   console.log("Khởi động client C (vào muộn)…");
   const C = await client("C");
-  await sleep(3500);
+  // New clients download/hash ~60 MB and compile shaders before they can catch up.
+  for (let i = 0; i < 60; i++) {
+    if ((await state(C)).ds.running) break;
+    await sleep(500);
+  }
   // đọc thời điểm show trên A và C trong cùng một nhịp (so với Date.now() để loại trễ do lời gọi CDP tuần tự)
   const liveA = await A.ev("JSON.stringify({ t: window.DroneShow.getState().t, now: Date.now() })").then(JSON.parse);
   const liveC = await C.ev("JSON.stringify({ t: window.DroneShow.getState().t, now: Date.now() })").then(JSON.parse);
@@ -158,12 +164,22 @@ const state = (c) => c.ev(`JSON.stringify({ ds: window.DroneShow.getState(), fw:
   const mem = await A.ev("JSON.stringify(window.__museum && performance.memory ? { used: performance.memory.usedJSHeapSize } : {})");
   check("Restart 4 lần: số đối tượng trong scene không tăng", after.sceneChildren === before.sceneChildren && after.stageChildren === before.stageChildren,
     { scene: [before.sceneChildren, after.sceneChildren], stage: [before.stageChildren, after.stageChildren], mem });
+  // Slow loader on an existing peer: a remote stop must invalidate the pending start.
+  await B.ev("window.__normalDroneLoad = DroneShow.load; DroneShow.load = async function(){ await new Promise(r=>setTimeout(r,6000)); return window.__normalDroneLoad.call(this); }; true");
+  await A.ev("window.startDroneShow({}, true); true"); await sleep(900);
+  const delayed = await state(B);
+  check("Client tải chậm ở trạng thái pending", delayed.ds.pending && !delayed.ds.running, delayed.ds);
+  await A.ev("window.stopDroneShow(true); true"); await sleep(6700);
+  const stoppedSlow = await state(B);
+  check("Stop khi peer đang loading: không tự sống lại", !stoppedSlow.ds.running && !stoppedSlow.ds.pending && !stoppedSlow.ds.musicPlaying, stoppedSlow.ds);
+  await B.ev("DroneShow.load = window.__normalDroneLoad; true");
+
   // 10. Lỗi console / shader
   const errs = [...A.errors, ...B.errors, ...C.errors].filter((e) => !/favicon|ERR_BLOCKED|net::/i.test(e));
   check("Không có lỗi JS / shader trên 3 client", errs.length === 0, errs.slice(0, 5));
   R.passed = R.checks.filter((x) => x.ok).length; R.total = R.checks.length;
-  fs.writeFileSync(path.join(OUT, "multiplayer_report.json"), JSON.stringify(R, null, 2));
+  fs.writeFileSync(path.join(OUT, "multiplayer-blender-report.json"), JSON.stringify(R, null, 2));
   console.log(`\nKết quả: ${R.passed}/${R.total} PASS`);
   A.close(); B.close(); C.close();
-  setTimeout(() => process.exit(0), 2000);
+  setTimeout(() => process.exit(R.passed === R.total ? 0 : 1), 2000);
 })();

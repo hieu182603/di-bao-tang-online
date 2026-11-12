@@ -1,0 +1,646 @@
+{
+  "schema": "vn-source-guided-drone/1.1",
+  "drone_count": 14000,
+  "id_order": "row i is fixed drone ID i in every exported file; no permutation required by consumer",
+  "coordinate_system": "Blender(X,Y,Z) -> Three.js(X,Z,-Y), right-handed rotation, determinant +1",
+  "units": "metres",
+  "endianness": "little",
+  "files": [
+    {
+      "path": "dong_son.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "07a85d67c03c78699c1236eac66f83e529e745863b26c72d2716c235d7d10c13"
+    },
+    {
+      "path": "dong_son.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "752736a1670f59e71888f7414c82498f27a410cd3d83d062decb8e082534c547"
+    },
+    {
+      "path": "dong_son.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "019590a051b6e1b09bb11afa428157f1785615a7e383ce834f0f0200c95ce3d0"
+    },
+    {
+      "path": "dong_son.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "1c536a1d9f9a051aa4e58f8a182c67fafa531f5e512be8fb6e9b8f43f6cca630"
+    },
+    {
+      "path": "dong_son.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        33,
+        14000,
+        3
+      ],
+      "bytes": 2772000,
+      "sha256": "fd5df5995fa5c751402d7ce3ce87572175403ca54ea69f7a193aabf83f175a90"
+    },
+    {
+      "path": "dong_son.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        33,
+        14000
+      ],
+      "bytes": 462000,
+      "sha256": "80b802c56b52a4dfe5a1b09cb18cb87410519a1526622642d1bcc16f41c1774c"
+    },
+    {
+      "path": "ly_thai_to.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "967b36454ad35efd003dca00e97f985133d8551cc8ff9805f66806ebf1fd59fa"
+    },
+    {
+      "path": "ly_thai_to.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "3abe66ebd7e99df6ff28503bc352ec0a74d13690797f7971aa7311d8649219b3"
+    },
+    {
+      "path": "ly_thai_to.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "cb467cf2c2def22ddeeccd692527165bdb11026049c2cc79ef56cdaabd9cbfe3"
+    },
+    {
+      "path": "ly_thai_to.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "39375db5376654d502efd69d126aafac048f611a3dce1d169f0a9e98f526decb"
+    },
+    {
+      "path": "ly_thai_to.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        41,
+        14000,
+        3
+      ],
+      "bytes": 3444000,
+      "sha256": "d848abd3db977ce1f7559529cf28dd572894fdbf29e3e192d13a4d3df4abd05c"
+    },
+    {
+      "path": "ly_thai_to.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        41,
+        14000
+      ],
+      "bytes": 574000,
+      "sha256": "de79e227184d4f4f43c30769cbb6199c350d82ea977d6631965c07e6065527d0"
+    },
+    {
+      "path": "ly_dragon.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "5c87d95069f54af1f835daa3bfdacd11e72e0f93dd8d9395472bd0dcde168ac0"
+    },
+    {
+      "path": "ly_dragon.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "da5f204e1db78a605d1907dc6667f6e4c38fdc176f8637cb548fbf37cac89137"
+    },
+    {
+      "path": "ly_dragon.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "83a9b2ec90f31b5b888a95267bffdca6f05eabf10aee885033ae3286c6dd0ab9"
+    },
+    {
+      "path": "ly_dragon.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "336cc7c0a1e4f2f3a3b279786d323b167708af6b860638e6ded9fcc15b16c569"
+    },
+    {
+      "path": "ly_dragon.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        49,
+        14000,
+        3
+      ],
+      "bytes": 4116000,
+      "sha256": "3c21b61f4fd1fc2ed05e66321ac972dd7ffa321ee0e85750abf289d3151a143a"
+    },
+    {
+      "path": "ly_dragon.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        49,
+        14000
+      ],
+      "bytes": 686000,
+      "sha256": "b1ba92f9302cfb3b3aaf28c3540fa79b890d9db0b68e2cc1014c17a4f8224253"
+    },
+    {
+      "path": "ho_chi_minh_lotus.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "4e431ae8521408cd453e0c0254bf68217c818cb61a120a13447093911209f23e"
+    },
+    {
+      "path": "ho_chi_minh_lotus.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "ba5bb5ee3a0d0f2031ee689b9ea5d2d52b5e96203a52c538fd448b3354fe0c38"
+    },
+    {
+      "path": "ho_chi_minh_lotus.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "f6599711d9babba066dcf48bc0619c24791b31a968e30b648d1b8af772bf7338"
+    },
+    {
+      "path": "ho_chi_minh_lotus.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "34397a417779087705328c15d13069c2b832986f32e8229e1158749358e98713"
+    },
+    {
+      "path": "ho_chi_minh_lotus.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        49,
+        14000,
+        3
+      ],
+      "bytes": 4116000,
+      "sha256": "049f9f41a5cb202bab724812b8b1ab7c441c5e3fd956e9f5409549f98ad901df"
+    },
+    {
+      "path": "ho_chi_minh_lotus.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        49,
+        14000
+      ],
+      "bytes": 686000,
+      "sha256": "817589c37f2dee8dee5455204b99c149bfbd6400522b92be12961177e26b722c"
+    },
+    {
+      "path": "dien_bien.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "ca3c982b8116e3b3c402b1f38031f5a73b9637d0ee2387be7ed743145893f28f"
+    },
+    {
+      "path": "dien_bien.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "1f030c8a1896420424714f11108b2308fb0f237f8ddeaa560b8aafac846678ab"
+    },
+    {
+      "path": "dien_bien.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "c6b6a84aaf4c7da1fd66ac0e0b7c96562f0817eec64072163f77caaf4e17ec30"
+    },
+    {
+      "path": "dien_bien.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "f4316ef5bf5c2cfbbde08721a89472eedb21bb9fc74bff4b46cf2e46492d314d"
+    },
+    {
+      "path": "dien_bien.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        49,
+        14000,
+        3
+      ],
+      "bytes": 4116000,
+      "sha256": "bd32cd85b065ac5da18968c3dc3ae149efacfe62e8de17baa6c93ca269676bbc"
+    },
+    {
+      "path": "dien_bien.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        49,
+        14000
+      ],
+      "bytes": 686000,
+      "sha256": "5bf4f619167549607ae288ebcb8f920af86f49db545959dd571cd9f2f9079a57"
+    },
+    {
+      "path": "reunification.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "1e966395a0434ab88db0bceb5be2ae18c098c0aaf39ce138b07ac3d73ec38ac2"
+    },
+    {
+      "path": "reunification.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "561c20ce91cf0cf89e72bfc3ca76f6fb004ff68a5c4821d12297260c71459c9e"
+    },
+    {
+      "path": "reunification.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "96f4f8695ff18d9860792b21921b5dcddd290d4683819d37bf60247e6440ff25"
+    },
+    {
+      "path": "reunification.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "15c7a6ba5fd2ba5f0dd0f76a53945f0ae38105b77d5c6d061dc6cb6cdce9c657"
+    },
+    {
+      "path": "reunification.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        41,
+        14000,
+        3
+      ],
+      "bytes": 3444000,
+      "sha256": "603916eba8724b79921f12261b1c7a80e0a3d262ab5251407921c3cd59d92033"
+    },
+    {
+      "path": "reunification.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        41,
+        14000
+      ],
+      "bytes": 574000,
+      "sha256": "fda1b5d77ff263ee982197d3277a73a3e5ff57bfc18b93e5369fec865980ceb7"
+    },
+    {
+      "path": "vietnam_flag.position.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 168000,
+      "sha256": "bab8ace90c60b6fa3c527c6adb1ca430a33f72d10d7df1378f4d11238f98a3ce"
+    },
+    {
+      "path": "vietnam_flag.rgb.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        3
+      ],
+      "bytes": 42000,
+      "sha256": "5de4af4b40211285ae22e90f84fdbca3efa2c96deba56c430b735bbce51e61dc"
+    },
+    {
+      "path": "vietnam_flag.group.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "3aed7de9f292f642358308e5efe7f32ed8db781c8e353aa8cccb77f745ee26f8"
+    },
+    {
+      "path": "vietnam_flag.active.u8",
+      "dtype": "u1",
+      "shape": [
+        14000
+      ],
+      "bytes": 14000,
+      "sha256": "2a183461dc043f90bdac68f40f2073303a85a98a5cd1d2a3455a84e6405618c9"
+    },
+    {
+      "path": "vietnam_flag.motion.i16",
+      "dtype": "<i2",
+      "shape": [
+        261,
+        14000,
+        3
+      ],
+      "bytes": 21924000,
+      "sha256": "ad76e487e0a07b7401f19d992846ba30b198bbc36b088a871af3b2d8c57fdfee"
+    },
+    {
+      "path": "vietnam_flag.brightness.u8",
+      "dtype": "u1",
+      "shape": [
+        261,
+        14000
+      ],
+      "bytes": 3654000,
+      "sha256": "35178d8bbfe99c68b47f86f5fa917d22c3e981e83b123a5537a071c5cc5d63cf"
+    },
+    {
+      "path": "vietnam_flag.color_ids.u32",
+      "dtype": "<u4",
+      "shape": [
+        534
+      ],
+      "bytes": 2136,
+      "sha256": "3eb32638bd0bae6b91126cfc716d84d8cabb287c50abeeda3f0b6881d7f5aef2"
+    },
+    {
+      "path": "vietnam_flag.color_motion.u8",
+      "dtype": "u1",
+      "shape": [
+        781,
+        534,
+        3
+      ],
+      "bytes": 1251162,
+      "sha256": "a8f70becdfaf0c657c86f58aadfc9d1d48293814c0ff045d4bd4a7795dddbfad"
+    },
+    {
+      "path": "launch.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "e105f0d5ac3bce00eec669b786f7ff04c4bc996ce87053bd00b1a2e7c811b2bc"
+    },
+    {
+      "path": "launch.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "7c085b0cc56bfa209df918cc6e12d936271ecfccdfb20542d14eb9c4fd272316"
+    },
+    {
+      "path": "transition_00.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "39e487c5507a9434b360b5c40a3bed703ec4a4208c6da76f57a27574e48f31e1"
+    },
+    {
+      "path": "transition_00.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "3c89228fbb20a0896ffe7363896f835fba1d4d14725c3bb6cdacb7711de9ba92"
+    },
+    {
+      "path": "transition_01.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "404ee7424db415a1c046d5e3b14b08dc4e4b685b62dc9aa933db2a0e4fadf9c9"
+    },
+    {
+      "path": "transition_01.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "71c685c87c364fdf361c8ee4e786053a901d4150dcfcdef891bb89842d931fcf"
+    },
+    {
+      "path": "transition_02.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "4235d3c08a92afe1745b8c91874aed4ad259551266515e57b175becc2be93623"
+    },
+    {
+      "path": "transition_02.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "b6b67312f8e4f73df6c6eb34cefb9482130394137da154ef6354caf749d92128"
+    },
+    {
+      "path": "transition_03.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "c332b9a8ad1984781171191cc75c8324dec8675ec5c7d210c4bff7ec9d5a196e"
+    },
+    {
+      "path": "transition_03.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "a46679bf501c1314eb5cd17d16126f6abdf8cf496ebefb99ecc7197f1c07b92d"
+    },
+    {
+      "path": "transition_04.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "a8b48988fcc6b0027c27c5d81b2c8292114d6d394b2f4e0c7ce54294816ca9ca"
+    },
+    {
+      "path": "transition_04.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "e012f89ebea8017fee91d9b54f0756fea1df387f904569ec80abff4a1fb08024"
+    },
+    {
+      "path": "transition_05.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "358bd8196f25433582f09451aa35dc901c6a6be7ee6e05c3f6352f507b578445"
+    },
+    {
+      "path": "transition_05.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "8af8862dc5bfdb929d25c45bb3a6e5e77ae7d2d62ecfafa8ebe1d9a9478c1bb1"
+    },
+    {
+      "path": "transition_06.f32",
+      "dtype": "<f4",
+      "shape": [
+        14000,
+        10
+      ],
+      "bytes": 560000,
+      "sha256": "0fb77c701ee5fd1bc800f8e61d4b2b23402af48d51933d295233c91d902887b9"
+    },
+    {
+      "path": "transition_06.rgba.u8",
+      "dtype": "u1",
+      "shape": [
+        14000,
+        8
+      ],
+      "bytes": 112000,
+      "sha256": "f2138c9eebba58ae29dde87f2db67bf0fe8aa0bc69a9c431a7f36d4b261beb57"
+    }
+  ],
+  "timeline": "show_timeline.json",
+  "total_binary_bytes": 59549298,
+  "art_geometry": "Authored 2.5D relief based on supplied image; no textured planes in rendered show",
+  "revision": "launch-assembly-v2-2026-11-12",
+  "scene_order": [
+    "dong_son",
+    "ly_thai_to",
+    "ly_dragon",
+    "ho_chi_minh_lotus",
+    "dien_bien",
+    "reunification",
+    "vietnam_flag"
+  ],
+  "render_contract": {
+    "rgb_encoding": "linear emission RGB, Uint8 divided by 255; not sRGB texture decoding",
+    "brightness": "multiply decoded linear RGB by brightness/255 exactly once",
+    "visibility": "show when max(linear_rgb * brightness) >= 0.004; use interpolated brightness through morphs, not hold active masks",
+    "led_radius_m": 0.16,
+    "emission_strength": 1.65,
+    "background_linear_rgb": [
+      8e-05,
+      0.0001,
+      0.00018
+    ],
+    "camera_position": [
+      0.0,
+      1.7,
+      300.0
+    ],
+    "camera_target": [
+      0.0,
+      85.0,
+      -0.0
+    ],
+    "camera_up": [
+      0.0,
+      0.9635455132575453,
+      0.2675444708478451
+    ],
+    "horizontal_fov_degrees": 34.94364593640624,
+    "aspect_ratio": 1.7777777777777777,
+    "note": "Projection and colour contract only; web renderer has not been implemented or tested."
+  }
+}

@@ -4301,7 +4301,10 @@ function tagSprite(text, color, width) {
   if (color) { g.fillStyle = color; g.beginPath(); g.arc((512 - w) / 2 + 21, 32, 7.5, 0, PI * 2); g.fill(); }
   g.fillStyle = "#f3ead8"; g.textAlign = "center"; g.textBaseline = "middle";
   g.fillText(text, 256 + (color ? 9 : 0), 33, w - (color ? 55 : 32));
-  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: canvasTex(c), transparent: true }));
+  // Transparent canvas margins must not occlude drone LEDs or fireworks behind the label.
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: canvasTex(c), transparent: true, depthWrite: false, alphaTest: 0.01
+  }));
   sp.scale.set(width, width / 8, 1); return sp;
 }
 function disposeSprite(sp) { if (!sp) return; sp.parent && sp.parent.remove(sp); sp.material.map.dispose(); sp.material.dispose(); }
@@ -4497,6 +4500,7 @@ if ($("tts-btn")) $("tts-btn").addEventListener("click", toggleSpeech);
 if ($("sfx-btn")) {
   $("sfx-btn").addEventListener("click", () => {
     SFX.enabled = !SFX.enabled;
+    if (window.DroneShow && window.DroneShow.music) window.DroneShow.music.muted = !SFX.enabled;
     $("sfx-icon").textContent = SFX.enabled ? "volume_up" : "volume_off";
     if (!SFX.enabled) stopSpeech();
   });
@@ -4921,7 +4925,6 @@ function startFireworksShow(opts = {}, broadcast = true) {
   // Quy tắc xung đột: khi Drone Show (F9) đang chạy, không mở thêm màn pháo hoa độc lập —
   // pháo hoa vẫn bắn theo các cue đã biên đạo ở màn kết của Drone Show.
   if (window.DroneShow && (window.DroneShow.isRunning || window.DroneShow.pending)) {
-    if (broadcast) addLog(null, "Đang trình diễn Drone Show — pháo hoa sẽ bắn ở màn kết (giây 137–150).");
     return;
   }
   if (window.FireworksShow) {
@@ -4947,6 +4950,8 @@ function stopFireworksShow(naturalFinish = false, broadcast = true) {
 }
 
 function toggleFireworksShow() {
+  // F9/F10 owns the fireworks while it runs (F10 hands over to the F8 timeline at 150 s): F8 must not cut it.
+  if (window.DroneShow && (window.DroneShow.isRunning || window.DroneShow.pending)) return;
   if (window.FireworksShow && window.FireworksShow.isRunning) {
     stopFireworksShow(false, true);
   } else {
@@ -4990,48 +4995,70 @@ function startDroneShow(opts = {}, broadcast = true) {
   const DS = window.DroneShow;
   if (!DS || DS.isRunning || DS.pending) return;
   if (window.FireworksShow && window.FireworksShow.isRunning) {
-    if (broadcast) addLog(null, "Đang bắn pháo hoa (F8) — đợi pháo hoa kết thúc hoặc nhấn F8 để dừng, rồi nhấn F9.");
     return;
   }
   const seed = opts.seed || ((Math.random() * 2 ** 31) >>> 0);
-  const startTime = opts.startTime || Date.now();
-  DS.start({ ...opts, seed, startTime }).then((ok) => {
-    if (ok && broadcast && window.Net && typeof window.Net.broadcastDroneShow === "function") window.Net.broadcastDroneShow("start", { seed, startTime });
+  return DS.start({ ...opts, seed }).then((ok) => {
+    if (ok && broadcast && window.Net && typeof window.Net.broadcastDroneShow === "function") {
+      window.Net.broadcastDroneShow("start", { seed, startTime: DS.startTime, revision: window.DroneShowConfig.assetTag, combo: DS.combo });
+    }
+    return ok;
   });
 }
 function stopDroneShow(broadcast = true) {
   const DS = window.DroneShow;
-  if (!DS || !DS.isRunning) return;
+  if (!DS || (!DS.isRunning && !DS.pending)) return;
   DS.stop(false);
-  if (broadcast && window.Net && typeof window.Net.broadcastDroneShow === "function") window.Net.broadcastDroneShow("stop", { seed: DS.seed });
+  if (broadcast && window.Net && typeof window.Net.broadcastDroneShow === "function") window.Net.broadcastDroneShow("stop", { seed: DS.seed, revision: window.DroneShowConfig.assetTag });
 }
 let droneStopArmed = 0;
-function toggleDroneShow() {
+function toggleDroneShow(combo = false) {
   const DS = window.DroneShow; if (!DS) return;
-  if (DS.isRunning) {   // dừng cần nhấn F9 hai lần trong 2,5 s để tránh lỡ tay
+  if (DS.isRunning || DS.pending) {   // dừng cần nhấn F9 hai lần trong 2,5 s để tránh lỡ tay
     const now = performance.now();
-    if (now - droneStopArmed < 2500) { droneStopArmed = 0; stopDroneShow(true); addLog(null, "Đã dừng Drone Show."); }
-    else { droneStopArmed = now; addLog(null, "Nhấn F9 lần nữa để dừng Drone Show."); }
+    if (now - droneStopArmed < 2500) { droneStopArmed = 0; stopDroneShow(true); }
+    else { droneStopArmed = now; }
     return;
   }
-  startDroneShow({}, true);
+  startDroneShow({ combo }, true);
+  droneStopArmed = 0;
 }
-function setDroneCinematic(on) {
-  const DS = window.DroneShow; if (!DS || !DS.isRunning) return;
-  DS.setCinematic(on);
-  addLog(null, DS.cine.on ? "Góc nhìn điện ảnh: BẬT (C hoặc di chuyển để thoát)" : "Góc nhìn điện ảnh: TẮT");
-}
+let droneJoinSyncRegistered = false, droneReannounceTimer = 0, droneJoinAt = 0, droneHeardAt = 0;
 if (typeof window !== "undefined") {
   const registerDroneNet = () => {
     if (!window.Net) return;
+    // Chat can overwrite the small __ds__ message stored in a player's snapshot.
+    // Reannounce the active clock to new peers, also when the original starter has left.
+    // Only ONE peer re-announces (not every peer → O(N²) packets in a busy room): peers are ranked by id,
+    // rank 0 sends first, the others cancel once they hear a re-announcement newer than the latest join.
+    if (!droneJoinSyncRegistered) {
+      droneJoinSyncRegistered = true;
+      window.Net.onChange((type, id) => {
+        const DS = window.DroneShow;
+        if (type !== "join" || !DS || !(DS.startTime > 0) || !(DS.isRunning || DS.pending)) return;
+        if (!joinedAt || performance.now() - joinedAt < 5000) return;   // I am the newcomer: the room snapshot is replaying to me
+        droneJoinAt = performance.now();
+        if (droneReannounceTimer) return;   // one timer covers a burst of joins
+        const ids = [...window.Net.peers.keys(), window.Net.selfId].filter((x) => x !== id).sort();
+        const rank = Math.min(8, Math.max(0, ids.indexOf(window.Net.selfId)));
+        droneReannounceTimer = setTimeout(() => {
+          droneReannounceTimer = 0;
+          const DS = window.DroneShow;
+          if (droneHeardAt > droneJoinAt || !DS || !(DS.startTime > 0) || !(DS.isRunning || DS.pending)) return;
+          window.Net.broadcastDroneShow("start", { seed: DS.seed, startTime: DS.startTime, revision: window.DroneShowConfig.assetTag, combo: DS.combo });
+        }, 300 + rank * 450 + Math.random() * 150);
+      });
+    }
     window.Net.onDroneShow = (action, data) => {
       const DS = window.DroneShow; if (!DS) return;
       if (action === "start") {
-        if (DS.isRunning && DS.seed === (data.seed >>> 0)) return;
-        if (DS.isRunning) DS.stop(false);
-        startDroneShow({ seed: data.seed, startTime: data.startTime }, false);
+        if (data.revision !== window.DroneShowConfig.assetTag) { console.warn("[DroneShow] Remote revision mismatch", data.revision); return; }
+        droneHeardAt = performance.now();
+        if ((DS.isRunning || DS.pending) && DS.seed === (data.seed >>> 0)) return;
+        if (DS.isRunning || DS.pending) DS.stop(false);
+        startDroneShow({ seed: data.seed, startTime: data.startTime, revision: data.revision, combo: !!data.combo }, false);
       } else if (action === "stop") {
-        if (DS.isRunning) DS.stop(false);
+        if ((DS.isRunning || DS.pending) && (!data.seed || DS.seed === (data.seed >>> 0))) DS.stop(false);
       }
     };
   };
@@ -5058,15 +5085,21 @@ let started = false;
 const isTouch = matchMedia("(pointer: coarse)").matches;
 if (isTouch) document.body.classList.add("touch");
 addEventListener("keydown", (e) => {
-  if (e.target && e.target.tagName === "INPUT") { if (e.key === "Escape") e.target.blur(); return; }
+  if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) { if (e.key === "Escape") e.target.blur(); return; }
   if (e.key === "Escape" && !$("emote-wheel").hidden) { toggleWheel(false); return; }
-  if (e.key === "Escape" && window.DroneShow && window.DroneShow.cine.on) { setDroneCinematic(false); return; }
   if (e.key === "Escape") { if (infoOpen) closeInfo(); else if (!$("qr-modal").hidden) $("qr-modal").hidden = true; return; }
   // F9: Drone Show 150 giây (bảy đội hình lịch sử – văn hoá), kết bằng pháo hoa của hệ thống F8
   if (e.code === "F9" || e.key === "F9") {
     e.preventDefault();
     if (e.repeat) return;
     toggleDroneShow();
+    return;
+  }
+  // F10: Drone Show rồi nối liền màn pháo hoa F8 (giây 150), nhạc chạy xuyên suốt đến hết pháo hoa. Nhấn 2 lần để dừng.
+  if (e.code === "F10" || e.key === "F10") {
+    e.preventDefault();
+    if (e.repeat) return;
+    toggleDroneShow(true);
     return;
   }
   // Lệnh ẩn F8 / F1: Kích hoạt màn pháo hoa nghệ thuật 45s (Mỹ Đình Celebration) & F2: Chuyển ngày/tối
@@ -5081,7 +5114,6 @@ addEventListener("keydown", (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key === "Enter") { e.preventDefault(); $("say").focus(); return; } // chỉ Enter mới bắt đầu chat
   if (e.code === "KeyV") { if (!e.repeat) toggleView(); return; }
-  if (e.code === "KeyC" && window.DroneShow && window.DroneShow.isRunning) { if (!e.repeat) setDroneCinematic(!window.DroneShow.cine.on); return; }
   if (e.code === "KeyF") { if (!e.repeat) toggleWheel(); return; }
   if (!$("emote-wheel").hidden && (e.key === "1" || e.key === "2")) { doEmote(e.key === "1" ? "wave" : "clap"); toggleWheel(false); return; }
   if (e.code === "Space") { e.preventDefault(); jump(); return; }
@@ -5440,17 +5472,9 @@ function frame(now) {
       camera.position.copy(head).addScaledVector(fwd, -camDist);
     } else { camDist = 0; camera.position.copy(head); }
     camera.rotation.set(player.pitch, player.yaw, 0);
-    // Góc nhìn điện ảnh của Drone Show: chỉ đổi camera của CHÍNH máy này, người chơi đứng yên tại chỗ;
-    // tự thoát khi người chơi bắt đầu di chuyển.
-    let cineCam = false;
-    if (window.DroneShow) {
-      if (player.moving && window.DroneShow.cine.on) setDroneCinematic(false);
-      cineCam = window.DroneShow.applyCamera(camera, dt);
-    }
-
     // --- my figure
     if (me.fig) {
-      me.fig.visible = (thirdPerson || cineCam) && started;
+      me.fig.visible = thirdPerson && started;
       me.fig.position.set(player.x, player.base + player.jy, player.z); me.fig.rotation.y = player.seat ? player.seatYaw : player.yaw;
       pose(me.fig, player.phase, player.moving ? (player.running ? 2 : 1) : 0, now < me.emoteUntil ? me.emote : null, t, dt, !player.grounded, !!player.seat);
       if (me.bubble) me.bubble.visible = now < me.bubbleUntil;
@@ -5610,7 +5634,7 @@ async function init() {
   buildAtmosphere(); buildOutdoor(); buildBuilding(); buildStatue(); buildGarden(); buildVehicles(); buildHall(); buildUpperFloor(); buildRooms(); buildUpperRooms(); buildGates(); buildPlayground(); buildParkour(); buildDecor(); loadCases();
   if (window.FireworksShow) window.FireworksShow.init(scene, camera, renderer);
   if (window.DroneShow) window.DroneShow.init(scene, camera, renderer, {
-    toast: (m) => addLog(null, m),
+    soundEnabled: () => SFX.enabled,
     // vị trí xem chính (sân trước bảo tàng, ngẩng nhìn lên vùng trời trình diễn) — dùng cho công cụ debug
     mainView: () => { player.x = 0; player.z = 37; player.yaw = 0; player.pitch = 0.66; },
   });
@@ -5640,12 +5664,12 @@ async function init() {
           if (window.FireworksShow) window.FireworksShow.start();
         }, 600);
       }
-      // Kiểm thử Drone Show: ?autostart=1&f9=1[&droneAt=giây][&drones=low|balanced|high][&cine=1]
-      if (urlParams.get("f9") === "1" || urlParams.get("drones")) {
+      // Kiểm thử Drone Show: ?autostart=1&f9=1[&droneAt=giây][&drones=low|balanced|high]
+      if (urlParams.get("f9") === "1" || urlParams.get("combo") === "1" || urlParams.get("drones")) {
         setTimeout(() => {
           const at = parseFloat(urlParams.get("droneAt") || "0") || 0;
-          startDroneShow({ at, startTime: Date.now() - at * 1000 }, false);
-          if (urlParams.get("cine") === "1") setTimeout(() => setDroneCinematic(true), 400);
+          const combo = urlParams.get("combo") === "1";
+          startDroneShow(urlParams.has("droneAt") ? { at, startTime: Date.now() - at * 1000, combo } : { combo }, false);
         }, 700);
       }
       if (urlParams.get("hall") === "1" || urlParams.get("star") === "1") {

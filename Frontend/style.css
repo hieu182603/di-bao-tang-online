@@ -332,20 +332,3 @@ body.touch .act .hk { display: none; }
 
 /* Máy tính nhảy bằng phím Space nên ẩn nút; điện thoại vẫn cần nút này */
 body:not(.touch) #jump-btn { display: none; }
-
-/* ===== Drone Show (F9): phụ đề cảnh — giữa trên, không chắn bầu trời trình diễn ===== */
-#ds-caption {
-  position: fixed; z-index: 6; pointer-events: none; text-align: center;
-  top: calc(64px + env(safe-area-inset-top, 0px)); left: 50%; transform: translate(-50%, -6px);
-  background: rgba(14, 10, 8, 0.62); backdrop-filter: blur(6px);
-  border: 1px solid rgba(201,162,74,0.38); border-radius: 10px;
-  padding: 8px 18px 9px; max-width: min(620px, calc(100vw - 32px));
-  opacity: 0; transition: opacity 0.9s ease, transform 0.9s ease;
-}
-#ds-caption.show { opacity: 1; transform: translate(-50%, 0); }
-#ds-caption .eyebrow { justify-content: center; font-size: 10px; }
-#ds-caption .ds-title { font-family: var(--font-display); font-weight: 700; font-size: clamp(15px, 1.9vw, 19px); color: #fff; margin-top: 3px; text-wrap: balance; }
-#ds-caption .ds-sub { font-size: 12.5px; color: var(--gold-soft); margin-top: 2px; line-height: 1.45; text-wrap: balance; }
-#ds-caption.waiting .ds-title { font-size: 14px; color: var(--muted); }
-@media (max-width: 640px) { #ds-caption { top: calc(58px + env(safe-area-inset-top, 0px)); padding: 6px 12px; } #ds-caption .ds-sub { display: none; } }
-@media (prefers-reduced-motion: reduce) { #ds-caption { transition: none; } }

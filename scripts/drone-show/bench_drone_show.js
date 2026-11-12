@@ -1,7 +1,7 @@
 // Benchmark Drone Show trên ứng dụng thật (Chrome headless + GPU máy chạy test).
 //   node scripts/drone-show/bench_drone_show.js     (cần dev server ở :5191)
 // Đo: FPS nền (bảo tàng ban đêm, không show) và FPS + chi phí CPU của show ở 3 mức chất lượng,
-// tại đoạn rồng uốn lượn (t=26–31 s), đoạn quốc kỳ gợn sóng (t=130–135 s) và màn pháo hoa (t=138–143 s).
+// tại đoạn rồng uốn lượn (t=44–49 s), đoạn quốc kỳ gợn sóng (t=130–135 s) và màn pháo hoa (t=138–143 s).
 const { spawn } = require("child_process");
 const http = require("http");
 const fs = require("fs");
@@ -27,7 +27,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const send = (m, p = {}) => new Promise((res, rej) => { const i = id++; pending.set(i, { res, rej }); ws.send(JSON.stringify({ id: i, method: m, params: p })); });
   ws.onmessage = (e) => { const d = JSON.parse(e.data); if (d.id && pending.has(d.id)) { const p = pending.get(d.id); pending.delete(d.id); d.error ? p.rej(d.error) : p.res(d.result); } };
   await new Promise((r) => (ws.onopen = r));
-  await send("Page.enable"); await send("Runtime.enable"); await send("Network.enable");
+  await send("Page.enable"); await send("Runtime.enable"); await send("Network.enable"); await send("Network.setBlockedURLs", { urls: ["*azurewebsites.net*", "*firebaseio.com*"] }); await send("Network.enable");
   await send("Network.setBlockedURLs", { urls: ["*azurewebsites.net*", "*firebaseio.com*", "*signalr*"] });
   await send("Emulation.setDeviceMetricsOverride", { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
   const ev = async (x) => { const r = await send("Runtime.evaluate", { expression: x, returnByValue: true, awaitPromise: true }); return r.result && r.result.value; };
@@ -48,7 +48,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   out.baseline = await measure(5000);
   console.log("Nền (đêm, không show):", JSON.stringify(out.baseline));
   for (const tier of ["LOW", "BALANCED", "HIGH"]) {
-    await ev(`window.DroneShow.stop(); window.DroneShow.forcedTier = "${tier}"; window.DroneShow.start({ tier: "${tier}", at: 26 }).then(() => true)`);
+    await ev(`window.DroneShow.stop(); window.DroneShow.forcedTier = "${tier}"; window.DroneShow.start({ tier: "${tier}", at: 48 }).then(() => true)`);
     await sleep(600);
     const dragon = await measure(5000);
     await ev("window.DroneShow.seek(130); true"); await sleep(400);
@@ -61,7 +61,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     console.log(tier, JSON.stringify(row));
   }
   await ev("window.DroneShow.stop(); true");
-  const dest = path.join(__dirname, "..", "..", "docs", "drone-show", "screenshots", "benchmark.json");
+  const dest = path.join(__dirname, "..", "..", "docs", "drone-show", "blender-qa-v2", "benchmark.json");
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.writeFileSync(dest, JSON.stringify(out, null, 2));
   ws.close(); proc.kill();

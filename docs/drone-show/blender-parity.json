@@ -1,0 +1,19 @@
+{
+  "revision": "launch-assembly-v2-2026-11-12",
+  "ids": 14000,
+  "samples": 64,
+  "hashes_verified": true,
+  "max_position_component_error_m": 7.626888503864393e-06,
+  "max_rgba_error": 2.980227353788223e-08,
+  "hold_led_counts": {
+    "dong_son": 9967,
+    "ly_thai_to": 11436,
+    "ly_dragon": 8519,
+    "ho_chi_minh_lotus": 7589,
+    "dien_bien": 6626,
+    "reunification": 11932,
+    "vietnam_flag": 5000
+  },
+  "tank_static": true,
+  "pass": true
+}

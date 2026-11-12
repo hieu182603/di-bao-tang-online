@@ -59,7 +59,7 @@
       lastDsTime = s.sayAt;
       const parts = s.say.split(":");
       if (typeof Net.onDroneShow === "function") {
-        Net.onDroneShow(parts[1], { seed: parseInt(parts[2], 10) || 0, startTime: parseInt(parts[3], 10) || 0, peerId: id });
+        Net.onDroneShow(parts[1], { seed: parseInt(parts[2], 10) || 0, startTime: parseInt(parts[3], 10) || 0, revision: parts[4] || null, combo: parts[5] === "1", peerId: id });
       }
     }
 
@@ -291,8 +291,8 @@
     const startTime = opts.startTime || Date.now();
     const now = Date.now();
     lastDsTime = Math.max(lastDsTime, now);   // không tự nhận lại gói của chính mình
-    if (typeof Net.update === "function") Net.update({ say: `__ds__:${action}:${seed}:${startTime}`, sayAt: now });
-    if (Net.firebaseDsRef) Net.firebaseDsRef.set({ action, seed, startTime, t: now }).catch(() => {});
+    if (typeof Net.update === "function") Net.update({ say: `__ds__:${action}:${seed}:${startTime}:${opts.revision || ""}:${opts.combo ? 1 : 0}`, sayAt: now });
+    if (Net.firebaseDsRef) Net.firebaseDsRef.set({ action, seed, startTime, revision: opts.revision || null, combo: !!opts.combo, t: now }).catch(() => {});
   };
 
   Net.broadcastDayNight = function (targetIsNight) {

@@ -1144,7 +1144,8 @@ const FireworksShow = {
     if (this.prevNight === null && typeof window.getFireworksState === "function") {
       try { this.prevNight = !!window.getFireworksState().isNight; } catch (e) { this.prevNight = false; }
     }
-    if (typeof window.toggleDayNight === "function") window.toggleDayNight(true);
+    // keepSky: the F10 combo already holds night locally; don't re-broadcast day/night from every client.
+    if (!opts.keepSky && typeof window.toggleDayNight === "function") window.toggleDayNight(true);
     this.freezeAt = opts.freeze ? now : 0;   // chỉ dùng cho kiểm thử: đóng băng đồng hồ GPU tại giây `at`
     if (at > 0) {   // tua: chạy mọi sự kiện đã qua với birth đúng thời điểm (GPU tự tính vị trí hiện tại)
       FireworksAudio.muted = true; this.runEvents(now); FireworksAudio.muted = false;

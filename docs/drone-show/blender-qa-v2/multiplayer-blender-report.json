@@ -1,0 +1,244 @@
+{
+  "checks": [
+    {
+      "name": "A và B thấy nhau (1 peer, 1 avatar, không trùng)",
+      "ok": true,
+      "detail": {
+        "a": [
+          1,
+          1
+        ],
+        "b": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "F9 trên A khởi động show trên A",
+      "ok": true,
+      "detail": {
+        "running": true,
+        "pending": false,
+        "paused": false,
+        "t": 2.442,
+        "frameT": 2.4069000000059604,
+        "tier": "BALANCED",
+        "drones": 14000,
+        "revision": "b2-117584ae41fb",
+        "showId": "b2-117584ae41fb-1485367540",
+        "seed": 1485367540,
+        "scene": 1,
+        "avgMs": 0.7771428568022591,
+        "loadMs": 1724.7000000029802,
+        "initialAt": 0,
+        "musicPlaying": true,
+        "audioBlocked": false
+      }
+    },
+    {
+      "name": "B nhận đồng bộ và chạy cùng show (cùng seed)",
+      "ok": true,
+      "detail": {
+        "seedA": 1485367540,
+        "seedB": 1485367540
+      }
+    },
+    {
+      "name": "Lệch thời gian A–B < 0,6 s",
+      "ok": true,
+      "detail": {
+        "tA": 2.442,
+        "tB": 2.456
+      }
+    },
+    {
+      "name": "Cả hai chuyển sang trời đêm",
+      "ok": true
+    },
+    {
+      "name": "Giữ F9 (repeat) không dừng/khởi động lại show",
+      "ok": true
+    },
+    {
+      "name": "F8 bị chặn khi Drone Show đang chạy (không mở màn pháo hoa độc lập)",
+      "ok": true,
+      "detail": {
+        "a": false,
+        "b": false
+      }
+    },
+    {
+      "name": "Avatar của B di chuyển trên máy A (không teleport: bước < 3 m / 0,25 s)",
+      "ok": true,
+      "detail": {
+        "track": [
+          0.46,
+          2.17,
+          3.82,
+          5.17,
+          6.74,
+          8.11,
+          9.82,
+          11.3
+        ]
+      }
+    },
+    {
+      "name": "Vị trí & camera của A không bị đổi bởi show hay người khác",
+      "ok": true,
+      "detail": {
+        "me": [
+          [
+            0,
+            37
+          ],
+          [
+            0,
+            37
+          ]
+        ],
+        "cam": [
+          [
+            0,
+            1.65,
+            37
+          ],
+          [
+            0,
+            1.65,
+            37
+          ]
+        ]
+      }
+    },
+    {
+      "name": "C không đổi camera, không khôi phục cinematic",
+      "ok": true,
+      "detail": [
+        0,
+        1.65,
+        37
+      ]
+    },
+    {
+      "name": "Camera B không bị tác động",
+      "ok": true
+    },
+    {
+      "name": "Đủ 14000 ID và đúng revision Blender trên A/B",
+      "ok": true,
+      "detail": {
+        "a": "b2-117584ae41fb",
+        "b": "b2-117584ae41fb"
+      }
+    },
+    {
+      "name": "C vào muộn chạy cùng show (cùng seed) đúng giây đang diễn (lệch < 1,5 s)",
+      "ok": true,
+      "detail": {
+        "tA": 48.01,
+        "tC": 48.01
+      }
+    },
+    {
+      "name": "Không avatar trùng sau khi C vào (A thấy 2, C thấy 2)",
+      "ok": true,
+      "detail": {
+        "A": 2,
+        "C": 2
+      }
+    },
+    {
+      "name": "F9 hai lần trên B dừng show trên A, B, C",
+      "ok": true,
+      "detail": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "name": "Trời trở lại ban ngày sau khi dừng (trạng thái trước show)",
+      "ok": true,
+      "detail": {
+        "a": false,
+        "b": false
+      }
+    },
+    {
+      "name": "F8 vẫn kích hoạt pháo hoa (đồng bộ sang B)",
+      "ok": true,
+      "detail": {
+        "a": true,
+        "b": true
+      }
+    },
+    {
+      "name": "Restart 4 lần: số đối tượng trong scene không tăng",
+      "ok": true,
+      "detail": {
+        "scene": [
+          2067,
+          2067
+        ],
+        "stage": [
+          2,
+          2
+        ],
+        "mem": "{\"used\":160739640}"
+      }
+    },
+    {
+      "name": "Client tải chậm ở trạng thái pending",
+      "ok": true,
+      "detail": {
+        "running": false,
+        "pending": true,
+        "paused": false,
+        "t": 48.957,
+        "frameT": 48.956800000005956,
+        "tier": "BALANCED",
+        "drones": 14000,
+        "revision": "b2-117584ae41fb",
+        "showId": "b2-117584ae41fb-1485367540",
+        "seed": 1787727533,
+        "scene": 3,
+        "avgMs": 0.631118210826438,
+        "loadMs": 2341.5999999940395,
+        "initialAt": 2.374,
+        "musicPlaying": false,
+        "audioBlocked": true
+      }
+    },
+    {
+      "name": "Stop khi peer đang loading: không tự sống lại",
+      "ok": true,
+      "detail": {
+        "running": false,
+        "pending": false,
+        "paused": false,
+        "t": 48.957,
+        "frameT": 48.956800000005956,
+        "tier": "BALANCED",
+        "drones": 14000,
+        "revision": "b2-117584ae41fb",
+        "showId": "b2-117584ae41fb-1485367540",
+        "seed": 1787727533,
+        "scene": 3,
+        "avgMs": 0.631118210826438,
+        "loadMs": 2341.5999999940395,
+        "initialAt": 2.374,
+        "musicPlaying": false,
+        "audioBlocked": true
+      }
+    },
+    {
+      "name": "Không có lỗi JS / shader trên 3 client",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "passed": 21,
+  "total": 21
+}

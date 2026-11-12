@@ -1,0 +1,99 @@
+{
+  "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3050 Laptop GPU (0x000025A2) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "runs": [
+    {
+      "tier": "LOW",
+      "drones": 14000,
+      "dragon": {
+        "fps": 89,
+        "p95ms": 14.9,
+        "frames": 471,
+        "droneCpuMs": 0.267,
+        "calls": 1744,
+        "points": 14970
+      },
+      "flag": {
+        "fps": 91.2,
+        "p95ms": 15.4,
+        "frames": 366,
+        "droneCpuMs": 0.456,
+        "calls": 1747,
+        "points": 309882
+      },
+      "finaleWithFireworks": {
+        "fps": 83.2,
+        "p95ms": 23.6,
+        "frames": 417,
+        "droneCpuMs": 0.31,
+        "calls": 1747,
+        "points": 309882
+      }
+    },
+    {
+      "tier": "BALANCED",
+      "drones": 14000,
+      "dragon": {
+        "fps": 96.5,
+        "p95ms": 14.3,
+        "frames": 484,
+        "droneCpuMs": 0.267,
+        "calls": 1745,
+        "points": 28970
+      },
+      "flag": {
+        "fps": 93.6,
+        "p95ms": 15,
+        "frames": 376,
+        "droneCpuMs": 0.259,
+        "calls": 1748,
+        "points": 323882
+      },
+      "finaleWithFireworks": {
+        "fps": 89.4,
+        "p95ms": 16.5,
+        "frames": 449,
+        "droneCpuMs": 0.278,
+        "calls": 1748,
+        "points": 323882
+      }
+    },
+    {
+      "tier": "HIGH",
+      "drones": 14000,
+      "dragon": {
+        "fps": 84.9,
+        "p95ms": 17.2,
+        "frames": 426,
+        "droneCpuMs": 0.283,
+        "calls": 1745,
+        "points": 28970
+      },
+      "flag": {
+        "fps": 76.7,
+        "p95ms": 15.3,
+        "frames": 308,
+        "droneCpuMs": 0.278,
+        "calls": 1748,
+        "points": 323882
+      },
+      "finaleWithFireworks": {
+        "fps": 96.4,
+        "p95ms": 14.8,
+        "frames": 484,
+        "droneCpuMs": 0.266,
+        "calls": 1748,
+        "points": 323882
+      }
+    }
+  ],
+  "baseline": {
+    "fps": 101.7,
+    "p95ms": 13.8,
+    "frames": 510,
+    "droneCpuMs": 0,
+    "calls": 1743,
+    "points": 970
+  },
+  "revision": "launch-assembly-v2-2026-11-12",
+  "note": "Chrome headless, 1280x720, uncapped vsync; flag samples at 130s may include prelaunch for finale. This is not a phone benchmark."
+}

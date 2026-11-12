@@ -1,0 +1,193 @@
+{
+  "checks": [
+    {
+      "name": "stop during loading does not revive",
+      "ok": true
+    },
+    {
+      "name": "local F9 starts from zero after loading",
+      "ok": true,
+      "detail": {
+        "initialAt": 0,
+        "observedAt": 6.113
+      }
+    },
+    {
+      "name": "F9 starts 14000 IDs and music",
+      "ok": true,
+      "detail": {
+        "running": true,
+        "pending": false,
+        "paused": false,
+        "t": 6.141,
+        "frameT": 6.1160000000029795,
+        "combo": false,
+        "fireworks": false,
+        "musicEnd": 150,
+        "tier": "BALANCED",
+        "drones": 14000,
+        "revision": "b2-117584ae41fb",
+        "showId": "b2-117584ae41fb-1672516738",
+        "seed": 1672516738,
+        "scene": 1,
+        "avgMs": 0.6088235301568228,
+        "loadMs": 872,
+        "initialAt": 0,
+        "musicPlaying": true,
+        "audioBlocked": false
+      }
+    },
+    {
+      "name": "sound button mutes music",
+      "ok": true
+    },
+    {
+      "name": "key repeat ignored",
+      "ok": true
+    },
+    {
+      "name": "F8 independent show blocked",
+      "ok": true
+    },
+    {
+      "name": "pause stops music",
+      "ok": true
+    },
+    {
+      "name": "music catches seek time",
+      "ok": true,
+      "detail": {
+        "audio": 69.469617,
+        "show": 69.544
+      }
+    },
+    {
+      "name": "all quality tiers preserve IDs and lit tank LEDs",
+      "ok": true,
+      "detail": [
+        {
+          "tier": "LOW",
+          "ids": 14000,
+          "lit": 11932
+        },
+        {
+          "tier": "BALANCED",
+          "ids": 14000,
+          "lit": 11932
+        },
+        {
+          "tier": "HIGH",
+          "ids": 14000,
+          "lit": 11932
+        }
+      ]
+    },
+    {
+      "name": "finale does not start independent F8 timeline",
+      "ok": true
+    },
+    {
+      "name": "music stops at 150",
+      "ok": true
+    },
+    {
+      "name": "natural finish restores sky and music",
+      "ok": true
+    },
+    {
+      "name": "replay reuses GPU buffers",
+      "ok": true,
+      "detail": {
+        "before": {
+          "children": 2,
+          "geo": 3249,
+          "arrays": 42000
+        },
+        "after": {
+          "children": 2,
+          "geo": 3249,
+          "arrays": 42000
+        }
+      }
+    },
+    {
+      "name": "F8 works after F9",
+      "ok": true
+    },
+    {
+      "name": "F9 ignored in text inputs/contenteditable",
+      "ok": true
+    },
+    {
+      "name": "mismatched revision refused",
+      "ok": true
+    },
+    {
+      "name": "load failure does not start fallback or leave music playing",
+      "ok": true
+    },
+    {
+      "name": "no drone/audio asset failures",
+      "ok": true,
+      "detail": [
+        {
+          "url": "http://localhost:5191/favicon.ico",
+          "status": 404
+        },
+        {
+          "url": "http://localhost:5191/favicon.ico",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "name": "no JS/shader errors",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "screenshots": [
+    "reference_0.jpg",
+    "reference_1.5.jpg",
+    "reference_3.jpg",
+    "reference_5.9.jpg",
+    "reference_6.jpg",
+    "reference_9.jpg",
+    "reference_12.jpg",
+    "reference_14.5.jpg",
+    "reference_30.5.jpg",
+    "reference_48.5.jpg",
+    "reference_68.5.jpg",
+    "reference_88.5.jpg",
+    "reference_108.5.jpg",
+    "reference_126.5.jpg",
+    "reference_46.jpg",
+    "reference_51.jpg",
+    "reference_55.jpg",
+    "reference_24.jpg",
+    "reference_42.jpg",
+    "reference_62.jpg",
+    "reference_82.jpg",
+    "reference_102.jpg",
+    "reference_120.jpg"
+  ],
+  "errors": [],
+  "networkFailures": [
+    {
+      "url": "http://localhost:5191/favicon.ico",
+      "status": 404
+    },
+    {
+      "url": "http://localhost:5191/favicon.ico",
+      "status": 404
+    }
+  ],
+  "performance": {
+    "fps": 77.782209812525,
+    "p95ms": 16.80000000000291,
+    "cpuMs": 0.34042553273921317,
+    "calls": 1628,
+    "geometries": 3247,
+    "heap": 138393533
+  }
+}
