@@ -3,7 +3,7 @@
 'use strict';
 const Config = {
   duration: 150, fadeOut: 4.5, tail: 8,
-  revision: DroneBlender.REVISION, assetTag: 'b3-6d4770113720',
+  revision: DroneBlender.REVISION, assetTag: 'b3-4fc20580bd46',
   landing: false,   // true = play the Blender split + descent (150–168 s) after the flag
   base: 'drone-show/blender-v3/', music: 'audio/thinh-vuong-viet-nam-sang-ngoi.mp3',
   // pLocal = pExport - (0,85,0). One common transform for all formations and QA camera.

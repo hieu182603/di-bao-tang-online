@@ -3,11 +3,11 @@
   "ids": 14000,
   "samples": 73,
   "hashes_verified": true,
-  "max_position_component_error_m": 7.628185187513736e-06,
+  "max_position_component_error_m": 7.62182199309791e-06,
   "max_rgba_error": 2.980227353788223e-08,
   "hold_led_counts": {
     "dong_son": 9967,
-    "ly_thai_to": 11436,
+    "ly_thai_to": 11433,
     "ly_dragon": 8519,
     "ho_chi_minh_lotus": 7589,
     "dien_bien": 6626,

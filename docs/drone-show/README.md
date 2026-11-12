@@ -41,7 +41,7 @@ Mở màn từ Blender: tám luồng cất cánh 0–6 giây, ghép trống đ�
 
 ## Multiplayer và pháo hoa
 
-Gửi `__ds__:action:seed:startTime:assetTag` (dưới giới hạn chat 80 ký tự), cùng revision tag `b3-6d4770113720`. Tag là prefix SHA256 manifest. Sender/parser/consumer và Firebase giữ cùng định dạng. Client khác revision hoặc client cũ thiếu tag bị từ chối, không phát lẫn đội hình. Cần tải lại trang trên tất cả máy sau khi nâng phiên bản.
+Gửi `__ds__:action:seed:startTime:assetTag` (dưới giới hạn chat 80 ký tự), cùng revision tag `b3-4fc20580bd46`. Tag là prefix SHA256 manifest. Sender/parser/consumer và Firebase giữ cùng định dạng. Client khác revision hoặc client cũ thiếu tag bị từ chối, không phát lẫn đội hình. Cần tải lại trang trên tất cả máy sau khi nâng phiên bản.
 
 Máy khởi động đặt clock sau khi tải xong để không mất cảnh cất cánh, rồi gửi start cho phòng; stop khi pending vẫn được xử lý và truyền. Client tải chậm bắt kịp master clock; stop vô hiệu hóa kết quả đang chờ. Khi có peer mới, client đang phát gửi lại clock để chat không làm mất trạng thái show và để người khởi động có thể rời phòng. Không truyền vị trí drone. Đồng bộ vẫn dựa vào Date.now(): sai lệch đồng hồ giữa máy thật là giới hạn chưa có server-time correction.
 
@@ -69,6 +69,6 @@ Web QA chụp bảy hold, sáu midpoint morph, rồng 46/51/55 và góc nghiêng
 
 Xác minh revision và SHA256 của gói bàn giao mới, sau đó copy đúng các entry trong manifest và timeline vào thư mục phiên bản mới. Cập nhật base/revision/hash pin/assetTag và cache version của script. Chạy lại parity, ảnh, multiplayer và benchmark. Không sửa buffer để bù góc máy hoặc giảm số ID. Nguồn Blender vẫn chỉ là bộ được người dùng duyệt.
 
-Bản V3: manifest SHA256 `6d4770113720d6a6dc63b25cdbd0f4a31b4a2ac3e2e76c30cbf4af9a167cafa0`. Bản V2 (cũ): ZIP SHA256 `d7224c25ee706e2d4cf5f642fb23db915a03f6e78ec358595725046de05ca6c6`; manifest SHA256 `117584ae41fb370364a736193d6a138a06e8a449a8ded5e6dba837b2f6afcb8a`. Kết quả V2 nằm trong `blender-qa-v2/`. Asset V1 cũ không còn được loader sử dụng.
+Bản V3: manifest SHA256 `4fc20580bd46ce0e0c73e0e967103033b886762fa622c53eb61c980be8702d1c`. Bản V2 (cũ): ZIP SHA256 `d7224c25ee706e2d4cf5f642fb23db915a03f6e78ec358595725046de05ca6c6`; manifest SHA256 `117584ae41fb370364a736193d6a138a06e8a449a8ded5e6dba837b2f6afcb8a`. Kết quả V2 nằm trong `blender-qa-v2/`. Asset V1 cũ không còn được loader sử dụng.
 
 Kết quả V2 mới: web 19/19 PASS; multiplayer QA 21/21 PASS. Đo riêng một Chrome headless 1280×720: nền 101,7 FPS; đoạn rồng 84,9–96,5 FPS, CPU cập nhật khoảng 0,267–0,283 ms/khung; Finale 83,2–96,4 FPS. Chênh lệch giữa tier có nhiễu, không suy ra HIGH nhanh hơn LOW. Sample cờ ở 130 s có thể bao gồm phóng chuẩn bị Finale; xem note trong benchmark.json. Bộ asset V1 đã chuyển sang bản sao lưu TEMP, không đóng gói vào website.
