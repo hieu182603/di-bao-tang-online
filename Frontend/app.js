@@ -5503,6 +5503,8 @@ function frame(now) {
     a.speed = (a.speed || 0) + (speed - (a.speed || 0)) * Math.min(1, dt * 6); // làm mượt để không giật qua lại giữa đi/chạy
     a.phase += dt * 9 * a.walk;
     a.y += ((s.y || 0) - a.y) * Math.min(1, dt * 12); a.fig.position.set(a.x, a.y, a.z); a.fig.rotation.y = a.yaw;
+    // Ẩn nhân vật đang chồng lên camera (đứng trùng chỗ / đi xuyên qua nhau) thay vì nhìn từ bên trong đầu họ.
+    { const cx = camera.position.x - a.x, cz = camera.position.z - a.z, cy = camera.position.y - a.y; a.fig.visible = cx * cx + cz * cz > 0.75 * 0.75 || cy < -0.3 || cy > 2.4; }
     { const sy = s.y || 0; if (Math.abs(sy - (a.sy == null ? sy : a.sy)) > 0.02 && !inElev(s.x, s.z)) a.airUntil = now + 220; a.sy = sy; }
     pose(a.fig, a.phase, a.walk * (a.speed > 7.5 ? 2 : 1), now < a.emoteUntil ? a.emote : null, t, dt, !a.sit && now < (a.airUntil || 0), !!a.sit);
     if (a.bubble) a.bubble.visible = now < a.bubbleUntil;
@@ -5620,6 +5622,8 @@ $("go").addEventListener("click", () => {
   SFX.ensure();
   me.name = $("nick").value.replace(/\s+/g, " ").trim().slice(0, 24) || "Khách " + Math.floor(100 + Math.random() * 900);
   try { localStorage.setItem("museum-me", JSON.stringify({ n: me.name, c: me.color, m: me.modelKey })); } catch (e) {}
+  // Không cho mọi người cùng đứng ở (0, 37): camera góc nhìn thứ nhất sẽ nằm lọt trong đầu nhân vật người khác.
+  [player.x, player.z] = pickSpawn(); spawnAt = [player.x, player.z];
   started = true; window.started = true; joinedAt = performance.now(); lockPointer(); updateLookHint();
   // Tải trước dữ liệu Drone Show sau khi bảo tàng đã đẩy xong texture lên GPU (warmUp 2,5/6/12 s) để F9/F10 chạy ngay.
   setTimeout(() => { if (window.DroneShow) window.DroneShow.preload(); }, 15000);
@@ -5630,7 +5634,27 @@ $("go").addEventListener("click", () => {
   Net.start({ x: +player.x.toFixed(2), z: +player.z.toFixed(2), yaw: 0, n: me.name, c: me.color, av: me.modelKey, m: false });
 });
 
-window.__museum = { player, avatars, scene, camera, free, PLATFORMS, BLOCKS, BALL, SEATS, SIT, seatPose, sitDown, standUp, makeFigure, pose, me }; // tiện kiểm tra khi phát triển
+// Điểm xuất phát ngẫu nhiên trên sân trước (quanh 0, 37), cách mọi người đang đứng ở mặt đất ít nhất 1,6 m.
+let spawnAt = null;
+function pickSpawn() {
+  const taken = [...Net.peers.values()].filter((p) => (p.y || 0) < 0.5);
+  const ok = (x, z) => free(x, z) && groundAt(x, z) < 0.05 && taken.every((p) => Math.hypot(p.x - x, p.z - z) > 1.6);
+  for (let i = 0; i < 60; i++) {
+    const r = 1.2 + Math.random() * (3 + i * 0.08), a = Math.random() * PI * 2;
+    const x = Math.cos(a) * r, z = 37 + Math.sin(a) * r * 0.7;
+    if (ok(x, z)) return [x, z];
+  }
+  return [0, 37];
+}
+// Danh sách người chơi chỉ về sau khi kết nối: nếu ai đó đứng sát chỗ mình vừa xuất hiện (và mình chưa đi) thì dời chỗ.
+Net.onChange((type, id) => {
+  if (type !== "join" || !spawnAt || !started || performance.now() - joinedAt > 5000) return;
+  if (player.seat || Math.hypot(player.x - spawnAt[0], player.z - spawnAt[1]) > 0.05) { spawnAt = null; return; }
+  const p = Net.peers.get(id);
+  if (p && (p.y || 0) < 0.5 && Math.hypot(p.x - player.x, p.z - player.z) < 1.6) { [player.x, player.z] = pickSpawn(); spawnAt = [player.x, player.z]; }
+});
+
+window.__museum = { player, pickSpawn, avatars, scene, camera, free, PLATFORMS, BLOCKS, BALL, SEATS, SIT, seatPose, sitDown, standUp, makeFigure, pose, me }; // tiện kiểm tra khi phát triển
 async function init() {
   try {
     await Promise.race([
