@@ -9,7 +9,7 @@
       "ok": true,
       "detail": {
         "initialAt": 0,
-        "observedAt": 1.322
+        "observedAt": 1.314
       }
     },
     {
@@ -19,19 +19,20 @@
         "running": true,
         "pending": false,
         "paused": false,
-        "t": 1.324,
-        "frameT": 1.2899000000000014,
+        "t": 1.316,
+        "frameT": 1.2914999999999055,
         "combo": false,
+        "fwAt": 0,
         "fireworks": false,
         "musicEnd": 150,
         "tier": "BALANCED",
         "drones": 14000,
         "revision": "b3-6d4770113720",
-        "showId": "b3-6d4770113720-94514648",
-        "seed": 94514648,
+        "showId": "b3-6d4770113720-775300058",
+        "seed": 775300058,
         "scene": 1,
-        "avgMs": 0.5200000000128057,
-        "loadMs": 6845.199999999953,
+        "avgMs": 0.4285714285159927,
+        "loadMs": 3623.2999999998137,
         "initialAt": 0,
         "musicPlaying": true,
         "audioBlocked": false
@@ -57,8 +58,8 @@
       "name": "music catches seek time",
       "ok": true,
       "detail": {
-        "audio": 69.441313,
-        "show": 69.512
+        "audio": 69.454566,
+        "show": 69.515
       }
     },
     {
@@ -183,11 +184,11 @@
     }
   ],
   "performance": {
-    "fps": 33.25573661456601,
-    "p95ms": 41.69999999999709,
-    "cpuMs": 0.1514851485176178,
+    "fps": 34.666666666666664,
+    "p95ms": 34.89999999999782,
+    "cpuMs": 0.1590476190626976,
     "calls": 1628,
     "geometries": 3247,
-    "heap": 140301517
+    "heap": 163994318
   }
 }

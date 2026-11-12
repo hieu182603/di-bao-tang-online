@@ -4950,8 +4950,13 @@ function stopFireworksShow(naturalFinish = false, broadcast = true) {
 }
 
 function toggleFireworksShow() {
-  // F9/F10 owns the fireworks while it runs (F10 hands over to the F8 timeline at 150 s): F8 must not cut it.
-  if (window.DroneShow && (window.DroneShow.isRunning || window.DroneShow.pending)) return;
+  // F9/F10 owns the fireworks while it runs. From the flag scene on, F8 queues the F8 show right after the flag's
+  // fireworks end (150 s; at once if pressed later) and the music runs on to the end of F8 — for every player.
+  const DS = window.DroneShow;
+  if (DS && (DS.isRunning || DS.pending)) {
+    if (DS.canAddFireworks && DS.canAddFireworks() && DS.setCombo(DS.t)) broadcastDroneState(DS);
+    return;
+  }
   if (window.FireworksShow && window.FireworksShow.isRunning) {
     stopFireworksShow(false, true);
   } else {
@@ -4991,6 +4996,11 @@ window.startFireworks = startFireworksShow;
 window.stopFireworks = stopFireworksShow;
 
 /* ---- Drone Show (F9): mô phỏng cục bộ, chỉ đồng bộ {seed, startTime} giữa người chơi ---- */
+function broadcastDroneState(DS) {
+  if (window.Net && typeof window.Net.broadcastDroneShow === "function") {
+    window.Net.broadcastDroneShow("start", { seed: DS.seed, startTime: DS.startTime, revision: window.DroneShowConfig.assetTag, combo: DS.combo, fwAt: DS.fwAt || 0 });
+  }
+}
 function startDroneShow(opts = {}, broadcast = true) {
   const DS = window.DroneShow;
   if (!DS || DS.isRunning || DS.pending) return;
@@ -4999,9 +5009,7 @@ function startDroneShow(opts = {}, broadcast = true) {
   }
   const seed = opts.seed || ((Math.random() * 2 ** 31) >>> 0);
   return DS.start({ ...opts, seed }).then((ok) => {
-    if (ok && broadcast && window.Net && typeof window.Net.broadcastDroneShow === "function") {
-      window.Net.broadcastDroneShow("start", { seed, startTime: DS.startTime, revision: window.DroneShowConfig.assetTag, combo: DS.combo });
-    }
+    if (ok && broadcast) broadcastDroneState(DS);
     return ok;
   });
 }
@@ -5045,7 +5053,7 @@ if (typeof window !== "undefined") {
           droneReannounceTimer = 0;
           const DS = window.DroneShow;
           if (droneHeardAt > droneJoinAt || !DS || !(DS.startTime > 0) || !(DS.isRunning || DS.pending)) return;
-          window.Net.broadcastDroneShow("start", { seed: DS.seed, startTime: DS.startTime, revision: window.DroneShowConfig.assetTag, combo: DS.combo });
+          broadcastDroneState(DS);
         }, 300 + rank * 450 + Math.random() * 150);
       });
     }
@@ -5054,9 +5062,12 @@ if (typeof window !== "undefined") {
       if (action === "start") {
         if (data.revision !== window.DroneShowConfig.assetTag) { console.warn("[DroneShow] Remote revision mismatch", data.revision); return; }
         droneHeardAt = performance.now();
-        if ((DS.isRunning || DS.pending) && DS.seed === (data.seed >>> 0)) return;
+        if ((DS.isRunning || DS.pending) && DS.seed === (data.seed >>> 0)) {
+          if (data.combo) DS.setCombo(+data.fwAt || 0);   // a peer pressed F8 during the flag scene
+          return;
+        }
         if (DS.isRunning || DS.pending) DS.stop(false);
-        startDroneShow({ seed: data.seed, startTime: data.startTime, revision: data.revision, combo: !!data.combo }, false);
+        startDroneShow({ seed: data.seed, startTime: data.startTime, revision: data.revision, combo: !!data.combo, fwAt: +data.fwAt || 0 }, false);
       } else if (action === "stop") {
         if ((DS.isRunning || DS.pending) && (!data.seed || DS.seed === (data.seed >>> 0))) DS.stop(false);
       }
@@ -5610,6 +5621,8 @@ $("go").addEventListener("click", () => {
   me.name = $("nick").value.replace(/\s+/g, " ").trim().slice(0, 24) || "Khách " + Math.floor(100 + Math.random() * 900);
   try { localStorage.setItem("museum-me", JSON.stringify({ n: me.name, c: me.color, m: me.modelKey })); } catch (e) {}
   started = true; window.started = true; joinedAt = performance.now(); lockPointer(); updateLookHint();
+  // Tải trước dữ liệu Drone Show sau khi bảo tàng đã đẩy xong texture lên GPU (warmUp 2,5/6/12 s) để F9/F10 chạy ngay.
+  setTimeout(() => { if (window.DroneShow) window.DroneShow.preload(); }, 15000);
   $("start").hidden = true; $("hud").hidden = false; $("dot").hidden = thirdPerson; $("people-btn").hidden = false;
   if (isTouch) joy.hidden = false;
   setMyFigure();

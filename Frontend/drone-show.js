@@ -75,12 +75,26 @@ const Show = {
     }
     return this.loading;
   },
+  // Fetch + verify the ~60 MB Blender export in the background once the visitor is inside, so F9/F10 start at once
+  // instead of after a ~27 s download. Skipped on phones/tablets and Save-Data/2G (they still load on demand).
+  preload() {
+    if (this.data || this.loading || this.preloadQueued || /[?&]nopreload=1/.test(location.search)) return false;
+    const c = navigator.connection;
+    if (c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || ''))) return false;
+    if (matchMedia('(pointer: coarse)').matches) return false;
+    this.preloadQueued = true;
+    const go = () => { this.preloadQueued = false; this.load().catch(e => console.warn('[DroneShow] preload', e)); };
+    if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: 5000 }); else setTimeout(go, 0);
+    return true;
+  },
   // Compile drone + fireworks programs while the user is already waiting for the download. Otherwise the first
   // finale shell (~137–140 s) compiled them mid-show: a 0.7–4 s freeze measured on a real GPU.
   warmShaders() {
     const FS=window.FireworksShow, meshes=FS && FS.points ? [FS.points.mesh,FS.trails.mesh] : [], vis=meshes.map(m=>m.visible), gv=this.group.visible;
     meshes.forEach(m=>{ m.visible=true; }); this.group.visible=true;
+    // Optimisation only: a failed warm-up (e.g. GPU under memory pressure) must never fail the show load.
     try { this.renderer.compile(this.scene,this.camera); }
+    catch (e) { console.warn('[DroneShow] shader warm-up skipped', e); }
     finally { meshes.forEach((m,i)=>{ m.visible=vis[i]; }); this.group.visible=gv; }
   },
   buildGpu(N) {
@@ -128,7 +142,23 @@ const Show = {
   // F10 combo: at the drone finale's FIREWORKS_END marker (150 s) the 60 s F8 show takes over while the fleet
   // splits and lands (150–168 s); the 235 s track keeps playing until F8's last bursts.
   fwConfig() { return window.FireworksConfig || { duration: 60, tail: 7.5 }; },
-  fwStart() { return Config.fireworksEnd || Config.duration; },
+  // F8 takes over when the flag's own fireworks end (FIREWORKS_END); fwAt is only set when F8 is pressed later
+  // than that (during the fade-out tail), in which case it starts at that moment.
+  fwStart() { return this.fwAt || Config.fireworksEnd || Config.duration; },
+  flagStart() { const h=this.data ? this.data.timeline.formations : []; return h.length ? h[h.length-1].start : Infinity; },
+  // F8 is accepted from the flag scene on (F9 or F10), until F8 has already taken over.
+  canAddFireworks() { return this.isRunning && !this.paused && !this.fwStarted && this.t>=this.flagStart() && this.t<this.showEnd(); },
+  // Switch the running show to combo: F8 follows the flag's fireworks at FIREWORKS_END (or at fwAt if pressed after
+  // it). The flag keeps its exported timeline untouched and fades as usual. Also applies the same request from a peer.
+  setCombo(fwAt=0) {
+    if(this.pending && !this.isRunning) { this.queuedCombo={ fwAt }; return true; }
+    if(!this.isRunning) return false;
+    const end=Config.fireworksEnd || Config.duration, at=fwAt>end ? fwAt : 0;
+    if(this.combo && this.fwAt===at) return false;
+    if(this.fwStarted && window.FireworksShow) { window.FireworksShow.stop(false); this.fwStarted=false; }
+    this.combo=true; this.fwAt=at; this.endAt=0;
+    this.syncCombo(); this.syncMusic(true); return true;
+  },
   musicEnd() { return this.combo ? Math.max(Config.duration,this.fwStart()+this.fwConfig().duration+4) : Config.duration; },
   showEnd() {
     const drones=Config.duration+Config.fadeOut+Config.tail;
@@ -159,7 +189,8 @@ const Show = {
     if(!this.startTime) this.startTime=opts.at!==undefined ? Date.now()-opts.at*1000 : Date.now();
     const at=Math.max(opts.at===undefined?0:opts.at,(Date.now()-this.startTime)/1000);
     this.stats.initialAt=at;
-    this.combo=!!opts.combo; this.fwStarted=false;
+    const queued=this.queuedCombo; this.queuedCombo=null;
+    this.combo=!!opts.combo || !!queued; this.fwAt=+(opts.fwAt || (queued && queued.fwAt) || 0); this.fwStarted=false;
     if(at>(this.combo?this.musicEnd():Config.duration+Config.fadeOut)) { this.ensureMusic().pause(); return false; }
     this.setTier(opts.tier || this.pickTier());
     this.showId=opts.showId || Config.assetTag+(this.combo?'-combo-':'-')+this.seed;
@@ -171,7 +202,7 @@ const Show = {
     this.group.visible=at<Config.duration+Config.fadeOut; this.computeFrame(at); this.syncCombo(); this.syncMusic(true); return true;
   },
   stop(natural=false) {
-    ++this.generation; this.pending=false;
+    ++this.generation; this.pending=false; this.queuedCombo=null;
     const wasRunning=this.isRunning; this.isRunning=false; this.paused=false; this.endAt=0;
     if(this.group) this.group.visible=false;
     if(this.music) { this.music.pause(); this.music.currentTime=0; }
@@ -195,7 +226,7 @@ const Show = {
   sceneIndex(t) { const holds=this.data ? this.data.timeline.formations : []; let k=0; for(let i=0;i<holds.length;i++) if(t>=holds[i].start) k=i; return k; },
   getState() {
     return { running:this.isRunning,pending:this.pending,paused:this.paused,t:+(this.isRunning&&!this.paused?(performance.now()-this.startPerf)/1000:this.t).toFixed(3),frameT:this.t,
-      combo:!!this.combo,fireworks:!!this.fwStarted,musicEnd:this.musicEnd(),tier:this.tier,drones:this.data?this.data.N:0,revision:Config.assetTag,showId:this.showId,seed:this.seed,scene:this.sceneIndex(this.t)+1,
+      combo:!!this.combo,fwAt:this.fwAt||0,fireworks:!!this.fwStarted,musicEnd:this.musicEnd(),tier:this.tier,drones:this.data?this.data.N:0,revision:Config.assetTag,showId:this.showId,seed:this.seed,scene:this.sceneIndex(this.t)+1,
       avgMs:this.stats.frames?this.stats.ms/this.stats.frames:0,loadMs:this.stats.loadMs,initialAt:this.stats.initialAt,musicPlaying:!!this.music&&!this.music.paused,audioBlocked:!!this.audioBlocked };
   },
   computeFrame(t) {

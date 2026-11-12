@@ -6,6 +6,12 @@ Runtime hiện dùng revision `box-launch-landing-v3-2026-11-12`, schema `vn-sou
 
 F9 bắt đầu màn diễn 150 giây và bài **Thịnh Vượng Việt Nam Sáng Ngời – buitruonglinh** do người dùng cung cấp. Trong show hoặc lúc đang tải, nhấn F9 hai lần trong 2,5 giây để dừng. Giữ phím không lặp lệnh. Giữ các lệnh chat `/f9`, `/drone`, `/drones`, `/droneshow`.
 
+**F10** chạy Drone Show rồi tự nối màn pháo hoa F8 (60 giây) ngay khi pháo hoa của cảnh cờ kết thúc (marker `FIREWORKS_END`, giây 150); nhạc chạy tiếp đến ~214 giây. Lá cờ giữ nguyên timeline Blender (hết ở 150 s rồi mờ dần), không bị cắt. Nhấn F10 hai lần để dừng cả drone, pháo hoa và nhạc.
+
+**F8 khi đang F9**: bị bỏ qua trước cảnh cờ (124 s). Từ cảnh cờ trở đi, F8 chuyển show thành như F10 — pháo hoa F8 chờ đến giây 150 mới bắn; nếu bấm sau 150 s (cờ đang mờ, nhạc đã dừng) thì F8 bắn ngay và nhạc phát tiếp từ thời điểm đó. Lệnh được đồng bộ cho cả phòng (trường thứ 6 của gói `__ds__`: `0` = F9, `1` = combo nối ở 150 s, số giây = combo nối tại giây đó).
+
+**Tải trước**: 15 giây sau khi vào bảo tàng, máy tự tải ~60 MB dữ liệu drone lúc rảnh để F9/F10 chạy ngay (đo được ~130 ms thay vì ~27 s). Bỏ qua trên thiết bị cảm ứng, Save-Data hoặc 2G; thêm `?nopreload=1` để tắt. Shader drone + pháo hoa được biên dịch sẵn khi tải để tránh khựng ở viên pháo hoa đầu tiên.
+
 Không có camera C, caption, toast hoặc phím H. Người chơi tự điều khiển góc nhìn. Nút âm thanh có sẵn cũng tắt/bật nhạc. Nhạc giảm âm trong hai giây cuối và dừng ở giây 150; LED tắt dần đến 154,5 giây, sau đó giữ thời gian tàn pháo 8 giây rồi hoàn trả trạng thái trời. Bài gốc dài 234,96 giây; show sử dụng 150 giây đầu.
 
 ## Dữ liệu và timeline
