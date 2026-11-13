@@ -4343,7 +4343,7 @@ function ensureAvatar(id) {
     a.sayAt = s.sayAt;
     if (s.say) {
       if (!s.say.startsWith("__fw__:") && !s.say.startsWith("__dn__:") && !s.say.startsWith("__ds__:")) {
-        showBubble(a, s.say); addLog(s.n, s.say);
+        showBubble(a, s.say); addLog(s.n, s.say, s.c);
       }
     }
   }
@@ -5125,6 +5125,7 @@ addEventListener("keydown", (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key === "Enter") { e.preventDefault(); $("say").focus(); return; } // chỉ Enter mới bắt đầu chat
   if (e.code === "KeyV") { if (!e.repeat) toggleView(); return; }
+  if (e.code === "KeyH") { if (!e.repeat) toggleChatLog(); return; }
   if (e.code === "KeyF") { if (!e.repeat) toggleWheel(); return; }
   if (!$("emote-wheel").hidden && (e.key === "1" || e.key === "2")) { doEmote(e.key === "1" ? "wave" : "clap"); toggleWheel(false); return; }
   if (e.code === "Space") { e.preventDefault(); jump(); return; }
@@ -5277,13 +5278,31 @@ $("jump-btn").addEventListener("click", jump);
 /* ================= multiplayer UI ================= */
 const EMOTES = { wave: "👋 Vẫy tay", clap: "👏 Vỗ tay" };
 let follow = null, joinedAt = 0;
-function addLog(name, text) {
+// Lịch sử chat: lưu tối đa 200 dòng, cuộn xem lại được; tự cuộn xuống cuối trừ khi đang đọc phía trên
+const CHAT_MAX = 200;
+let chatUnread = 0;
+function addLog(name, text, color) {
+  const log = $("log"), box = $("chatlog");
+  const atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 24;
   const d = document.createElement("div");
-  if (name) { const b = document.createElement("b"); b.textContent = name + ": "; d.append(b); }
+  const tm = document.createElement("span"); tm.className = "t";
+  tm.textContent = new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }); d.append(tm);
+  if (name) {
+    const b = document.createElement("b"); b.textContent = name + ": ";
+    if (color && /^#[0-9a-f]{3,8}$/i.test(color)) b.style.color = color;
+    d.append(b);
+  } else d.className = "sys";
   d.append(document.createTextNode(text));
-  const log = $("log"); log.append(d); while (log.children.length > 4) log.firstChild.remove();
-  setTimeout(() => d.remove(), 9000);
+  log.append(d); while (log.children.length > CHAT_MAX) log.firstChild.remove();
+  if (atBottom) log.scrollTop = log.scrollHeight;
+  if (box.classList.contains("collapsed") && name !== "Bạn") { chatUnread++; $("chatlog-badge").textContent = chatUnread > 99 ? "99+" : chatUnread; $("chatlog-badge").hidden = false; }
 }
+function toggleChatLog(open) {
+  const box = $("chatlog"); open = open === undefined ? box.classList.contains("collapsed") : open;
+  box.classList.toggle("collapsed", !open); $("chatlog-head").setAttribute("aria-expanded", String(open));
+  if (open) { chatUnread = 0; $("chatlog-badge").hidden = true; $("log").scrollTop = $("log").scrollHeight; }
+}
+$("chatlog-head").addEventListener("click", () => toggleChatLog());
 let lastPeopleRender = 0, peopleRenderTimer = null;
 function scheduleRenderPeople() {
   const now = performance.now();
@@ -5306,7 +5325,7 @@ function renderPeople() {
     : Net.mode === "firebase" ? "Ai mở link đều vào được và thấy nhau. Bấm “Đi theo” để camera bám theo người thuyết minh."
     : Net.mode === "claude" ? "Đang dùng phòng chung claude.ai: người được chia sẻ link và đang mở trang sẽ thấy nhau."
     : "Đang ở chế độ một người. Để cả lớp cùng vào, hãy bật Backend SignalR hoặc cấu hình Firebase trong config.js.";
-  $("actions").hidden = !started;
+  $("actions").hidden = !started; $("chatlog").hidden = !started;
   if ($("people-panel").hidden) return;
   const list = $("people-list"); list.textContent = "";
   const row = (color, name, where, id) => {
@@ -5627,7 +5646,7 @@ $("go").addEventListener("click", () => {
   started = true; window.started = true; joinedAt = performance.now(); lockPointer(); updateLookHint();
   // Tải trước dữ liệu Drone Show sau khi bảo tàng đã đẩy xong texture lên GPU (warmUp 2,5/6/12 s) để F9/F10 chạy ngay.
   setTimeout(() => { if (window.DroneShow) window.DroneShow.preload(); }, 15000);
-  $("start").hidden = true; $("hud").hidden = false; $("dot").hidden = thirdPerson; $("people-btn").hidden = false;
+  $("start").hidden = true; $("hud").hidden = false; $("chatlog").hidden = false; $("dot").hidden = thirdPerson; $("people-btn").hidden = false;
   if (isTouch) joy.hidden = false;
   setMyFigure();
   renderPeople();

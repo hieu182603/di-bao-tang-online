@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Noto+Serif:wght@500;700&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0">
-<link rel="stylesheet" href="style.css?v=3.44">
+<link rel="stylesheet" href="style.css?v=3.49">
 </head>
 <body>
 <canvas id="c" aria-label="Không gian bảo tàng 3D"></canvas>
@@ -58,7 +58,14 @@
     <button class="act" type="submit"><span class="g-icon">send</span> Gửi</button>
   </form>
 </div>
-<div id="log" aria-live="polite"></div>
+<section id="chatlog" hidden aria-label="Lịch sử trò chuyện">
+  <button id="chatlog-head" type="button" aria-expanded="true" title="Thu gọn / mở rộng lịch sử chat (phím H)">
+    <span class="g-icon sm">forum</span> <span>Trò chuyện</span>
+    <span id="chatlog-badge" hidden>0</span>
+    <span class="g-icon sm" id="chatlog-arrow">expand_more</span>
+  </button>
+  <div id="log" role="log" aria-live="polite"></div>
+</section>
 
 <aside id="info" hidden aria-live="polite">
   <div class="info-top">
@@ -92,15 +99,18 @@
       </div>
 
       <div class="card-guide">
-        <p class="guide-title"><span class="g-icon sm">sports_esports</span> Phím điều khiển</p>
-        <div class="keys">
-          <kbd>W A S D / ↑ ↓</kbd><span>Đi lại (giữ Shift để chạy nhanh)</span>
-          <kbd>Di chuột</kbd><span>Nhìn xung quanh 360° (Esc để hiện con trỏ)</span>
-          <kbd>Bấm hiện vật / E</kbd><span>Xem thông tin & nghe thuyết minh AI</span>
-          <kbd>F · Space · V</kbd><span>Biểu cảm · Nhảy · Đổi góc nhìn</span>
-          <kbd>Enter</kbd><span>Mở ô chat, gõ rồi Enter để gửi</span>
-          <kbd>Điện thoại</kbd><span>Cần gạt ảo để đi, vuốt để xoay</span>
-        </div>
+        <p class="guide-title"><span class="g-icon sm">sports_esports</span> Điều khiển</p>
+        <dl class="keys">
+          <div><span class="g-icon">directions_walk</span><dt><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></dt><dd>Đi lại · giữ <b>Shift</b> để chạy nhanh</dd></div>
+          <div><span class="g-icon">mouse</span><dt><kbd>Chuột</kbd></dt><dd>Nhìn quanh 360° · <b>Esc</b> hiện con trỏ</dd></div>
+          <div><span class="g-icon">touch_app</span><dt><kbd>E</kbd></dt><dd>Xem hiện vật &amp; nghe thuyết minh AI</dd></div>
+          <div><span class="g-icon">sentiment_satisfied</span><dt><kbd>F</kbd></dt><dd>Biểu cảm (vẫy tay, vỗ tay)</dd></div>
+          <div><span class="g-icon">arrow_upward</span><dt><kbd>Space</kbd></dt><dd>Nhảy</dd></div>
+          <div><span class="g-icon">visibility</span><dt><kbd>V</kbd></dt><dd>Đổi góc nhìn thứ nhất / thứ ba</dd></div>
+          <div><span class="g-icon">chat</span><dt><kbd>Enter</kbd></dt><dd>Mở ô chat, gõ rồi Enter để gửi</dd></div>
+          <div><span class="g-icon">forum</span><dt><kbd>H</kbd></dt><dd>Thu gọn / mở lịch sử chat</dd></div>
+          <div><span class="g-icon">smartphone</span><dt><kbd>Điện thoại</kbd></dt><dd>Cần gạt ảo để đi, vuốt để xoay</dd></div>
+        </dl>
       </div>
     </div>
 
@@ -145,6 +155,16 @@
         <span class="g-icon">hourglass_top</span> Đang dựng bảo tàng…
       </button>
     </div>
+
+    <div class="card-special">
+      <p class="guide-title"><span class="g-icon sm">auto_awesome</span> Phím đặc biệt <small>· đồng bộ cho mọi người trong phòng</small></p>
+      <div class="sp-grid">
+        <div class="sp"><kbd>F2</kbd><span class="g-icon">routine</span><b>Ngày / Đêm</b><small>Chuyển ban ngày – ban đêm</small></div>
+        <div class="sp"><kbd>F8</kbd><span class="g-icon">flare</span><b>Pháo hoa</b><small>Màn pháo hoa nghệ thuật 45 giây</small></div>
+        <div class="sp"><kbd>F9</kbd><span class="g-icon">drone</span><b>Drone Show</b><small>150 giây, 7 đội hình lịch sử – văn hoá, kết bằng pháo hoa</small></div>
+        <div class="sp"><kbd>F10</kbd><span class="g-icon">auto_awesome</span><b>Drone + Pháo hoa</b><small>Nối liền pháo hoa F8 từ giây 150, nhạc chạy đến hết</small></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -159,6 +179,6 @@
 <script src="drone-blender.js?v=3.1"></script>
 <script src="drone-show.js?v=3.4"></script>
 <script src="narration.js?v=3.41"></script>
-<script src="app.js?v=3.52"></script>
+<script src="app.js?v=3.53"></script>
 </body>
 </html>
