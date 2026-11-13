@@ -9,7 +9,7 @@
       "ok": true,
       "detail": {
         "initialAt": 0,
-        "observedAt": 1.314
+        "observedAt": 1.315
       }
     },
     {
@@ -19,20 +19,20 @@
         "running": true,
         "pending": false,
         "paused": false,
-        "t": 1.316,
-        "frameT": 1.2914999999999055,
+        "t": 1.318,
+        "frameT": 1.2677999999940404,
         "combo": false,
         "fwAt": 0,
         "fireworks": false,
-        "musicEnd": 150,
+        "musicEnd": 204,
         "tier": "BALANCED",
         "drones": 14000,
-        "revision": "b3-6d4770113720",
-        "showId": "b3-6d4770113720-775300058",
-        "seed": 775300058,
+        "revision": "b4-cf89a4c52ee4",
+        "showId": "b4-cf89a4c52ee4-1429731550",
+        "seed": 1429731550,
         "scene": 1,
-        "avgMs": 0.4285714285159927,
-        "loadMs": 3623.2999999998137,
+        "avgMs": 0.9799999982118607,
+        "loadMs": 4956,
         "initialAt": 0,
         "musicPlaying": true,
         "audioBlocked": false
@@ -58,8 +58,8 @@
       "name": "music catches seek time",
       "ok": true,
       "detail": {
-        "audio": 69.454566,
-        "show": 69.515
+        "audio": 69.461179,
+        "show": 69.522
       }
     },
     {
@@ -88,7 +88,7 @@
       "ok": true
     },
     {
-      "name": "music stops at 150",
+      "name": "music stops at 204",
       "ok": true
     },
     {
@@ -101,12 +101,12 @@
       "detail": {
         "before": {
           "children": 2,
-          "geo": 3249,
+          "geo": 3251,
           "arrays": 42000
         },
         "after": {
           "children": 2,
-          "geo": 3249,
+          "geo": 3251,
           "arrays": 42000
         }
       }
@@ -132,11 +132,11 @@
       "ok": true,
       "detail": [
         {
-          "url": "http://localhost:5174/favicon.ico",
+          "url": "http://localhost:5173/favicon.ico",
           "status": 404
         },
         {
-          "url": "http://localhost:5174/favicon.ico",
+          "url": "http://localhost:5173/favicon.ico",
           "status": 404
         }
       ]
@@ -159,36 +159,42 @@
     "reference_30.5.jpg",
     "reference_48.5.jpg",
     "reference_68.5.jpg",
-    "reference_88.5.jpg",
-    "reference_108.5.jpg",
-    "reference_126.5.jpg",
+    "reference_86.5.jpg",
+    "reference_104.5.jpg",
+    "reference_122.5.jpg",
+    "reference_142.5.jpg",
+    "reference_160.5.jpg",
+    "reference_180.5.jpg",
     "reference_46.jpg",
     "reference_51.jpg",
     "reference_55.jpg",
     "reference_24.jpg",
     "reference_42.jpg",
     "reference_62.jpg",
-    "reference_82.jpg",
-    "reference_102.jpg",
-    "reference_120.jpg"
+    "reference_80.jpg",
+    "reference_98.jpg",
+    "reference_116.jpg",
+    "reference_134.jpg",
+    "reference_152.jpg",
+    "reference_166.jpg"
   ],
   "errors": [],
   "networkFailures": [
     {
-      "url": "http://localhost:5174/favicon.ico",
+      "url": "http://localhost:5173/favicon.ico",
       "status": 404
     },
     {
-      "url": "http://localhost:5174/favicon.ico",
+      "url": "http://localhost:5173/favicon.ico",
       "status": 404
     }
   ],
   "performance": {
-    "fps": 34.666666666666664,
-    "p95ms": 34.89999999999782,
-    "cpuMs": 0.1590476190626976,
+    "fps": 22.407486736744954,
+    "p95ms": 62.599999999998545,
+    "cpuMs": 0.327536232445551,
     "calls": 1628,
-    "geometries": 3247,
-    "heap": 163994318
+    "geometries": 3249,
+    "heap": 166300737
   }
 }

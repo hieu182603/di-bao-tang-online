@@ -63,3 +63,16 @@ window.MUSEUM_ROOM = "bao-tang-vnr";
 
 // Bật/tắt tượng và bệ tượng trước cửa (true = hiện, false = ẩn).
 window.STATUE.enabled = false;
+
+// Chế độ nhẹ cho điện thoại / máy tính bảng (ít RAM, GPU yếu → dễ bị trình duyệt đóng tab hoặc giật).
+// Thêm ?lite=1 vào địa chỉ để ép bật, ?lite=0 để ép tắt (kiểm thử trên máy tính).
+window.LITE = (() => {
+  try {
+    const q = new URLSearchParams(location.search).get("lite");
+    if (q === "1") return true;
+    if (q === "0") return false;
+    const ua = navigator.userAgent || "";
+    const iPadOS = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1; // iPad mới tự nhận là Mac
+    return /Android|iPhone|iPad|iPod|Mobile|HarmonyOS/i.test(ua) || iPadOS || matchMedia("(pointer: coarse)").matches;
+  } catch (e) { return false; }
+})();

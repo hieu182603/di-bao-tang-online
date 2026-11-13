@@ -71,7 +71,7 @@ const FireworksConfig = {
   altitudes: { low: [45, 90], mid: [100, 160], high: [165, 235], extreme: [235, 268] },   // sau khi nâng
   launchPoints: PADS,
   colors: C,
-  caps: { points: 32768, trails: 16384, segs: 8 },   // pool gấp đôi cho mật độ x2
+  caps: window.LITE ? { points: 12288, trails: 6144, segs: 8 } : { points: 32768, trails: 16384, segs: 8 },   // điện thoại: pool nhỏ hơn ~2,7 lần   // pool gấp đôi cho mật độ x2
   density: 2,   // x2 số quả pháo: mỗi quả tầm cao có thêm 1 quả "song sinh" ở lớp sâu hơn
   qualityBudgets: {
     LOW:      { scale: 0.42, glitter: 0.25, maxStars: 1500 },
@@ -82,7 +82,7 @@ const FireworksConfig = {
 
 /* ================= 2. QUẢN LÝ CHẤT LƯỢNG ================= */
 const FireworksQualityManager = {
-  currentTier: (matchMedia && matchMedia("(pointer: coarse)").matches) ? "LOW" : "HIGH",
+  currentTier: (window.LITE || (matchMedia && matchMedia("(pointer: coarse)").matches)) ? "LOW" : "HIGH",
   samples: [], lastCheck: 0, low: 0, high: 0,
   get budget() { return FireworksConfig.qualityBudgets[this.currentTier]; },
   update(dt) {
@@ -155,7 +155,8 @@ const FireworksAudio = {
       this.dry = ctx.createGain(); this.dry.gain.value = 1.0; this.dry.connect(this.master);
     }
     if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
-    if (ctx && !this.isLoading && !this.isLoaded) this.loadAudio();
+    // Điện thoại: 4 tệp mp3 giải mã ra PCM tốn ~80 MB RAM, chỉ nạp khi thật sự có màn pháo hoa / drone (this.demand).
+    if (ctx && !this.isLoading && !this.isLoaded && (!window.LITE || this.demand)) this.loadAudio();
     return ctx;
   },
 
@@ -1129,6 +1130,7 @@ const FireworksShow = {
   // opts: { seed, at (giây, để tua nhanh kiểm thử), startTime (ms epoch, cho đồng bộ sau này), showId }
   start(opts = {}) {
     if (this.isRunning) return false;
+    FireworksAudio.demand = true;
     FireworksAudio.ensure();
     FireworksAudio.startShowAmbient();
     this.seed = opts.seed >>> 0 || ((Math.random() * 2 ** 31) >>> 0);

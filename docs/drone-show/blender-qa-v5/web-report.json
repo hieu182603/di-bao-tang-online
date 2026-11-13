@@ -1,0 +1,741 @@
+{
+  "checks": [
+    {
+      "name": "v5 eleven-scene order",
+      "ok": true,
+      "detail": [
+        "dong_son",
+        "ly_thai_to",
+        "ly_dragon",
+        "hoang_thanh",
+        "chua_mot_cot",
+        "cau_long_bien",
+        "ho_chi_minh_lotus",
+        "dien_bien",
+        "reunification",
+        "lang_bac",
+        "vietnam_flag"
+      ]
+    },
+    {
+      "name": "web show ends at 210 seconds without landing",
+      "ok": true
+    },
+    {
+      "name": "v5 asset path and tag",
+      "ok": true
+    },
+    {
+      "name": "stop during loading does not revive",
+      "ok": true
+    },
+    {
+      "name": "local F9 starts from zero after loading",
+      "ok": true,
+      "detail": {
+        "initialAt": 0,
+        "observedAt": 1.402
+      }
+    },
+    {
+      "name": "F9 starts 21000 IDs and music",
+      "ok": true,
+      "detail": {
+        "running": true,
+        "pending": false,
+        "paused": false,
+        "t": 1.405,
+        "frameT": 1.3759000000000015,
+        "combo": false,
+        "fwAt": 0,
+        "fireworks": false,
+        "musicEnd": 210,
+        "tier": "BALANCED",
+        "drones": 21000,
+        "revision": "b5-91a95ac1db40",
+        "showId": "b5-91a95ac1db40-1616587060",
+        "seed": 1616587060,
+        "scene": 1,
+        "avgMs": 1.1147058816517101,
+        "loadMs": 5955.199999988079,
+        "initialAt": 0,
+        "musicPlaying": true,
+        "audioBlocked": false
+      }
+    },
+    {
+      "name": "sound button mutes music",
+      "ok": true
+    },
+    {
+      "name": "key repeat ignored",
+      "ok": true
+    },
+    {
+      "name": "F8 independent show blocked",
+      "ok": true
+    },
+    {
+      "name": "pause stops music",
+      "ok": true
+    },
+    {
+      "name": "music catches seek time",
+      "ok": true,
+      "detail": {
+        "audio": 82.959651,
+        "show": 83.016
+      }
+    },
+    {
+      "name": "all quality tiers preserve 21000 IDs and all approved active LEDs, including dim plaque",
+      "ok": true,
+      "detail": [
+        {
+          "tier": "LOW",
+          "key": "dong_son",
+          "ids": 21000,
+          "lit": 9967,
+          "active": 9967
+        },
+        {
+          "tier": "LOW",
+          "key": "ly_thai_to",
+          "ids": 21000,
+          "lit": 11433,
+          "active": 11433
+        },
+        {
+          "tier": "LOW",
+          "key": "ly_dragon",
+          "ids": 21000,
+          "lit": 8519,
+          "active": 8519
+        },
+        {
+          "tier": "LOW",
+          "key": "hoang_thanh",
+          "ids": 21000,
+          "lit": 20154,
+          "active": 20154
+        },
+        {
+          "tier": "LOW",
+          "key": "chua_mot_cot",
+          "ids": 21000,
+          "lit": 19146,
+          "active": 19146
+        },
+        {
+          "tier": "LOW",
+          "key": "cau_long_bien",
+          "ids": 21000,
+          "lit": 17391,
+          "active": 17391
+        },
+        {
+          "tier": "LOW",
+          "key": "ho_chi_minh_lotus",
+          "ids": 21000,
+          "lit": 7589,
+          "active": 7589
+        },
+        {
+          "tier": "LOW",
+          "key": "dien_bien",
+          "ids": 21000,
+          "lit": 6626,
+          "active": 6626
+        },
+        {
+          "tier": "LOW",
+          "key": "reunification",
+          "ids": 21000,
+          "lit": 11932,
+          "active": 11932
+        },
+        {
+          "tier": "LOW",
+          "key": "lang_bac",
+          "ids": 21000,
+          "lit": 18834,
+          "active": 18834
+        },
+        {
+          "tier": "LOW",
+          "key": "vietnam_flag",
+          "ids": 21000,
+          "lit": 5067,
+          "active": 5067
+        },
+        {
+          "tier": "BALANCED",
+          "key": "dong_son",
+          "ids": 21000,
+          "lit": 9967,
+          "active": 9967
+        },
+        {
+          "tier": "BALANCED",
+          "key": "ly_thai_to",
+          "ids": 21000,
+          "lit": 11433,
+          "active": 11433
+        },
+        {
+          "tier": "BALANCED",
+          "key": "ly_dragon",
+          "ids": 21000,
+          "lit": 8519,
+          "active": 8519
+        },
+        {
+          "tier": "BALANCED",
+          "key": "hoang_thanh",
+          "ids": 21000,
+          "lit": 20154,
+          "active": 20154
+        },
+        {
+          "tier": "BALANCED",
+          "key": "chua_mot_cot",
+          "ids": 21000,
+          "lit": 19146,
+          "active": 19146
+        },
+        {
+          "tier": "BALANCED",
+          "key": "cau_long_bien",
+          "ids": 21000,
+          "lit": 17391,
+          "active": 17391
+        },
+        {
+          "tier": "BALANCED",
+          "key": "ho_chi_minh_lotus",
+          "ids": 21000,
+          "lit": 7589,
+          "active": 7589
+        },
+        {
+          "tier": "BALANCED",
+          "key": "dien_bien",
+          "ids": 21000,
+          "lit": 6626,
+          "active": 6626
+        },
+        {
+          "tier": "BALANCED",
+          "key": "reunification",
+          "ids": 21000,
+          "lit": 11932,
+          "active": 11932
+        },
+        {
+          "tier": "BALANCED",
+          "key": "lang_bac",
+          "ids": 21000,
+          "lit": 18834,
+          "active": 18834
+        },
+        {
+          "tier": "BALANCED",
+          "key": "vietnam_flag",
+          "ids": 21000,
+          "lit": 5067,
+          "active": 5067
+        },
+        {
+          "tier": "HIGH",
+          "key": "dong_son",
+          "ids": 21000,
+          "lit": 9967,
+          "active": 9967
+        },
+        {
+          "tier": "HIGH",
+          "key": "ly_thai_to",
+          "ids": 21000,
+          "lit": 11433,
+          "active": 11433
+        },
+        {
+          "tier": "HIGH",
+          "key": "ly_dragon",
+          "ids": 21000,
+          "lit": 8519,
+          "active": 8519
+        },
+        {
+          "tier": "HIGH",
+          "key": "hoang_thanh",
+          "ids": 21000,
+          "lit": 20154,
+          "active": 20154
+        },
+        {
+          "tier": "HIGH",
+          "key": "chua_mot_cot",
+          "ids": 21000,
+          "lit": 19146,
+          "active": 19146
+        },
+        {
+          "tier": "HIGH",
+          "key": "cau_long_bien",
+          "ids": 21000,
+          "lit": 17391,
+          "active": 17391
+        },
+        {
+          "tier": "HIGH",
+          "key": "ho_chi_minh_lotus",
+          "ids": 21000,
+          "lit": 7589,
+          "active": 7589
+        },
+        {
+          "tier": "HIGH",
+          "key": "dien_bien",
+          "ids": 21000,
+          "lit": 6626,
+          "active": 6626
+        },
+        {
+          "tier": "HIGH",
+          "key": "reunification",
+          "ids": 21000,
+          "lit": 11932,
+          "active": 11932
+        },
+        {
+          "tier": "HIGH",
+          "key": "lang_bac",
+          "ids": 21000,
+          "lit": 18834,
+          "active": 18834
+        },
+        {
+          "tier": "HIGH",
+          "key": "vietnam_flag",
+          "ids": 21000,
+          "lit": 5067,
+          "active": 5067
+        }
+      ]
+    },
+    {
+      "name": "approved tank remains static",
+      "ok": true
+    },
+    {
+      "name": "finale does not start independent F8 timeline",
+      "ok": true
+    },
+    {
+      "name": "music stops at 210",
+      "ok": true
+    },
+    {
+      "name": "natural finish restores sky and music",
+      "ok": true
+    },
+    {
+      "name": "replay reuses GPU buffers",
+      "ok": true,
+      "detail": {
+        "before": {
+          "children": 2,
+          "geo": 3254,
+          "arrays": 63000
+        },
+        "after": {
+          "children": 2,
+          "geo": 3254,
+          "arrays": 63000
+        }
+      }
+    },
+    {
+      "name": "F8 works after F9",
+      "ok": true
+    },
+    {
+      "name": "F9 ignored in text inputs/contenteditable",
+      "ok": true
+    },
+    {
+      "name": "mismatched revision refused",
+      "ok": true
+    },
+    {
+      "name": "load failure does not start fallback or leave music playing",
+      "ok": true
+    },
+    {
+      "name": "no drone/audio asset failures",
+      "ok": true,
+      "detail": [
+        {
+          "url": "http://localhost:5191/favicon.ico",
+          "status": 404
+        },
+        {
+          "url": "http://localhost:5191/favicon.ico",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "name": "no JS/shader errors",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "screenshots": [
+    "museum_hoang_thanh_mid.jpg",
+    "museum_chua_mot_cot_mid.jpg",
+    "museum_cau_long_bien_mid.jpg",
+    "museum_lang_bac_mid.jpg",
+    "reference_0.jpg",
+    "reference_2.5.jpg",
+    "reference_5.jpg",
+    "reference_7.5.jpg",
+    "reference_10.jpg",
+    "reference_12.5.jpg",
+    "reference_15.jpg",
+    "reference_18.5.jpg",
+    "reference_22.jpg",
+    "reference_27.5.jpg",
+    "reference_33.jpg",
+    "reference_36.5.jpg",
+    "reference_40.jpg",
+    "reference_46.5.jpg",
+    "reference_53.jpg",
+    "reference_56.5.jpg",
+    "reference_60.jpg",
+    "reference_65.jpg",
+    "reference_70.jpg",
+    "reference_73.5.jpg",
+    "reference_77.jpg",
+    "reference_82.jpg",
+    "reference_87.jpg",
+    "reference_90.5.jpg",
+    "reference_94.jpg",
+    "reference_98.5.jpg",
+    "reference_102.96666666666667.jpg",
+    "reference_103.jpg",
+    "reference_106.5.jpg",
+    "reference_110.jpg",
+    "reference_115.5.jpg",
+    "reference_121.jpg",
+    "reference_124.5.jpg",
+    "reference_128.jpg",
+    "reference_134.5.jpg",
+    "reference_141.jpg",
+    "reference_144.5.jpg",
+    "reference_148.jpg",
+    "reference_155.5.jpg",
+    "reference_162.96666666666667.jpg",
+    "reference_163.jpg",
+    "reference_166.5.jpg",
+    "reference_170.jpg",
+    "reference_175.jpg",
+    "reference_179.96666666666667.jpg",
+    "reference_180.jpg",
+    "reference_183.5.jpg",
+    "reference_187.jpg",
+    "reference_198.5.jpg",
+    "reference_lang_bac_4k.png",
+    "reference_lang_bac_inscription_crop.png"
+  ],
+  "errors": [],
+  "networkFailures": [
+    {
+      "url": "http://localhost:5191/favicon.ico",
+      "status": 404
+    },
+    {
+      "url": "http://localhost:5191/favicon.ico",
+      "status": 404
+    }
+  ],
+  "revision": "eleven-scenes-v5-2026-11-14",
+  "timeline": {
+    "revision": "eleven-scenes-v5-2026-11-14",
+    "duration": 210,
+    "fps": 30,
+    "frame_start": 0,
+    "frame_end": 6840,
+    "scene_order": [
+      "dong_son",
+      "ly_thai_to",
+      "ly_dragon",
+      "hoang_thanh",
+      "chua_mot_cot",
+      "cau_long_bien",
+      "ho_chi_minh_lotus",
+      "dien_bien",
+      "reunification",
+      "lang_bac",
+      "vietnam_flag"
+    ],
+    "formations": [
+      {
+        "formation": "dong_son",
+        "start": 10,
+        "end": 15,
+        "sample_hz": 4,
+        "sample_count": 21,
+        "position_quantum_m": 0.002,
+        "active_count": 9967
+      },
+      {
+        "formation": "ly_thai_to",
+        "start": 22,
+        "end": 33,
+        "sample_hz": 4,
+        "sample_count": 45,
+        "position_quantum_m": 0.002,
+        "active_count": 11433
+      },
+      {
+        "formation": "ly_dragon",
+        "start": 40,
+        "end": 53,
+        "sample_hz": 4,
+        "sample_count": 53,
+        "position_quantum_m": 0.002,
+        "active_count": 8519
+      },
+      {
+        "formation": "hoang_thanh",
+        "start": 60,
+        "end": 70,
+        "sample_hz": 4,
+        "sample_count": 41,
+        "position_quantum_m": 0.002,
+        "active_count": 20154
+      },
+      {
+        "formation": "chua_mot_cot",
+        "start": 77,
+        "end": 87,
+        "sample_hz": 4,
+        "sample_count": 41,
+        "position_quantum_m": 0.002,
+        "active_count": 19146
+      },
+      {
+        "formation": "cau_long_bien",
+        "start": 94,
+        "end": 103,
+        "sample_hz": 4,
+        "sample_count": 37,
+        "position_quantum_m": 0.002,
+        "active_count": 17391
+      },
+      {
+        "formation": "ho_chi_minh_lotus",
+        "start": 110,
+        "end": 121,
+        "sample_hz": 4,
+        "sample_count": 45,
+        "position_quantum_m": 0.002,
+        "active_count": 7589
+      },
+      {
+        "formation": "dien_bien",
+        "start": 128,
+        "end": 141,
+        "sample_hz": 4,
+        "sample_count": 53,
+        "position_quantum_m": 0.002,
+        "active_count": 6626
+      },
+      {
+        "formation": "reunification",
+        "start": 148,
+        "end": 163,
+        "sample_hz": 4,
+        "sample_count": 61,
+        "position_quantum_m": 0.002,
+        "active_count": 11932
+      },
+      {
+        "formation": "lang_bac",
+        "start": 170,
+        "end": 180,
+        "sample_hz": 4,
+        "sample_count": 41,
+        "position_quantum_m": 0.002,
+        "active_count": 18834
+      },
+      {
+        "formation": "vietnam_flag",
+        "start": 187,
+        "end": 210,
+        "sample_hz": 10,
+        "sample_count": 231,
+        "position_quantum_m": 0.002,
+        "active_count": 5067,
+        "color_animation": {
+          "sample_hz": 30,
+          "sample_count": 691,
+          "ids": "vietnam_flag.color_ids.u32",
+          "rgb": "vietnam_flag.color_motion.u8",
+          "count": 534
+        }
+      }
+    ],
+    "transitions": [
+      {
+        "index": 0,
+        "kind": "ascent",
+        "start": 0,
+        "end": 5,
+        "geometry": "launch.f32",
+        "colors": "launch.rgba.u8",
+        "shape": "eight rigid boxes rise vertically"
+      },
+      {
+        "index": 1,
+        "kind": "assembly",
+        "formation": "dong_son",
+        "start": 5,
+        "end": 10,
+        "geometry": "transition_00.f32",
+        "colors": "transition_00.rgba.u8"
+      },
+      {
+        "index": 2,
+        "kind": "morph",
+        "formation": "ly_thai_to",
+        "start": 15,
+        "end": 22,
+        "geometry": "transition_01.f32",
+        "colors": "transition_01.rgba.u8"
+      },
+      {
+        "index": 3,
+        "kind": "morph",
+        "formation": "ly_dragon",
+        "start": 33,
+        "end": 40,
+        "geometry": "transition_02.f32",
+        "colors": "transition_02.rgba.u8"
+      },
+      {
+        "index": 4,
+        "kind": "morph",
+        "formation": "hoang_thanh",
+        "start": 53,
+        "end": 60,
+        "geometry": "transition_03.f32",
+        "colors": "transition_03.rgba.u8"
+      },
+      {
+        "index": 5,
+        "kind": "morph",
+        "formation": "chua_mot_cot",
+        "start": 70,
+        "end": 77,
+        "geometry": "transition_04.f32",
+        "colors": "transition_04.rgba.u8"
+      },
+      {
+        "index": 6,
+        "kind": "morph",
+        "formation": "cau_long_bien",
+        "start": 87,
+        "end": 94,
+        "geometry": "transition_05.f32",
+        "colors": "transition_05.rgba.u8"
+      },
+      {
+        "index": 7,
+        "kind": "morph",
+        "formation": "ho_chi_minh_lotus",
+        "start": 103,
+        "end": 110,
+        "geometry": "transition_06.f32",
+        "colors": "transition_06.rgba.u8"
+      },
+      {
+        "index": 8,
+        "kind": "morph",
+        "formation": "dien_bien",
+        "start": 121,
+        "end": 128,
+        "geometry": "transition_07.f32",
+        "colors": "transition_07.rgba.u8"
+      },
+      {
+        "index": 9,
+        "kind": "morph",
+        "formation": "reunification",
+        "start": 141,
+        "end": 148,
+        "geometry": "transition_08.f32",
+        "colors": "transition_08.rgba.u8"
+      },
+      {
+        "index": 10,
+        "kind": "morph",
+        "formation": "lang_bac",
+        "start": 163,
+        "end": 170,
+        "geometry": "transition_09.f32",
+        "colors": "transition_09.rgba.u8"
+      },
+      {
+        "index": 11,
+        "kind": "morph",
+        "formation": "vietnam_flag",
+        "start": 180,
+        "end": 187,
+        "geometry": "transition_10.f32",
+        "colors": "transition_10.rgba.u8"
+      }
+    ],
+    "fireworks": [
+      {
+        "name": "FIREWORKS_START",
+        "time": 197
+      },
+      {
+        "name": "FIREWORKS_BUILDUP",
+        "time": 201
+      },
+      {
+        "name": "FIREWORKS_FINALE",
+        "time": 205
+      },
+      {
+        "name": "FIREWORKS_END",
+        "time": 210
+      }
+    ],
+    "emission_gain": {
+      "value": 2,
+      "ramp_up": [
+        180,
+        187
+      ],
+      "ramp_down": [
+        210,
+        213
+      ],
+      "curve": "smoothstep",
+      "apply": "multiply final linear emission of every LED by gain(t); 1.0 outside the ramps"
+    }
+  },
+  "performance": {
+    "fps": 24.666666666666668,
+    "p95ms": 76.5,
+    "cpuMs": 0.410666667620341,
+    "calls": 1628,
+    "geometries": 3252,
+    "heap": 202903323
+  }
+}

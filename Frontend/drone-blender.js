@@ -1,8 +1,8 @@
 /* Approved Blender export decoder. Coordinates are already Y-up; row i is drone ID i. */
 (function (root) {
   'use strict';
-  const REVISION = 'box-launch-landing-v3-2026-11-12';
-  const MANIFEST_HASH = '4fc20580bd46ce0e0c73e0e967103033b886762fa622c53eb61c980be8702d1c';
+  const REVISION = 'eleven-scenes-v5-2026-11-14';
+  const MANIFEST_HASH = '91a95ac1db40ab70f16ce2381092f5df148c3a100eab70efcc6c2adcf5c427b8';
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
   const types = { '<f4': Float32Array, '<i2': Int16Array, u1: Uint8Array, '<u4': Uint32Array };
   function validate(manifest, timeline, buffers) {
@@ -20,7 +20,20 @@
     }
     return { manifest, timeline, buffers, N };
   }
-  async function load(base) {
+  // Giữ lại mỗi `stride`-th drone (ID 0, stride, 2·stride…) của một mảng đã giải mã; trục drone là trục có kích thước = N0.
+  function thin(arr, shape, N0, stride) {
+    const ax = shape.indexOf(N0); if (ax < 0) return { arr, shape };
+    const keep = Math.ceil(N0 / stride), outer = shape.slice(0, ax).reduce((n, v) => n * v, 1), inner = shape.slice(ax + 1).reduce((n, v) => n * v, 1);
+    const out = new arr.constructor(outer * keep * inner);
+    for (let o = 0; o < outer; o++) for (let i = 0; i < keep; i++) {
+      const src = (o * N0 + i * stride) * inner, dst = (o * keep + i) * inner;
+      for (let c = 0; c < inner; c++) out[dst + c] = arr[src + c];
+    }
+    const sh = shape.slice(); sh[ax] = keep; return { arr: out, shape: sh };
+  }
+  // opts.stride > 1 (điện thoại): chỉ giữ 1/stride số drone ngay khi tải xong từng tệp → RAM và CPU mỗi khung giảm stride lần.
+  async function load(base, opts = {}) {
+    const stride = Math.max(1, opts.stride | 0);
     async function get(path, json) {
       const r = await fetch(base + path); if (!r.ok) throw Error(path + ': HTTP ' + r.status);
       if (!json) return r.arrayBuffer();
@@ -33,7 +46,13 @@
     }
     const [manifest, timeline] = await Promise.all([get('export_manifest.json', true), get('show_timeline.json', true)]);
     if (manifest.revision !== REVISION || manifest.schema !== 'vn-source-guided-drone/1.1') throw Error('Blender asset revision mismatch');
-    const buffers = {}, queue = manifest.files.slice();
+    const buffers = {}, queue = manifest.files.slice(), N0 = manifest.drone_count, files = [];
+    // Lite: bản đồ ID màu (color_ids) phải xử lý trước để các tệp màu theo ID lọc cùng một tập drone.
+    const idsPaths = new Set(timeline.formations.filter(c => c.color_animation).map(c => c.color_animation.ids));
+    const idsKept = {}, idsDone = {};
+    for (const p of idsPaths) idsDone[p] = new Promise(res => { idsKept[p] = res; });
+    const rgbToIds = Object.fromEntries(timeline.formations.filter(c => c.color_animation).map(c => [c.color_animation.rgb, c.color_animation.ids]));
+    if (stride > 1) queue.sort((a, b) => idsPaths.has(b.path) - idsPaths.has(a.path));
     // Limit simultaneous downloads; cache this load promise in the show, not each replay.
     await Promise.all(Array.from({ length: 4 }, async () => {
       while (queue.length) {
@@ -45,13 +64,42 @@
           const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', raw)), b => b.toString(16).padStart(2, '0')).join('');
           if (hash !== e.sha256) throw Error('SHA256 mismatch: ' + e.path);
         }
-        buffers[e.path] = new types[e.dtype](raw);
+        let arr = new types[e.dtype](raw), entry = e;
+        if (stride > 1) {
+          if (idsPaths.has(e.path)) {            // chỉ giữ ID chia hết cho stride, đánh số lại theo chỉ số mới
+            const pos = [], ids = [];
+            arr.forEach((id, i) => { if (id % stride === 0) { pos.push(i); ids.push(id / stride); } });
+            arr = Uint32Array.from(ids); entry = { ...e, shape: [arr.length] }; idsKept[e.path](pos);
+          } else if (rgbToIds[e.path]) {         // [mẫu, count, 3] → giữ đúng các cột của ID còn lại
+            const pos = await idsDone[rgbToIds[e.path]], S = e.shape[0], C = e.shape[1], out = new arr.constructor(S * pos.length * 3);
+            for (let k = 0; k < S; k++) for (let i = 0; i < pos.length; i++) for (let c = 0; c < 3; c++) out[(k * pos.length + i) * 3 + c] = arr[(k * C + pos[i]) * 3 + c];
+            arr = out; entry = { ...e, shape: [S, pos.length, 3] };
+          } else { const t = thin(arr, e.shape, N0, stride); arr = t.arr; entry = { ...e, shape: t.shape }; }
+          entry.bytes = arr.byteLength;
+        }
+        buffers[e.path] = arr; files.push(entry);
       }
     }));
+    if (stride > 1) {
+      for (const c of timeline.formations) if (c.color_animation) c.color_animation.count = buffers[c.color_animation.ids].length;
+      return validate({ ...manifest, drone_count: Math.ceil(N0 / stride), files }, timeline, buffers);
+    }
     return validate(manifest, timeline, buffers);
   }
+  // Timeline emission gain (flag scene): smoothstep up over ramp_up, down over ramp_down; 1 elsewhere.
+  function emissionGain(timeline, t) {
+    const g = timeline.emission_gain; if (!g) return 1;
+    const s = (x, a, b) => { const u = clamp((x - a) / (b - a), 0, 1); return u * u * (3 - 2 * u); };
+    return 1 + (g.value - 1) * s(t, g.ramp_up[0], g.ramp_up[1]) * (1 - s(t, g.ramp_down[0], g.ramp_down[1]));
+  }
   // Writes into preallocated float arrays; usable independently of Three.js for parity tests.
+  // rgba[3] is brightness x emission gain, so it can exceed 1 during the flag scene.
   function evaluate(D, time, pos, rgba, pivot = 0) {
+    evaluateRaw(D, time, pos, rgba, pivot);
+    const gain = emissionGain(D.timeline, clamp(time, 0, D.timeline.duration));
+    if (gain !== 1) for (let k = 3; k < rgba.length; k += 4) rgba[k] *= gain;
+  }
+  function evaluateRaw(D, time, pos, rgba, pivot) {
     const t = clamp(time, 0, D.timeline.duration), N = D.N, B = D.buffers;
     const hold = D.timeline.formations.find(c => t >= c.start && (t < c.end || t === D.timeline.duration && c.end === t));
     if (hold) {
@@ -78,7 +126,7 @@
       for (let c = 0; c < 4; c++) rgba[k + c] = (colors[ci + c] * (1 - q) + colors[ci + 4 + c] * q) / 255;
     }
   }
-  const api = { REVISION, types, validate, load, evaluate };
+  const api = { REVISION, types, validate, load, evaluate, emissionGain };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.DroneBlender = api;
 })(globalThis);

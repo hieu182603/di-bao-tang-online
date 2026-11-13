@@ -1,7 +1,33 @@
 {
-  "revision": "launch-assembly-v2-2026-11-12",
-  "archive_sha256": "d7224c25ee706e2d4cf5f642fb23db915a03f6e78ec358595725046de05ca6c6",
-  "manifest_sha256": "117584ae41fb370364a736193d6a138a06e8a449a8ded5e6dba837b2f6afcb8a",
-  "binary_bytes": 59549298,
-  "files_verified": 60
+  "revision": "eleven-scenes-v5-2026-11-14",
+  "manifest_sha256": "91a95ac1db40ab70f16ce2381092f5df148c3a100eab70efcc6c2adcf5c427b8",
+  "asset_tag": "b5-91a95ac1db40",
+  "drone_count": 21000,
+  "binary_files": 96,
+  "binary_bytes": 117491118,
+  "scene_order": [
+    "dong_son",
+    "ly_thai_to",
+    "ly_dragon",
+    "hoang_thanh",
+    "chua_mot_cot",
+    "cau_long_bien",
+    "ho_chi_minh_lotus",
+    "dien_bien",
+    "reunification",
+    "lang_bac",
+    "vietnam_flag"
+  ],
+  "show_seconds": 210,
+  "landing_end_seconds": 228,
+  "all_binary_hashes_verified": true,
+  "approved_blender": "Vietnam_DroneShow_11Scenes_Review.blend",
+  "local_bounding_sphere": {
+    "center": [
+      0.0,
+      -7.036589048335671,
+      -20.016424833720166
+    ],
+    "radius": 141
+  }
 }

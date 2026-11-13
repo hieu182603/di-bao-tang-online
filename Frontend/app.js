@@ -7,14 +7,18 @@ const Net = window.Net;
 
 /* ================= renderer, scene, camera (PBR + Shadows + ToneMapping) ================= */
 const canvas = $("c");
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+// LITE = điện thoại / máy tính bảng: bỏ khử răng cưa MSAA (tốn gấp 4 bộ nhớ khung hình), hạ độ phân giải, bóng nhỏ hơn, ít đèn hơn, ảnh/chữ nhỏ hơn.
+const LITE = !!window.LITE;
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: !LITE, powerPreference: "high-performance" });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, LITE ? 1.25 : 1.75));
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.98;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.shadowMap.autoUpdate = false; // bóng chỉ dựng lại mỗi vài khung hình (xem frame()) để lia chuột không bị đơ
+// Mất ngữ cảnh WebGL (hệ điều hành thu hồi GPU khi thiếu bộ nhớ): chặn mặc định để three.js tự dựng lại thay vì treo màn hình đen.
+canvas.addEventListener("webglcontextlost", (e) => e.preventDefault(), false);
 
 const scene = new THREE.Scene();
 const SKY = 0x7fa6cc;
@@ -56,9 +60,50 @@ const GOLD_TXT = "#e2c98a";
 function canvasTex(c, repeat) {
   const t = new THREE.CanvasTexture(c);
   t.encoding = THREE.sRGBEncoding;
-  t.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+  t.anisotropy = LITE ? 1 : Math.min(4, renderer.capabilities.getMaxAnisotropy());
   if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat[0], repeat[1]); }
   return t;
+}
+// Điện thoại: thu nhỏ ảnh tư liệu (có ảnh tới 2264×1414) trước khi đẩy lên GPU — ~100 ảnh chiếm gần 450 MB nếu để nguyên.
+function liteTex(tex, maxDim = 640) {
+  const im = tex && tex.image;
+  if (!LITE || !im || !im.width) return tex;
+  const k = Math.min(1, maxDim / Math.max(im.width, im.height)); if (k >= 1) return tex;
+  const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(im.width * k)); c.height = Math.max(1, Math.round(im.height * k));
+  c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+  tex.image = c; tex.needsUpdate = true;
+  return tex;
+}
+// Đèn điểm: mỗi PointLight bắt MỌI điểm ảnh tính thêm một lần (cảnh có hơn 25 đèn). Điện thoại chỉ giữ vài đèn, dời theo người chơi tới các "điểm đèn" gần nhất.
+const lightSites = [], lightPool = [], LIGHT_POOL_N = 4;
+if (LITE) for (let i = 0; i < LIGHT_POOL_N; i++) { const l = new THREE.PointLight(0xffd6a0, 0, 15, 1.5); l.userData = { site: null, next: null }; scene.add(l); lightPool.push(l); }
+function addSiteLight(color, intensity, dist, decay, x, y, z) {
+  if (!LITE) { const l = new THREE.PointLight(color, intensity, dist, decay); l.position.set(x, y, z); scene.add(l); return; }
+  lightSites.push({ color, intensity, dist, decay, x, y, z, d: 0 });
+}
+let lightWant = [], lightTick = 0;
+function updateLightPool(dt, px, py, pz, snap) {
+  if (!lightPool.length) return;
+  if (snap || (lightTick++ % 8) === 0) {
+    for (const s of lightSites) s.d = (s.x - px) ** 2 + (s.y - py) ** 2 + (s.z - pz) ** 2;
+    lightWant = lightSites.slice().sort((a, b) => a.d - b.d).slice(0, lightPool.length);
+    for (const s of lightWant) if (!lightPool.some((l) => l.userData.site === s || l.userData.next === s)) {
+      const free = lightPool.find((l) => !l.userData.next && (!l.userData.site || !lightWant.includes(l.userData.site)));
+      if (free) free.userData.next = s;
+    }
+  }
+  for (const l of lightPool) {
+    const u = l.userData, keep = u.site && lightWant.includes(u.site);
+    if (!keep && (u.site || u.next)) { // đèn này không còn gần người chơi: tắt dần rồi chuyển sang điểm đèn mới
+      l.intensity = snap ? 0 : Math.max(0, l.intensity - dt * 2.5);
+      if (l.intensity <= 0.01) {
+        l.intensity = 0; u.site = u.next; u.next = null;
+        const s = u.site; if (s) { l.color.setHex(s.color); l.distance = s.dist; l.decay = s.decay; l.position.set(s.x, s.y, s.z); }
+      }
+    }
+    if (u.site && lightWant.includes(u.site)) l.intensity = snap ? u.site.intensity : Math.min(u.site.intensity, l.intensity + dt * 2.5);
+    else if (!u.site && !u.next) l.intensity = 0;
+  }
 }
 function wrapLines(ctx, text, maxW) {
   const out = []; let line = "";
@@ -74,9 +119,12 @@ const TEXT_ISSUES = []; window.__textIssues = TEXT_ISSUES;
 function textIssue(kind, text) { TEXT_ISSUES.push(kind + ": " + String(text).slice(0, 90)); }
 function textCanvas(blocks, w, h, o = {}) {
   const ppm = o.ppm || 300;
-  const cw = Math.round(ppm * w), ch = Math.round(ppm * h);
-  const c = document.createElement("canvas"); c.width = cw; c.height = ch;
+  const cw = Math.round(ppm * w), ch = Math.round(ppm * h);   // toạ độ vẽ (logic)
+  // Điện thoại: canvas thật chỉ bằng ~60% mỗi chiều (≈36% bộ nhớ); bố cục vẫn tính theo cw×ch nhờ g.scale.
+  const q = LITE ? 0.6 : 1;
+  const c = document.createElement("canvas"); c.width = Math.max(8, Math.round(cw * q)); c.height = Math.max(8, Math.round(ch * q));
   const g = c.getContext("2d");
+  if (q !== 1) g.scale(c.width / cw, c.height / ch);
   g.fillStyle = o.bg || "#1c1511"; g.fillRect(0, 0, cw, ch);
   if (o.border !== false) { g.strokeStyle = o.borderColor || "rgba(201,162,74,0.85)"; g.lineWidth = Math.max(3, ppm / 90); g.strokeRect(ppm * 0.03, ppm * 0.03, cw - ppm * 0.06, ch - ppm * 0.06); }
   const pad = cw * (o.pad || 0.08);
@@ -1039,7 +1087,7 @@ function buildStatue() {
   placeAt(plq, sx, 1.85, sz + 1.21, 0);
   [...tiers, plq].forEach((m) => { m.userData.ex = STATUE_EX; interactive.push(m); });
   CIRCLES.push([sx, sz, 2.5]);
-  const spot = new THREE.PointLight(0xfff0d0, 0.6, 9, 1.5); spot.position.set(sx, 7.5, sz + 2.5); scene.add(spot);
+  addSiteLight(0xfff0d0, 0.6, 9, 1.5, sx, 7.5, sz + 2.5);
 
   const cfg = window.STATUE || {};
   const useImage = () => { if (cfg.image) statueFromImage(cfg, sx, sz); };
@@ -2537,7 +2585,7 @@ function buildHall() {
   }));
   slab(-12, 12, -24, 0, 8, M.ceiling, false);
   for (const [x, z] of [[0, -4], [0, -12], [0, -20]]) {
-    const l = new THREE.PointLight(0xffd6a0, 0.65, 22, 1.5); l.position.set(x, 6.2, z); scene.add(l);
+    addSiteLight(0xffd6a0, 0.65, 22, 1.5, x, 6.2, z);
   }
   decorateHall();
   // skirting
@@ -2628,13 +2676,13 @@ function buildPortraitWall(wall) {
   const pw = 2.3, ph = pw / 0.711;
   const photo = new THREE.Mesh(new THREE.PlaneGeometry(pw, ph), new THREE.MeshBasicMaterial({ color: 0xffffff }));
   onWall(photo, wall, 0, cy + 0.2, 0.11);
-  loadImg(PORTRAIT_EX.photo).then((im) => { if (!im) return; const t = new THREE.Texture(im); t.encoding = THREE.sRGBEncoding; t.needsUpdate = true; photo.material.map = t; photo.material.needsUpdate = true; });
+  loadImg(PORTRAIT_EX.photo).then((im) => { if (!im) return; const t = new THREE.Texture(im); t.encoding = THREE.sRGBEncoding; t.needsUpdate = true; liteTex(t, 768); photo.material.map = t; photo.material.needsUpdate = true; });
   const band = textPlane([{ text: "CHỦ TỊCH HỒ CHÍ MINH", size: 54, weight: 700, color: GOLD_TXT, gap: 4 }, { text: "1890 – 1969", size: 32, font: UI_FONT, color: "#e8dcc4" }], 2.6, 0.38, { bg: "#4a0e0e", border: false, ppm: 260 });
   onWall(band, wall, 0, cy - fh / 2 + 0.3, 0.112);
   // light bar above the frame and a warm spotlight
   onWall(new THREE.Mesh(bx(1.4, 0.08, 0.3), DECO.gold), wall, 0, cy + fh / 2 + 0.22, 0.2);
   onWall(new THREE.Mesh(bx(1.3, 0.03, 0.22), DECO.glow), wall, 0, cy + fh / 2 + 0.17, 0.2);
-  const spot = new THREE.PointLight(0xffe2b0, 0.55, 7, 1.6); spot.position.set(wall.x, cy + 0.6, wall.z + 1.6); scene.add(spot);
+  addSiteLight(0xffe2b0, 0.55, 7, 1.6, wall.x, cy + 0.6, wall.z + 1.6);
   [photo, band].forEach((m) => { m.userData.ex = PORTRAIT_EX; interactive.push(m); });
   // Chuẩn nghi lễ trang trí khánh tiết quốc gia (Tả Đảng, Hữu Quốc):
   // Nhìn trực diện vào: Cờ Đảng ở bên TRÁI (-3.25), Cờ Tổ quốc ở bên PHẢI (+3.25)
@@ -2671,14 +2719,14 @@ function buildRooms() {
     slab(x0, x1, z0, z1, 0.01, woodFloorMat);
     decorateRoom(g, room);
     slab(x0, x1, z0, z1, 5, M.ceiling, false);
-    const light = new THREE.PointLight(0xffd6a0, 0.55, 15, 1.5); light.position.set(g.c[0], 4.2, g.c[1]); scene.add(light);
+    addSiteLight(0xffd6a0, 0.55, 15, 1.5, g.c[0], 4.2, g.c[1]);
 
     if (room.items.some((it) => it.img)) {
       // photo room: 3 per wall
       room.items.forEach((it, k) => {
         const wall = g.walls[Math.floor(k / 3)], off = [-3.1, 0, 3.1][k % 3];
         loader.load("images/" + it.img + ".jpeg", (tex) => {
-          tex.encoding = THREE.sRGBEncoding;
+          liteTex(tex); tex.encoding = THREE.sRGBEncoding;
           const asp = tex.image.width / tex.image.height;
           let h = it.big ? 2.0 : 1.55, w = h * asp; const mw = it.big ? 2.9 : 2.6; if (w > mw) { w = mw; h = w / asp; }
           const grp = new THREE.Group();
@@ -2937,7 +2985,7 @@ function buildUpperRooms() {
     const h0 = holder(wall, off, id, L);
     const src = /\.\w{2,4}$/.test(fr.img) ? "images/" + fr.img : "images/" + fr.img + ".jpeg";
     loader.load(src, (tex) => {
-      tex.encoding = THREE.sRGBEncoding;
+      liteTex(tex); tex.encoding = THREE.sRGBEncoding;
       const asp = tex.image.width / tex.image.height; let h = L.h, w = h * asp; if (w > L.mw) { w = L.mw; h = w / asp; }
       const grp = new THREE.Group();
       const frame = new THREE.Mesh(new THREE.BoxGeometry(w + 0.12, h + 0.12, 0.06), M.gold); frame.position.z = 0.03;
@@ -3037,7 +3085,7 @@ function buildUpperRooms() {
     ws.forEach((x, k) => { hang(x.w, x.cols, sp, x.plain, frames.slice(n, n + share[k]), dense); n += share[k]; });
     if (frames.length > N) console.warn(`Phòng ${r.num}: có ${frames.length} ảnh nhưng tường chỉ treo được ${N}`);
     // đèn: mỗi cặp phòng chung một đèn đặt trên vách ngăn
-    if (i % 2 === 0) { const l = new THREE.PointLight(0xffd6a0, 0.75, 15, 1.5); l.position.set(cx, UP + 2.9, -12); scene.add(l); }
+    if (i % 2 === 0) addSiteLight(0xffd6a0, 0.75, 15, 1.5, cx, UP + 2.9, -12);
   });
   // hành lang tầng 2 (mặt trong tường mặt tiền, hai bên cửa ra ban công): ảnh tư liệu 1939 – 1945, dữ liệu ở MUSEUM.corridor.
   // Vị trí lần lượt trái -> phải khi đứng trong hành lang nhìn ra ban công; tối đa 9 ảnh (từ 8 ảnh trở xuống thì ô đầu là biển tiêu đề).
@@ -3771,7 +3819,7 @@ scene.add(hemiLight);
 const sun = new THREE.DirectionalLight(0xffecd2, 1.55);
 sun.position.set(38, 54, 40);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.mapSize.set(LITE ? 1024 : 2048, LITE ? 1024 : 2048);
 sun.shadow.camera.near = 10;
 sun.shadow.camera.far = 160;
 sun.shadow.camera.left = -46;
@@ -3959,7 +4007,7 @@ function buildAtmosphere() {
   scene.add(moonSprite);
 
   // 6. Đèn lồng & đèn chiếu sáng lối đi sân bảo tàng khi về đêm
-  for (let z = 18; z <= 54; z += 12) {
+  for (let z = 18; z <= 54; z += LITE ? 24 : 12) {
     const pl = new THREE.PointLight(0xffb058, 0, 16, 1.8);
     pl.position.set(0, 3.6, z);
     pl.userData.baseIntensity = 0.65;
@@ -4562,7 +4610,7 @@ function createSparkTexture() {
 const fwFlashLights = [
   new THREE.PointLight(0xffeedd, 0, 95, 1.5),
   new THREE.PointLight(0xffeedd, 0, 95, 1.5),
-  new THREE.PointLight(0xffeedd, 0, 95, 1.5),
+  ...(LITE ? [] : [new THREE.PointLight(0xffeedd, 0, 95, 1.5)]),
 ];
 fwFlashLights.forEach((l) => scene.add(l));
 let fwFlashLightIndex = 0;
@@ -4951,7 +4999,7 @@ function stopFireworksShow(naturalFinish = false, broadcast = true) {
 
 function toggleFireworksShow() {
   // F9/F10 owns the fireworks while it runs. From the flag scene on, F8 queues the F8 show right after the flag's
-  // fireworks end (150 s; at once if pressed later) and the music runs on to the end of F8 — for every player.
+  // fireworks end (210 s; at once if pressed later); music stops when drones end — for every player.
   const DS = window.DroneShow;
   if (DS && (DS.isRunning || DS.pending)) {
     if (DS.canAddFireworks && DS.canAddFireworks() && DS.setCombo(DS.t)) broadcastDroneState(DS);
@@ -5095,18 +5143,19 @@ window.keys = keys;
 let started = false;
 const isTouch = matchMedia("(pointer: coarse)").matches;
 if (isTouch) document.body.classList.add("touch");
+if (LITE) document.body.classList.add("lite");
 addEventListener("keydown", (e) => {
   if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) { if (e.key === "Escape") e.target.blur(); return; }
   if (e.key === "Escape" && !$("emote-wheel").hidden) { toggleWheel(false); return; }
   if (e.key === "Escape") { if (infoOpen) closeInfo(); else if (!$("qr-modal").hidden) $("qr-modal").hidden = true; return; }
-  // F9: Drone Show 150 giây (bảy đội hình lịch sử – văn hoá), kết bằng pháo hoa của hệ thống F8
+  // F9: Drone Show 210 giây (mười một đội hình lịch sử – văn hoá), kết bằng pháo hoa của hệ thống F8
   if (e.code === "F9" || e.key === "F9") {
     e.preventDefault();
     if (e.repeat) return;
     toggleDroneShow();
     return;
   }
-  // F10: Drone Show rồi nối liền màn pháo hoa F8 (giây 150), nhạc chạy xuyên suốt đến hết pháo hoa. Nhấn 2 lần để dừng.
+  // F10: Drone Show rồi nối liền màn pháo hoa F8 (giây 210), nhạc dừng khi drone kết thúc. Nhấn 2 lần để dừng.
   if (e.code === "F10" || e.key === "F10") {
     e.preventDefault();
     if (e.repeat) return;
@@ -5446,6 +5495,9 @@ const fwd = new THREE.Vector3(), head = new THREE.Vector3();
 let shadowTick = 0, slowN = 0, fastN = 0;
 const DPR_MAX = renderer.getPixelRatio();
 let dprNow = DPR_MAX;
+// Ngưỡng tự hạ độ phân giải: điện thoại chấp nhận ~25 khung/giây mới hạ, và chỉ nâng lại khi rất ổn định (tối đa 3 lần hạ→nâng, tránh nhấp nháy)
+const DPR_MIN = LITE ? 0.6 : 0.75, SHADOW_EVERY = LITE ? 10 : 3, SLOW_DT = LITE ? 0.04 : 0.026, FAST_DT = LITE ? 0.022 : 0.019, FAST_N = LITE ? 600 : 240;
+let dprDowns = 0;
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   const t = now / 1000;
@@ -5607,12 +5659,14 @@ function frame(now) {
   }
 
   // Bóng: cảnh gần như tĩnh nên chỉ dựng lại bản đồ bóng mỗi 3 khung hình (~1800 vật thể đổ bóng)
-  if ((shadowTick++ % 3) === 0) renderer.shadowMap.needsUpdate = true;
+  // Điện thoại: mỗi lần dựng bóng là vẽ lại cả cảnh một lượt nữa nên thưa hơn (~6 lần/giây), đủ cho bóng người di chuyển.
+  if ((shadowTick++ % SHADOW_EVERY) === 0) renderer.shadowMap.needsUpdate = true;
+  if (LITE) updateLightPool(dt, player.x, player.base + EYE + player.jy, player.z, false);
   // Độ phân giải thích ứng: máy yếu / lia nhanh bị chậm thì tự hạ pixel ratio, ổn định lại thì nâng dần
-  if (dt < 0.25) {
-    if (dt > 0.026) { slowN++; fastN = 0; } else if (dt < 0.019) { fastN++; slowN = 0; } else { slowN = fastN = 0; }
-    if (slowN > 15 && dprNow > 0.75) { dprNow = Math.max(0.75, dprNow - 0.25); renderer.setPixelRatio(dprNow); renderer.setSize(innerWidth, innerHeight, false); slowN = 0; }
-    else if (fastN > 240 && dprNow < DPR_MAX) { dprNow = Math.min(DPR_MAX, dprNow + 0.25); renderer.setPixelRatio(dprNow); renderer.setSize(innerWidth, innerHeight, false); fastN = 0; }
+  if (dt < 0.25 && (started || !LITE)) {
+    if (dt > SLOW_DT) { slowN++; fastN = 0; } else if (dt < FAST_DT) { fastN++; slowN = 0; } else { slowN = fastN = 0; }
+    if (slowN > 15 && dprNow > DPR_MIN) { dprNow = Math.max(DPR_MIN, dprNow - 0.25); renderer.setPixelRatio(dprNow); renderer.setSize(innerWidth, innerHeight, false); slowN = 0; dprDowns = LITE ? dprDowns + 1 : dprDowns; }
+    else if (fastN > FAST_N && dprNow < DPR_MAX && dprDowns < 3) { dprNow = Math.min(DPR_MAX, dprNow + 0.25); renderer.setPixelRatio(dprNow); renderer.setSize(innerWidth, innerHeight, false); fastN = 0; }
   }
 
   renderer.render(scene, camera);
@@ -5697,6 +5751,7 @@ async function init() {
   } catch (e) {}
   loadCharacterModels();
   buildAtmosphere(); buildOutdoor(); buildBuilding(); buildStatue(); buildGarden(); buildVehicles(); buildHall(); buildUpperFloor(); buildRooms(); buildUpperRooms(); buildGates(); buildPlayground(); buildParkour(); buildDecor(); loadCases();
+  if (LITE) updateLightPool(0, player.x, player.base + EYE, player.z, true);
   if (window.FireworksShow) window.FireworksShow.init(scene, camera, renderer);
   if (window.DroneShow) window.DroneShow.init(scene, camera, renderer, {
     soundEnabled: () => SFX.enabled,

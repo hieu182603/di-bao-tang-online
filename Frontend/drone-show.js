@@ -1,11 +1,11 @@
-/* F9: approved Blender playback, 14,000 stable IDs, one existing render loop. */
+/* F9: approved Blender playback (11 scenes, 210 s), 21,000 stable IDs, one existing render loop. */
 (() => {
 'use strict';
 const Config = {
-  duration: 150, fadeOut: 4.5, tail: 8,
-  revision: DroneBlender.REVISION, assetTag: 'b3-4fc20580bd46',
-  landing: false,   // true = play the Blender split + descent (150–168 s) after the flag
-  base: 'drone-show/blender-v3/', music: 'audio/thinh-vuong-viet-nam-sang-ngoi.mp3',
+  duration: 210, fadeOut: 4.5, tail: 8,
+  revision: DroneBlender.REVISION, assetTag: 'b5-91a95ac1db40',
+  landing: false,   // true = play the Blender split + descent (210–228 s) after the flag
+  base: 'drone-show/blender-v5/', music: 'audio/thinh-vuong-viet-nam-sang-ngoi.mp3',
   // pLocal = pExport - (0,85,0). One common transform for all formations and QA camera.
   stage: { x: 0, height: 120, z: -100, scale: 1.15, pivot: 85 },
   tiers: { LOW: { glow: false }, BALANCED: { glow: true }, HIGH: { glow: true } },
@@ -53,15 +53,17 @@ const Show = {
   },
   pickTier() {
     const q = new URLSearchParams(location.search).get('drones');
-    return q && Config.tiers[q.toUpperCase()] ? q.toUpperCase() : this.forcedTier || (matchMedia('(pointer: coarse)').matches ? 'LOW' : 'BALANCED');
+    return q && Config.tiers[q.toUpperCase()] ? q.toUpperCase() : this.forcedTier || (window.LITE ? 'LOW' : 'BALANCED');
   },
+  // Điện thoại chỉ dựng 1/3 số drone (1/6 nếu máy ≤ 2 GB RAM): 21.000 drone × 11 đội hình là ~117,5 MB dữ liệu, dễ làm trình duyệt đóng tab.
+  liteStride() { const q = +new URLSearchParams(location.search).get('droneStride'); if (q >= 1) return q | 0; return window.LITE ? (navigator.deviceMemory && navigator.deviceMemory <= 2 ? 6 : 3) : 1; },
   async load() {
     if (this.data) return this.data;
     if (!this.loading) {
       const begun = performance.now();
-      this.loading = DroneBlender.load(Config.base).then(D => {
+      this.loading = DroneBlender.load(Config.base, { stride: this.liteStride() }).then(D => {
         const fwEnd = D.timeline.fireworks.find(c => c.name === 'FIREWORKS_END'); Config.fireworksEnd = fwEnd ? fwEnd.time : D.timeline.duration;
-        // landing:false ends the show on the flag at FIREWORKS_END (it fades out like v2) instead of the 150–168 s split/descent.
+        // landing:false ends the show on the flag at FIREWORKS_END (it fades out like v2) instead of the 210–228 s split/descent.
         if (!Config.landing && Config.fireworksEnd < D.timeline.duration) {
           D.timeline.transitions = D.timeline.transitions.filter(c => c.start < Config.fireworksEnd);
           D.timeline.duration = Config.fireworksEnd;
@@ -75,20 +77,20 @@ const Show = {
     }
     return this.loading;
   },
-  // Fetch + verify the ~60 MB Blender export in the background once the visitor is inside, so F9/F10 start at once
+  // Fetch + verify the ~118 MB Blender export in the background once the visitor is inside, so F9/F10 start at once
   // instead of after a ~27 s download. Skipped on phones/tablets and Save-Data/2G (they still load on demand).
   preload() {
     if (this.data || this.loading || this.preloadQueued || /[?&]nopreload=1/.test(location.search)) return false;
     const c = navigator.connection;
     if (c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || ''))) return false;
-    if (matchMedia('(pointer: coarse)').matches) return false;
+    if (window.LITE || matchMedia('(pointer: coarse)').matches) return false;
     this.preloadQueued = true;
     const go = () => { this.preloadQueued = false; this.load().catch(e => console.warn('[DroneShow] preload', e)); };
     if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: 5000 }); else setTimeout(go, 0);
     return true;
   },
   // Compile drone + fireworks programs while the user is already waiting for the download. Otherwise the first
-  // finale shell (~137–140 s) compiled them mid-show: a 0.7–4 s freeze measured on a real GPU.
+  // finale shell (~191–194 s) compiled them mid-show: a 0.7–4 s freeze measured on a real GPU.
   warmShaders() {
     const FS=window.FireworksShow, meshes=FS && FS.points ? [FS.points.mesh,FS.trails.mesh] : [], vis=meshes.map(m=>m.visible), gv=this.group.visible;
     meshes.forEach(m=>{ m.visible=true; }); this.group.visible=true;
@@ -103,11 +105,11 @@ const Show = {
     const g = this.geo = new THREE.BufferGeometry();
     g.setAttribute('position',new THREE.BufferAttribute(this.posArr,3).setUsage(THREE.DynamicDrawUsage));
     g.setAttribute('aCol',new THREE.BufferAttribute(this.colArr,4).setUsage(THREE.DynamicDrawUsage));
-    // Tight local bound measured over the whole v3 timeline incl. landing (x±107, y-81..67, z-52..26) + margin for glow sprites.
-    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0,-7,-13),145);
+    // Local bound from the approved v5 full timeline, including landing, plus sprite margin.
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0.000000,-7.036589,-20.016425),141);
     this.applyStage();
     this.frustum = new THREE.Frustum(); this.viewProj = new THREE.Matrix4(); this.lastT = NaN;
-    this.uniforms = { uProj:{value:600}, uDiameter:{value:this.data.manifest.render_contract.led_radius_m*2}, uEmission:{value:this.data.manifest.render_contract.emission_strength} };
+    this.uniforms = { uProj:{value:600}, uDiameter:{value:this.data.manifest.render_contract.led_radius_m*2*Math.sqrt(this.liteStride())*0.9}, uEmission:{value:this.data.manifest.render_contract.emission_strength} };
     const material = glow => new THREE.ShaderMaterial({ uniforms:{ ...this.uniforms, uGlow:{value:glow?1:0} }, vertexShader:VS, fragmentShader:FS,
       transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, depthTest:true, fog:false, toneMapped:false });
     this.points = new THREE.Points(g,material(false)); this.points.frustumCulled=true; this.points.renderOrder=22;
@@ -139,8 +141,8 @@ const Show = {
     a.volume=0.55*Math.min(1,Math.max(0,(end-t)/(this.combo?5:2)));
     if(a.paused) { const p=a.play(); if(p) p.then(()=>{this.audioBlocked=false;}).catch(e=>{ if(e.name==='AbortError') return; if(!this.audioBlocked) console.warn('[DroneShow] Nhạc cần tương tác người dùng:',e.name); this.audioBlocked=true; }); }
   },
-  // F10 combo: at the drone finale's FIREWORKS_END marker (150 s) the 60 s F8 show takes over while the fleet
-  // splits and lands (150–168 s); the 235 s track keeps playing until F8's last bursts.
+  // F10 combo: at the drone finale's FIREWORKS_END marker (210 s) the 60 s F8 show takes over. Music belongs to the
+  // drones only: it fades out and stops when the drone show ends (210 s); the F8 fireworks run without music.
   fwConfig() { return window.FireworksConfig || { duration: 60, tail: 7.5 }; },
   // F8 takes over when the flag's own fireworks end (FIREWORKS_END); fwAt is only set when F8 is pressed later
   // than that (during the fade-out tail), in which case it starts at that moment.
@@ -159,7 +161,7 @@ const Show = {
     this.combo=true; this.fwAt=at; this.endAt=0;
     this.syncCombo(); this.syncMusic(true); return true;
   },
-  musicEnd() { return this.combo ? Math.max(Config.duration,this.fwStart()+this.fwConfig().duration+4) : Config.duration; },
+  musicEnd() { return Config.duration; },
   showEnd() {
     const drones=Config.duration+Config.fadeOut+Config.tail;
     return this.combo ? Math.max(drones,this.fwStart()+this.fwConfig().duration+this.fwConfig().tail) : drones;
@@ -178,6 +180,8 @@ const Show = {
   async start(opts={}) {
     if(this.isRunning || this.pending || (window.FireworksShow && window.FireworksShow.isRunning)) return false;
     if(opts.revision && opts.revision!==Config.assetTag) { console.warn('[DroneShow] Asset revision mismatch',opts.revision); return false; }
+    // Điện thoại đang dùng mạng chậm / tiết kiệm dữ liệu: không tự tải ~117,5 MB chỉ vì người khác bấm F9.
+    const nc=navigator.connection; if(!this.data && window.LITE && nc && (nc.saveData || /(^|-)[23]g$/.test(nc.effectiveType||''))) return false;
     this.unlockMusic();
     const token=++this.generation; this.pending=true;
     this.seed=opts.seed>>>0 || ((Math.random()*2**31)>>>0);
@@ -191,7 +195,7 @@ const Show = {
     this.stats.initialAt=at;
     const queued=this.queuedCombo; this.queuedCombo=null;
     this.combo=!!opts.combo || !!queued; this.fwAt=+(opts.fwAt || (queued && queued.fwAt) || 0); this.fwStarted=false;
-    if(at>(this.combo?this.musicEnd():Config.duration+Config.fadeOut)) { this.ensureMusic().pause(); return false; }
+    if(at>(this.combo?this.showEnd():Config.duration+Config.fadeOut)) { this.ensureMusic().pause(); return false; }
     this.setTier(opts.tier || this.pickTier());
     this.showId=opts.showId || Config.assetTag+(this.combo?'-combo-':'-')+this.seed;
     this.startPerf=performance.now()-at*1000; this.t=at; this.paused=false; this.isRunning=true; this.endAt=0;
@@ -254,6 +258,7 @@ const Show = {
     if(this.group.visible && this.t!==this.lastT && !(Math.abs(this.t-this.lastT)<minStep) && this.inView()) this.computeFrame(this.t);
     this.uniforms.uProj.value=this.renderer.getContext().drawingBufferHeight/(2*Math.tan(this.camera.fov*Math.PI/360))*Config.stage.scale;
     if(now-(this.lastMusicSync||0)>750) { this.lastMusicSync=now; this.syncMusic(); }
+    else if(this.music && !this.music.paused && this.t>=this.musicEnd()) this.music.pause();   // stop exactly at the drone end
     if(!this.paused) this.syncCombo();
     if(this.t>=Config.duration+Config.fadeOut && !this.endAt) { this.group.visible=false; this.endAt=now+(this.showEnd()-this.t)*1000; }
     if(this.endAt && now>=this.endAt) this.stop(true);
@@ -269,7 +274,7 @@ const Show = {
   },
   buildDebug() {
     const el=document.createElement('div'); el.id='ds-debug'; el.style.cssText='position:fixed;bottom:12px;left:12px;z-index:60;background:#111d;color:white;padding:12px;max-width:340px;font:12px monospace';
-    el.innerHTML='<button data-a="play">F9</button> <button data-a="pause">Pause/Resume</button><input type="range" min="0" max="180" step="0.1"><pre><output></output></pre>';
+    el.innerHTML='<button data-a="play">F9</button> <button data-a="pause">Pause/Resume</button><input type="range" min="0" max="228" step="0.1"><pre><output></output></pre>';
     el.querySelector('[data-a="play"]').onclick=()=>this.isRunning||this.pending?this.stop():this.start();
     el.querySelector('[data-a="pause"]').onclick=()=>this.paused?this.resume():this.pause();
     el.querySelector('input').oninput=e=>this.seek(+e.target.value);

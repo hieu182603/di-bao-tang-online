@@ -387,3 +387,7 @@ body:not(.touch) #jump-btn { display: none; }
 .tc-note { display: none; margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
 body.touch #help-panel .kb { display: none; }
 body.touch #help-panel .tc-note { display: block; }
+
+/* Điện thoại: lớp mờ kính (backdrop-filter) phải tính lại mỗi khung hình vì ảnh 3D phía sau đổi liên tục → rất tốn GPU, nên tắt và dùng nền đặc hơn. */
+body.touch, body.lite { --panel: rgba(24, 18, 14, 0.95); }
+body.touch *, body.lite * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }

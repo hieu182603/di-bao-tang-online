@@ -1,19 +1,27 @@
 {
-  "revision": "box-launch-landing-v3-2026-11-12",
-  "ids": 14000,
-  "samples": 73,
+  "revision": "eleven-scenes-v5-2026-11-14",
+  "ids": 21000,
+  "scene_count": 11,
+  "show_end": 210,
+  "landing_end": 228,
+  "samples": 163,
   "hashes_verified": true,
-  "max_position_component_error_m": 7.62182199309791e-06,
-  "max_rgba_error": 2.980227353788223e-08,
+  "max_position_component_error_m": 7.62939453125e-06,
+  "max_rgba_error": 1.0337372979840609e-07,
   "hold_led_counts": {
     "dong_son": 9967,
     "ly_thai_to": 11433,
     "ly_dragon": 8519,
+    "hoang_thanh": 20154,
+    "chua_mot_cot": 19146,
+    "cau_long_bien": 17391,
     "ho_chi_minh_lotus": 7589,
     "dien_bien": 6626,
     "reunification": 11932,
-    "vietnam_flag": 5000
+    "lang_bac": 18834,
+    "vietnam_flag": 5067
   },
+  "active_masks_match_visible_ids": true,
   "tank_static": true,
   "pass": true
 }
