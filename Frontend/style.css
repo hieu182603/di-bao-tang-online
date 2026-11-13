@@ -247,8 +247,12 @@ button.primary:disabled { opacity: 0.6; cursor: progress; }
 #info #tts-status { color: var(--muted); font-size: 13px; }
 
 /* multiplayer */
-#people-btn {
+#topbar {
   position: fixed; z-index: 6; top: calc(12px + env(safe-area-inset-top, 0px)); right: calc(12px + env(safe-area-inset-right, 0px));
+  display: flex; gap: 8px; align-items: stretch;
+}
+#sfx-btn { border-radius: 999px; padding: 8px 11px; box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
+#people-btn {
   font: 500 13px var(--font-ui); background: var(--panel); backdrop-filter: blur(10px);
   color: var(--ink); border: 1px solid var(--line); border-radius: 999px;
   padding: 8px 14px; cursor: pointer; display: flex; gap: 7px; align-items: center;
@@ -282,11 +286,12 @@ button.primary:disabled { opacity: 0.6; cursor: progress; }
   position: fixed; z-index: 6; right: calc(12px + env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   display: flex; gap: 7px; flex-wrap: wrap; justify-content: flex-end; max-width: 62vw;
 }
-#chatbox { display: flex; gap: 6px; margin: 0; }
+#chatbox { display: flex; gap: 6px; margin: 0; padding: 8px 10px; border-top: 1px solid rgba(201,162,74,0.25); background: rgba(0,0,0,0.2); }
+#chatbox .act { flex: none; padding: 7px 10px; }
 #say {
-  font: 14px var(--font-ui); background: var(--panel); backdrop-filter: blur(10px);
+  font: 14px var(--font-ui); background: rgba(0,0,0,0.3);
   color: var(--ink); border: 1px solid var(--line); border-radius: 7px;
-  padding: 7px 11px; width: min(210px, 38vw); min-width: 0;
+  padding: 7px 11px; flex: 1; min-width: 0; width: 100%;
 }
 #chatlog {
   position: fixed; z-index: 5; left: calc(12px + env(safe-area-inset-left, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px));
@@ -305,7 +310,7 @@ button.primary:disabled { opacity: 0.6; cursor: progress; }
 #chatlog-head > span:nth-child(2) { flex: 1; }
 #chatlog-badge { min-width: 18px; padding: 1px 6px; border-radius: 999px; background: var(--lacquer, #8b231e); color: #fff; font-size: 11px; text-align: center; letter-spacing: 0; }
 #chatlog-badge[hidden] { display: none; }
-#chatlog.collapsed #log { display: none; }
+#chatlog.collapsed #log, #chatlog.collapsed #chatbox { display: none; }
 #chatlog.collapsed #chatlog-arrow { transform: rotate(180deg); }
 #log {
   display: grid; gap: 4px; align-content: start; max-height: min(38vh, 300px); overflow-y: auto; overscroll-behavior: contain;
@@ -368,3 +373,17 @@ body.touch .act .hk { display: none; }
 
 /* Máy tính nhảy bằng phím Space nên ẩn nút; điện thoại vẫn cần nút này */
 body:not(.touch) #jump-btn { display: none; }
+
+/* Bảng hướng dẫn nhanh (nút "Hướng dẫn") */
+#help-panel {
+  position: fixed; z-index: 7; right: calc(12px + env(safe-area-inset-right, 0px)); bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  width: min(330px, calc(100vw - 24px)); box-sizing: border-box; max-height: calc(100vh - 160px); overflow-y: auto;
+  background: var(--panel); backdrop-filter: blur(12px); border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; display: grid; gap: 8px; box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+}
+#help-panel .keys > div { grid-template-columns: 96px 1fr; }
+#help-panel .keys { gap: 5px; }
+#help-panel .guide-title:not(:first-child) { margin-top: 4px; }
+.tc-note { display: none; margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+body.touch #help-panel .kb { display: none; }
+body.touch #help-panel .tc-note { display: block; }

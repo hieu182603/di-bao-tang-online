@@ -5123,7 +5123,7 @@ addEventListener("keydown", (e) => {
   if (e.code === "F2" || e.key === "F2") { e.preventDefault(); toggleDayNight(); return; }
   if (!started || infoOpen) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
-  if (e.key === "Enter") { e.preventDefault(); $("say").focus(); return; } // chỉ Enter mới bắt đầu chat
+  if (e.key === "Enter") { e.preventDefault(); toggleChatLog(true); $("say").focus(); return; } // chỉ Enter mới bắt đầu chat
   if (e.code === "KeyV") { if (!e.repeat) toggleView(); return; }
   if (e.code === "KeyH") { if (!e.repeat) toggleChatLog(); return; }
   if (e.code === "KeyF") { if (!e.repeat) toggleWheel(); return; }
@@ -5354,6 +5354,15 @@ function startFollow(id) {
 }
 function stopFollow() { if (!follow) return; follow = null; $("follow-bar").hidden = true; renderPeople(); }
 $("unfollow").addEventListener("click", stopFollow);
+// Nút Hướng dẫn: bảng phím gọn; bấm lại / Esc / bấm ra ngoài để đóng
+function toggleHelp(show) {
+  const h = $("help-panel"); show = show === undefined ? h.hidden : show;
+  h.hidden = !show; $("help-btn").setAttribute("aria-expanded", String(show));
+  if (show && lookLocked()) document.exitPointerLock();
+}
+$("help-btn").addEventListener("click", (e) => { e.stopPropagation(); toggleHelp(); });
+document.addEventListener("pointerdown", (e) => { if (!$("help-panel").hidden && !e.target.closest("#help-panel, #help-btn")) toggleHelp(false); });
+addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("help-panel").hidden) toggleHelp(false); });
 $("people-btn").addEventListener("click", () => {
   const p = $("people-panel"); p.hidden = !p.hidden; $("people-btn").setAttribute("aria-expanded", String(!p.hidden)); if (!p.hidden) renderPeople();
 });
@@ -5646,7 +5655,7 @@ $("go").addEventListener("click", () => {
   started = true; window.started = true; joinedAt = performance.now(); lockPointer(); updateLookHint();
   // Tải trước dữ liệu Drone Show sau khi bảo tàng đã đẩy xong texture lên GPU (warmUp 2,5/6/12 s) để F9/F10 chạy ngay.
   setTimeout(() => { if (window.DroneShow) window.DroneShow.preload(); }, 15000);
-  $("start").hidden = true; $("hud").hidden = false; $("chatlog").hidden = false; $("dot").hidden = thirdPerson; $("people-btn").hidden = false;
+  $("start").hidden = true; $("hud").hidden = false; $("chatlog").hidden = false; $("dot").hidden = thirdPerson; $("people-btn").hidden = false; $("sfx-btn").hidden = false;
   if (isTouch) joy.hidden = false;
   setMyFigure();
   renderPeople();
