@@ -1,11 +1,11 @@
-/* F9: approved Blender playback (11 scenes, 210 s), 21,000 stable IDs, one existing render loop. */
+/* F9: approved Blender playback (10 scenes, 193 s), 20,000 stable IDs, one existing render loop. */
 (() => {
 'use strict';
 const Config = {
-  duration: 210, fadeOut: 4.5, tail: 8,
-  revision: DroneBlender.REVISION, assetTag: 'b5-91a95ac1db40',
-  landing: false,   // true = play the Blender split + descent (210–228 s) after the flag
-  base: 'drone-show/blender-v5/', music: 'audio/thinh-vuong-viet-nam-sang-ngoi.mp3',
+  duration: 193, fadeOut: 4.5, tail: 8,
+  revision: DroneBlender.REVISION, assetTag: 'b6-8b8c5ee48818',
+  landing: false,   // true = play the Blender split + descent (193–211 s) after the flag
+  base: 'drone-show/blender-v6/', music: 'audio/thinh-vuong-viet-nam-sang-ngoi.mp3',
   // pLocal = pExport - (0,85,0). One common transform for all formations and QA camera.
   stage: { x: 0, height: 120, z: -100, scale: 1.15, pivot: 85 },
   tiers: { LOW: { glow: false }, BALANCED: { glow: true }, HIGH: { glow: true } },
@@ -55,7 +55,7 @@ const Show = {
     const q = new URLSearchParams(location.search).get('drones');
     return q && Config.tiers[q.toUpperCase()] ? q.toUpperCase() : this.forcedTier || (window.LITE ? 'LOW' : 'BALANCED');
   },
-  // Điện thoại chỉ dựng 1/3 số drone (1/6 nếu máy ≤ 2 GB RAM): 21.000 drone × 11 đội hình là ~117,5 MB dữ liệu, dễ làm trình duyệt đóng tab.
+  // Điện thoại chỉ dựng 1/3 số drone (1/6 nếu máy ≤ 2 GB RAM): 21.000 drone × 10 đội hình là ~117,5 MB dữ liệu, dễ làm trình duyệt đóng tab.
   liteStride() { const q = +new URLSearchParams(location.search).get('droneStride'); if (q >= 1) return q | 0; return window.LITE ? (navigator.deviceMemory && navigator.deviceMemory <= 2 ? 6 : 3) : 1; },
   async load() {
     if (this.data) return this.data;
@@ -63,7 +63,7 @@ const Show = {
       const begun = performance.now();
       this.loading = DroneBlender.load(Config.base, { stride: this.liteStride() }).then(D => {
         const fwEnd = D.timeline.fireworks.find(c => c.name === 'FIREWORKS_END'); Config.fireworksEnd = fwEnd ? fwEnd.time : D.timeline.duration;
-        // landing:false ends the show on the flag at FIREWORKS_END (it fades out like v2) instead of the 210–228 s split/descent.
+        // landing:false ends the show on the flag at FIREWORKS_END (it fades out like v2) instead of the 193–211 s split/descent.
         if (!Config.landing && Config.fireworksEnd < D.timeline.duration) {
           D.timeline.transitions = D.timeline.transitions.filter(c => c.start < Config.fireworksEnd);
           D.timeline.duration = Config.fireworksEnd;
@@ -106,7 +106,7 @@ const Show = {
     g.setAttribute('position',new THREE.BufferAttribute(this.posArr,3).setUsage(THREE.DynamicDrawUsage));
     g.setAttribute('aCol',new THREE.BufferAttribute(this.colArr,4).setUsage(THREE.DynamicDrawUsage));
     // Local bound from the approved v5 full timeline, including landing, plus sprite margin.
-    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0.000000,-7.036589,-20.016425),141);
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0,-1.5,-17.6),160);   // v5 crisp: x±128, y-81..78, z-57..22
     this.applyStage();
     this.frustum = new THREE.Frustum(); this.viewProj = new THREE.Matrix4(); this.lastT = NaN;
     this.uniforms = { uProj:{value:600}, uDiameter:{value:this.data.manifest.render_contract.led_radius_m*2*Math.sqrt(this.liteStride())*0.9}, uEmission:{value:this.data.manifest.render_contract.emission_strength} };
@@ -141,8 +141,8 @@ const Show = {
     a.volume=0.55*Math.min(1,Math.max(0,(end-t)/(this.combo?5:2)));
     if(a.paused) { const p=a.play(); if(p) p.then(()=>{this.audioBlocked=false;}).catch(e=>{ if(e.name==='AbortError') return; if(!this.audioBlocked) console.warn('[DroneShow] Nhạc cần tương tác người dùng:',e.name); this.audioBlocked=true; }); }
   },
-  // F10 combo: at the drone finale's FIREWORKS_END marker (210 s) the 60 s F8 show takes over. Music belongs to the
-  // drones only: it fades out and stops when the drone show ends (210 s); the F8 fireworks run without music.
+  // F10 combo: at the drone finale's FIREWORKS_END marker (193 s) the 60 s F8 show takes over. Music belongs to the
+  // drones only: it fades out and stops when the drone show ends (193 s); the F8 fireworks run without music.
   fwConfig() { return window.FireworksConfig || { duration: 60, tail: 7.5 }; },
   // F8 takes over when the flag's own fireworks end (FIREWORKS_END); fwAt is only set when F8 is pressed later
   // than that (during the fade-out tail), in which case it starts at that moment.

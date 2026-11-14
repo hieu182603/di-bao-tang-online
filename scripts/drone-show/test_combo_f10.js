@@ -1,4 +1,4 @@
-// F10 combo QA: Drone Show -> F8 fireworks at 210 s; music belongs to the drones and stops at 210 s.
+// F10 combo QA: Drone Show -> F8 fireworks at 193 s; music belongs to the drones and stops at 193 s.
 //   node scripts/drone-show/test_combo_f10.js   (dev server :5191; real multiplayer hosts are blocked)
 const puppeteer = require('puppeteer-core');
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -27,21 +27,21 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     const timeline = await page.evaluate(() => JSON.parse(JSON.stringify(DroneShow.data.timeline)));
     const holds = timeline.formations, flag = holds.at(-1), end = timeline.fireworks.find(c => c.name === 'FIREWORKS_END').time;
     const flagMid = (flag.start + flag.end) / 2, flagScene = holds.length;
-    check('v5 timeline, 21000 capacity and eleven scenes', end === 210 && timeline.duration === end && flag.end === end && flagScene === 11 && await page.evaluate(() => DroneShow.data.N === 21000 && !DroneShowConfig.landing && /^b5-[0-9a-f]{12}$/.test(DroneShowConfig.assetTag)));
+    check('v6 timeline, 20000 capacity and ten scenes', end === 193 && timeline.duration === end && flag.end === end && flagScene === 10 && await page.evaluate(() => DroneShow.data.N === 20000 && !DroneShowConfig.landing && /^b6-[0-9a-f]{12}$/.test(DroneShowConfig.assetTag)));
     let s = await S();
     check('F10 starts drone show in combo mode', s.ds.combo && s.ds.running && !s.fw.running, s.ds);
-    check('combo music ends with the drones (210 s)', s.ds.musicEnd === end, s.ds.musicEnd);
+    check('combo music ends with the drones (193 s)', s.ds.musicEnd === end, s.ds.musicEnd);
 
     await page.keyboard.press('F8'); await sleep(200);
     check('F8 cannot interfere during combo', (await S()).ds.running && !(await S()).fw.running);
 
     await page.evaluate(t => DroneShow.seek(t), end-2); await sleep(1000);
-    check('no F8 before 210 s', !(await S()).fw.running);
+    check('no F8 before 193 s', !(await S()).fw.running);
     await page.waitForFunction('FireworksShow.isRunning', { timeout: 15000 }); await sleep(600);
     s = await S();
-    // F8 clock must equal drone clock minus the 210 s FIREWORKS_END handoff (headless frame rate varies).
-    check('handoff: F8 fireworks start at 210 s', s.ds.fireworks && Math.abs(s.fw.elapsed - (s.ds.frameT - end)) < 0.2, { frameT: s.ds.frameT, fw: s.fw.elapsed });
-    check('music stopped after 210 s while F8 fireworks run', s.musicPaused && s.fw.running, { audio: s.audio, t: s.ds.t, paused: s.musicPaused });
+    // F8 clock must equal drone clock minus the 193 s FIREWORKS_END handoff (headless frame rate varies).
+    check('handoff: F8 fireworks start at 193 s', s.ds.fireworks && Math.abs(s.fw.elapsed - (s.ds.frameT - end)) < 0.2, { frameT: s.ds.frameT, fw: s.fw.elapsed });
+    check('music stopped after 193 s while F8 fireworks run', s.musicPaused && s.fw.running, { audio: s.audio, t: s.ds.t, paused: s.musicPaused });
     check('same seed drives F8 choreography', s.fw.seed === s.ds.seed, { fw: s.fw.seed, ds: s.ds.seed });
 
     await page.evaluate(t => DroneShow.seek(t), end+35); await sleep(800);
@@ -51,9 +51,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
     await page.evaluate(t => DroneShow.seek(t), flagMid); await sleep(500);
     s = await S();
-    check('seek back before 210 s stops F8 timeline', !s.fw.running && !s.ds.fireworks && s.ds.running, s.fw);
+    check('seek back before 193 s stops F8 timeline', !s.fw.running && !s.ds.fireworks && s.ds.running, s.fw);
 
-    // Music fades over the last seconds of the drone show and stops at 210 s; F8 continues without music.
+    // Music fades over the last seconds of the drone show and stops at 193 s; F8 continues without music.
     await page.evaluate(t => DroneShow.seek(t), end-2.5); await sleep(1000);
     s = await S();
     check('music fades before the drones end', !s.musicPaused && s.vol < 0.55, s.vol);
@@ -72,14 +72,14 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     s = await S();
     check('double F10 stops drones, fireworks and music', !s.ds.running && !s.fw.running && s.musicPaused, s);
 
-    // Plain F9 is unchanged: no F8 timeline after 210 s.
+    // Plain F9 is unchanged: no F8 timeline after 193 s.
     await page.keyboard.press('F9'); await page.waitForFunction('DroneShow.isRunning', { timeout: 60000 });
     await page.evaluate(t => DroneShow.seek(t), end-1); await sleep(2000);
     s = await S();
     check('F9 alone does not hand over to F8', !s.ds.combo && !s.fw.running && s.musicPaused, s);
     await page.evaluate(() => window.stopDroneShow(false)); await sleep(300);
 
-    // F8 pressed during F9: queued until the flag's own fireworks end (210 s); the flag keeps its timeline.
+    // F8 pressed during F9: queued until the flag's own fireworks end (193 s); the flag keeps its timeline.
     const lit = () => page.evaluate(() => { const D = DroneShow; let n = 0; for (let i = 0; i < D.data.N; i++) if (Math.max(D.colArr[i*4], D.colArr[i*4+1], D.colArr[i*4+2]) * D.colArr[i*4+3] >= .004) n++; return n; });
     await page.keyboard.press('F9'); await page.waitForFunction('DroneShow.isRunning', { timeout: 60000 });
     await page.evaluate(t => DroneShow.seek(t), flag.start-2); await sleep(300);
@@ -90,23 +90,23 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     const sent = await page.evaluate(() => { const saved = Net.update, out = []; Net.update = (p) => out.push(p.say); try { window.dispatchEvent(new KeyboardEvent('keydown', { code: 'F8', key: 'F8' })); } finally { Net.update = saved; } return out; });
     s = await S();
     check('F8 in the flag scene queues F8 (no fireworks yet, flag still running)', s.ds.combo && s.ds.fwAt === 0 && !s.fw.running && s.ds.running && s.ds.scene === flagScene, s.ds);
-    check('F8 in the flag scene is broadcast as combo for all players', sent.length >= 1 && /^__ds__:start:\d+:\d+:b5-[0-9a-f]{12}:1$/.test(sent[sent.length - 1]), sent);
+    check('F8 in the flag scene is broadcast as combo for all players', sent.length >= 1 && /^__ds__:start:\d+:\d+:b6-[0-9a-f]{12}:1$/.test(sent[sent.length - 1]), sent);
     await page.evaluate(t => DroneShow.seek(t), end-.5); await sleep(200);
     const flagLit = await lit(); s = await S();
     check('flag still lit just before handoff, no F8 yet', flagLit === flag.active_count && !s.fw.running && s.ds.scene === flagScene, { flagLit, fw: s.fw.running });
     await page.waitForFunction('FireworksShow.isRunning', { timeout: 15000 }); await sleep(500);
     s = await S();
-    check('F8 starts when the flag fireworks end (210 s), without music', Math.abs(s.fw.elapsed - (s.ds.frameT - end)) < 0.2 && s.musicPaused, { frameT: s.ds.frameT, fw: s.fw.elapsed, music: !s.musicPaused });
-    check('flag timeline untouched (ends at 210 s)', await page.evaluate(t => DroneShowConfig.duration === t && DroneShow.data.timeline.formations.at(-1).end === t, end));
+    check('F8 starts when the flag fireworks end (193 s), without music', Math.abs(s.fw.elapsed - (s.ds.frameT - end)) < 0.2 && s.musicPaused, { frameT: s.ds.frameT, fw: s.fw.elapsed, music: !s.musicPaused });
+    check('flag timeline untouched (ends at 193 s)', await page.evaluate(t => DroneShowConfig.duration === t && DroneShow.data.timeline.formations.at(-1).end === t, end));
     await page.evaluate(() => window.stopDroneShow(false)); await sleep(300);
 
-    // F8 pressed after 210 s (flag fading, music already over): F8 starts at once, still without music.
+    // F8 pressed after 193 s (flag fading, music already over): F8 starts at once, still without music.
     await page.keyboard.press('F9'); await page.waitForFunction('DroneShow.isRunning', { timeout: 60000 });
     await page.evaluate(t => DroneShow.seek(t), end+2); await sleep(500);
     check('F9 music has ended before F8', (await S()).musicPaused);
     await page.keyboard.press('F8'); await sleep(700);
     s = await S();
-    check('F8 after 210 s starts immediately, without music', s.fw.running && s.fw.elapsed < 1.2 && s.ds.fwAt > end && s.musicPaused && s.ds.musicEnd === end, { fwAt: s.ds.fwAt, fw: s.fw.elapsed, music: !s.musicPaused, end: s.ds.musicEnd });
+    check('F8 after 193 s starts immediately, without music', s.fw.running && s.fw.elapsed < 1.2 && s.ds.fwAt > end && s.musicPaused && s.ds.musicEnd === end, { fwAt: s.ds.fwAt, fw: s.fw.elapsed, music: !s.musicPaused, end: s.ds.musicEnd });
     await page.evaluate(() => window.stopDroneShow(false)); await sleep(300);
 
     // A peer's F8 (same show seed) upgrades this client's F9 too.

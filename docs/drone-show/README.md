@@ -18,19 +18,18 @@ F9 kết thúc nội dung ở giây 210, nhạc dừng ở 210, LED mờ dần 4
 
 ## Timeline đã duyệt
 
-| # | Cảnh | Giữ hình (s) | LED sáng |
-|---|---|---|---|
-| 1 | Trống đồng và đôi chim hạc | 10–15 | 9,967 |
-| 2 | Vua Lý Thái Tổ và Chiếu dời đô | 22–33 | 11,433 |
-| 3 | Rồng thời Lý | 40–53 | 8,519 |
-| 4 | Hoàng thành Thăng Long | 60–70 | 20,154 |
-| 5 | Chùa Một Cột | 77–87 | 19,146 |
-| 6 | Cầu Long Biên và con thuyền | 94–103 | 17,391 |
-| 7 | Chủ tịch Hồ Chí Minh | 110–121 | 7,589 |
-| 8 | Chiến thắng Điện Biên Phủ | 128–141 | 6,626 |
-| 9 | Xe tăng 390 và Dinh Độc Lập | 148–163 | 11,932 |
-| 10 | Lăng Chủ tịch Hồ Chí Minh | 170–180 | 18,834 |
-| 11 | Quốc kỳ Việt Nam | 187–210 | 5,067 |
+| # | Cảnh | Giữ hình (s) | Frame xem | LED sáng |
+|---|---|---|---|---|
+| 1 | Trống đồng Đông Sơn | 10–15 | 375 | 11,385 |
+| 2 | Lý Thái Tổ — Chiếu dời đô | 22–33 | 825 | 12,547 |
+| 3 | Rồng thời Lý | 40–53 | 1395 | 10,061 |
+| 4 | Hoàng thành Thăng Long | 60–70 | 1950 | 12,738 |
+| 5 | Chùa Một Cột | 77–87 | 2460 | 12,839 |
+| 6 | Cầu Long Biên và thuyền | 94–103 | 2955 | 8,295 |
+| 7 | Chân dung Chủ tịch Hồ Chí Minh | 110–121 | 3465 | 8,994 |
+| 8 | Điện Biên Phủ | 128–141 | 4035 | 7,125 |
+| 9 | Xe tăng 390 — Dinh Độc Lập | 148–163 | 4665 | 12,357 |
+| 10 | Quốc kỳ Việt Nam | 170–193 | 5445 | 19,134 |
 
 Cất cánh theo tám khối hộp: 0–5 giây; ghép cảnh đầu: 5–10 giây. Morph giữa các cảnh dài 7 giây. Marker pháo hoa: 197 / 201 / 205 / 210. Gain cờ ×2 tăng 180–187 giây; nhánh hạ cánh giảm 210–213 giây.
 
@@ -42,7 +41,7 @@ Bốn cảnh mới: Hoàng thành có cờ bay; Chùa Một Cột có sen và s�
 
 `Frontend/drone-show/blender-v5/`: manifest, timeline và 96 binary (117.49 MB). Chỉ các file được liệt kê trong manifest được nạp; runtime không tải ZIP, blend, PC2 hoặc video. `.gitattributes` giữ nguyên byte cho toàn bộ dữ liệu drone.
 
-Loader kiểm revision, hash, dtype, shape, số ID và giá trị hữu hạn. Tải tối đa bốn file song song, giữ dữ liệu cho replay. Desktop dùng đủ 21.000 ID. Chế độ thiết bị di động giữ cơ chế lấy mẫu 1/3 (1/6 trên thiết bị RAM thấp) hiện có; thêm `?droneStride=1` để kiểm tra đủ chi tiết. LOW chỉ tắt glow; tier không đổi số ID.
+Loader kiểm revision, hash, dtype, shape, số ID và giá trị hữu hạn. Tải tối đa bốn file song song, giữ dữ liệu cho replay. Desktop dùng đủ 20.000 ID. Chế độ thiết bị di động giữ cơ chế lấy mẫu 1/3 (1/6 trên thiết bị RAM thấp) hiện có; thêm `?droneStride=1` để kiểm tra đủ chi tiết. LOW chỉ tắt glow; tier không đổi số ID.
 
 Xuất trục Blender `(x,y,z)` thành web `(x,z,-y)`; pivot `(0,85,0)`, stage `(0,120,-100)`, scale 1,15. Bounding sphere tính từ bounds toàn timeline và cộng biên cho glow. Vị trí, brightness nội suy 4 Hz; cờ 10 Hz và màu sao 30 Hz. Shader giữ linear RGB, nhân brightness một lần và emission gain theo timeline.
 
@@ -66,7 +65,19 @@ Bản cập nhật này dành cho web cục bộ theo yêu cầu người dùng;
 
 ## Kết quả kiểm thử bản này
 
-- Parity: 163 thời điểm, đủ 21.000 ID và số LED của 11 cảnh; xe tăng tĩnh như bản gốc.
+- Parity: 163 thời điểm, đủ 20.000 ID và số LED của 11 cảnh; xe tăng tĩnh như bản gốc.
 - Trình duyệt: 23/23 PASS, không lỗi JavaScript/shader; 55 ảnh QA.
 - F10: 26/26 PASS, nối pháo hoa và dừng nhạc ở 210 giây.
 - Góc nhìn sân bảo tàng có đèn dây phía trước có thể che một phần chữ; người chơi có thể di chuyển góc nhìn. Ảnh camera tham chiếu và crop xác nhận chữ và LED nền đầy đủ.
+
+## Quy tắc chi tiết chung (14/11/2026)
+
+Cả 11 cảnh dùng cùng một quy tắc (`scripts/crisp_detail.py`): giữ đúng các bóng LED tách từ ảnh, chỉ bù thêm drone vào chỗ hở trên cùng một nét sáng trong ảnh (cùng nhóm, cùng màu), và mọi LED cách nhau tối thiểu 0,38 m để chấm luôn tròn, không nhòe. Bản Codex trước đó nhồi điểm cách 0,13 m (nhỏ hơn đường kính LED 0,32 m) nên các chấm dính thành vệt mờ; quy tắc mới thay thế cách đó. Ba cảnh mới (Hoàng thành, chùa, cầu) được tăng độ rực màu. Lá cờ được bù một LED giữa mỗi cặp ô lưới (5.067 → 19.134). Dấu huyền chữ Ồ trên Lăng tách hẳn khỏi dấu mũ (14 px). Sức chứa đội: 20.000 drone, đủ cho cảnh dày nhất.
+
+Lấp kín vùng sáng: cánh sen Chùa Một Cột, hai lá cờ, tán cây và sáu cột trụ vàng của Hoàng thành được phủ lưới LED đều (0,46 m), màu lấy theo ảnh mẫu; cờ dùng đúng bảng màu đỏ/vàng/xanh lá/xanh dương.
+
+Lăng Bác dùng đúng lưới đèn đều của ảnh mẫu (bước 9 px), giữ độ sáng từng bóng: viền vàng sáng, tường xám xanh, ô đỏ, cây xanh; không chèn thêm điểm vì sẽ làm lưới loang. Dòng chữ dựng lại chính xác "CHỦ TỊCH / HỒ-CHÍ-MINH".
+
+## Bản 10 cảnh (14/11/2026)
+
+Đã bỏ cảnh Lăng Chủ tịch Hồ Chí Minh theo yêu cầu. Xe tăng chuyển thẳng sang Quốc kỳ (morph 163–170 s). Show web dài 193 giây (3:13), nhạc dừng ở 193 s; pháo hoa trong cảnh cờ ở 180/184/188/193 s; F10 nối pháo hoa F8 từ 193 s. Tách khối và hạ cánh trong Blender 193–211 s. Revision `ten-scenes-v6-2026-11-14`, file `blender/Vietnam_DroneShow_10Scenes_Review.blend`, dữ liệu web `Frontend/drone-show/blender-v6/`, tag `b6-…`. Đội 20.000 drone.

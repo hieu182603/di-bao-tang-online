@@ -22,15 +22,15 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
  const timeline=await page.evaluate(()=>JSON.parse(JSON.stringify(DroneShow.data.timeline)));
  const holds=timeline.formations,mid=key=>{const c=holds.find(c=>c.formation===key);assert(c,key);return(c.start+c.end)/2;};
  const showEnd=timeline.fireworks.find(c=>c.name==='FIREWORKS_END').time;
- const expectedCounts={dong_son:9967,ly_thai_to:11433,ly_dragon:8519,hoang_thanh:20154,chua_mot_cot:19146,cau_long_bien:17391,ho_chi_minh_lotus:7589,dien_bien:6626,reunification:11932,lang_bac:18834,vietnam_flag:5067};
- check('v5 eleven-scene order',JSON.stringify(holds.map(c=>c.formation))===JSON.stringify(Object.keys(expectedCounts)),holds.map(c=>c.formation));
- check('web show ends at 210 seconds without landing',showEnd===210&&timeline.duration===showEnd&&holds.at(-1).end===showEnd&&await page.evaluate(()=>!DroneShowConfig.landing));
- check('v5 asset path and tag',await page.evaluate(()=>/blender-v5\/$/.test(DroneShowConfig.base)&&/^b5-[0-9a-f]{12}$/.test(DroneShowConfig.assetTag)));
+ const expectedCounts={dong_son:11385,ly_thai_to:12547,ly_dragon:10061,hoang_thanh:12738,chua_mot_cot:12839,cau_long_bien:8295,ho_chi_minh_lotus:8994,dien_bien:7125,reunification:12357,vietnam_flag:19134};
+ check('ten-scene order',JSON.stringify(holds.map(c=>c.formation))===JSON.stringify(Object.keys(expectedCounts)),holds.map(c=>c.formation));
+ check('web show ends at 193 seconds without landing',showEnd===193&&timeline.duration===showEnd&&holds.at(-1).end===showEnd&&await page.evaluate(()=>!DroneShowConfig.landing));
+ check('v6 asset path and tag',await page.evaluate(()=>/blender-v6\/$/.test(DroneShowConfig.base)&&/^b6-[0-9a-f]{12}$/.test(DroneShowConfig.assetTag)));
  report.revision=await page.evaluate(()=>DroneShow.data.manifest.revision);report.timeline=timeline;
  check('stop during loading does not revive',await page.evaluate(()=>!DroneShow.isRunning&&!DroneShow.pending));
  await page.keyboard.press('F9'); await page.waitForFunction('DroneShow.isRunning',{timeout:15000}); await sleep(1200);
  check('local F9 starts from zero after loading',await page.evaluate(()=>DroneShow.stats.initialAt<0.05),await page.evaluate(()=>({initialAt:DroneShow.stats.initialAt,observedAt:DroneShow.getState().t})));
- check('F9 starts 21000 IDs and music',await page.evaluate(()=>DroneShow.data.N===21000&&!DroneShow.music.paused),await page.evaluate(()=>DroneShow.getState()));
+ check('F9 starts 20000 IDs and music',await page.evaluate(()=>DroneShow.data.N===20000&&!DroneShow.music.paused),await page.evaluate(()=>DroneShow.getState()));
  const seed=await page.evaluate(()=>DroneShow.seed);
  await page.evaluate(()=>dispatchEvent(new KeyboardEvent('keydown',{code:'F9',key:'F9',repeat:true})));
  await page.evaluate(()=>document.getElementById('sfx-btn').click()); check('sound button mutes music',await page.evaluate(()=>DroneShow.music.muted)); await page.evaluate(()=>document.getElementById('sfx-btn').click());
@@ -41,24 +41,23 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
  check('music catches seek time',await page.evaluate(()=>Math.abs(DroneShow.music.currentTime-DroneShow.getState().t)<.6),await page.evaluate(()=>({audio:DroneShow.music.currentTime,show:DroneShow.getState().t})));
  await page.evaluate(()=>DroneShow.pause());
  // Capture the user's ordinary museum view before touching the reference camera.
- for(const key of ['hoang_thanh','chua_mot_cot','cau_long_bien','lang_bac']){
+ for(const key of ['hoang_thanh','chua_mot_cot','cau_long_bien','vietnam_flag']){
   await page.evaluate(t=>{Object.assign(player,{x:0,z:37,yaw:0,pitch:.68});DroneShow.seek(t);},mid(key));await sleep(300);
   const file=`museum_${key}_mid.jpg`;await page.screenshot({path:path.join(OUT,file),type:'jpeg',quality:95});report.screenshots.push(file);
  }
  await page.evaluate(()=>{DroneShow.pause();window.__qaRender=DroneShow.renderer.render.bind(DroneShow.renderer);DroneShow.renderer.render=function(s,c){DroneShow.referenceCamera(c);DroneShow.uniforms.uProj.value=this.getContext().drawingBufferHeight/(2*Math.tan(c.fov*Math.PI/360))*DroneShowConfig.stage.scale;window.__qaRender(s,c);};});
- const shotTimes=[...new Set([0,...holds.map(c=>(c.start+c.end)/2),...timeline.transitions.flatMap(c=>[c.start,(c.start+c.end)/2,c.end]),...['cau_long_bien','reunification','lang_bac'].flatMap(key=>{const c=holds.find(c=>c.formation===key);return[c.start,c.end-1/timeline.fps];})])].sort((a,b)=>a-b);
+ const shotTimes=[...new Set([0,...holds.map(c=>(c.start+c.end)/2),...timeline.transitions.flatMap(c=>[c.start,(c.start+c.end)/2,c.end]),...['cau_long_bien','reunification','vietnam_flag'].flatMap(key=>{const c=holds.find(c=>c.formation===key);return[c.start,c.end-1/timeline.fps];})])].sort((a,b)=>a-b);
  for(const t of shotTimes){
   await page.evaluate(t=>DroneShow.seek(t),t); await sleep(180);
   const file=`reference_${t}.jpg`;await page.screenshot({path:path.join(OUT,file),type:'jpeg',quality:87});report.screenshots.push(file);
  }
  // Native browser rendering at 4K, then a camera-frame crop of the inscription.
  await page.setViewport({width:3840,height:2160,deviceScaleFactor:1});
- await page.evaluate(t=>DroneShow.seek(t),mid('lang_bac'));await sleep(600);
- await page.screenshot({path:path.join(OUT,'reference_lang_bac_4k.png')});report.screenshots.push('reference_lang_bac_4k.png');
- await page.screenshot({path:path.join(OUT,'reference_lang_bac_inscription_crop.png'),clip:{x:Math.round(3840*.38),y:Math.round(2160*.18),width:960,height:Math.round(2160*.14)}});report.screenshots.push('reference_lang_bac_inscription_crop.png');
- await page.setViewport({width:1280,height:720,deviceScaleFactor:1});await sleep(200);
+ await page.evaluate(t=>DroneShow.seek(t),mid('hoang_thanh'));await sleep(600);
+ await page.screenshot({path:path.join(OUT,'reference_hoang_thanh_4k.png')});report.screenshots.push('reference_hoang_thanh_4k.png');
+  await page.setViewport({width:1280,height:720,deviceScaleFactor:1});await sleep(200);
  const levels=await page.evaluate(()=>{const D=DroneShow,rows=[],old=D.tier;for(const tier of ['LOW','BALANCED','HIGH']){D.setTier(tier);for(const c of D.data.timeline.formations){D.seek((c.start+c.end)/2);let n=0;for(let i=0;i<D.data.N;i++)if(Math.max(D.colArr[i*4],D.colArr[i*4+1],D.colArr[i*4+2])*D.colArr[i*4+3]>=.004)n++;rows.push({tier,key:c.formation,ids:D.geo.attributes.position.count,lit:n,active:c.active_count});}}D.setTier(old);return rows;});
- check('all quality tiers preserve 21000 IDs and all approved active LEDs, including dim plaque',levels.length===33&&levels.every(r=>r.ids===21000&&r.lit===r.active&&r.active===expectedCounts[r.key]),levels);
+ check('all quality tiers preserve 20000 IDs and all approved active LEDs, including dim plaque',levels.length===3*Object.keys(expectedCounts).length&&levels.every(r=>r.ids===20000&&r.lit===r.active&&r.active===expectedCounts[r.key]),levels);
  check('approved tank remains static',await page.evaluate(()=>{const D=DroneShow,h=D.data.timeline.formations.find(c=>c.formation==='reunification');D.seek(h.start);const p=D.posArr.slice(),c=D.colArr.slice();return [.25,.5,.75,.999999].every(f=>{D.seek(h.start+(h.end-h.start)*f);return p.every((v,i)=>v===D.posArr[i])&&c.every((v,i)=>v===D.colArr[i]);});}));
  await page.evaluate(t=>{DroneShow.seek(t);DroneShow.renderer.render=function(s,c){DroneShow.referenceCamera(c);c.position.x+=18;c.lookAt(0,120,-100);DroneShow.uniforms.uProj.value=this.getContext().drawingBufferHeight/(2*Math.tan(c.fov*Math.PI/360))*DroneShowConfig.stage.scale;window.__qaRender(s,c);};},mid('ly_dragon'));await sleep(200);await page.screenshot({path:path.join(OUT,'dragon_mild_angle.jpg'),type:'jpeg',quality:87});
  // Restore museum camera and verify the ordinary player view.
@@ -69,7 +68,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
  await page.evaluate(t=>{DroneShow.seek(t);DroneShow.resume();},timeline.fireworks[0].time-1);
  for(const t of timeline.fireworks.filter(c=>c.time<showEnd).map(c=>c.time).concat(showEnd-1)){await page.waitForFunction(t=>DroneShow.getState().t>=t,{timeout:25000},t);await page.screenshot({path:path.join(OUT,`finale_${t}.jpg`),type:'jpeg',quality:87});}
  check('finale does not start independent F8 timeline',await page.evaluate(()=>!FireworksShow.isRunning));
- await page.evaluate(t=>DroneShow.seek(t+.5),showEnd);await sleep(800);check('music stops at 210',await page.evaluate(()=>DroneShow.music.paused));
+ await page.evaluate(t=>DroneShow.seek(t+.5),showEnd);await sleep(800);check('music stops at 193',await page.evaluate(()=>DroneShow.music.paused));
  await page.evaluate(t=>DroneShow.seek(t+DroneShowConfig.fadeOut),showEnd);await sleep(800);await page.waitForFunction('!DroneShow.isRunning',{timeout:20000});
  check('natural finish restores sky and music',await page.evaluate(()=>!getFireworksState().isNight&&DroneShow.music.paused));
  const before=await page.evaluate(()=>({children:DroneShow.group.children.length,geo:DroneShow.renderer.info.memory.geometries,arrays:DroneShow.posArr.length}));

@@ -1,8 +1,8 @@
 /* Approved Blender export decoder. Coordinates are already Y-up; row i is drone ID i. */
 (function (root) {
   'use strict';
-  const REVISION = 'eleven-scenes-v5-2026-11-14';
-  const MANIFEST_HASH = '91a95ac1db40ab70f16ce2381092f5df148c3a100eab70efcc6c2adcf5c427b8';
+  const REVISION = 'ten-scenes-v6-2026-11-14';
+  const MANIFEST_HASH = '8b8c5ee48818edd62ca08322f513d47d563305fd283e2c77f67f907b7d5da1ee';
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
   const types = { '<f4': Float32Array, '<i2': Int16Array, u1: Uint8Array, '<u4': Uint32Array };
   function validate(manifest, timeline, buffers) {

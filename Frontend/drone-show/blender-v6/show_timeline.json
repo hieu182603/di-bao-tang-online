@@ -1,0 +1,266 @@
+{
+  "revision": "ten-scenes-v6-2026-11-14",
+  "duration": 211,
+  "fps": 30,
+  "frame_start": 0,
+  "frame_end": 6330,
+  "scene_order": [
+    "dong_son",
+    "ly_thai_to",
+    "ly_dragon",
+    "hoang_thanh",
+    "chua_mot_cot",
+    "cau_long_bien",
+    "ho_chi_minh_lotus",
+    "dien_bien",
+    "reunification",
+    "vietnam_flag"
+  ],
+  "formations": [
+    {
+      "formation": "dong_son",
+      "start": 10,
+      "end": 15,
+      "sample_hz": 4,
+      "sample_count": 21,
+      "position_quantum_m": 0.002,
+      "active_count": 11385
+    },
+    {
+      "formation": "ly_thai_to",
+      "start": 22,
+      "end": 33,
+      "sample_hz": 4,
+      "sample_count": 45,
+      "position_quantum_m": 0.002,
+      "active_count": 12547
+    },
+    {
+      "formation": "ly_dragon",
+      "start": 40,
+      "end": 53,
+      "sample_hz": 4,
+      "sample_count": 53,
+      "position_quantum_m": 0.002,
+      "active_count": 10061
+    },
+    {
+      "formation": "hoang_thanh",
+      "start": 60,
+      "end": 70,
+      "sample_hz": 4,
+      "sample_count": 41,
+      "position_quantum_m": 0.002,
+      "active_count": 12738
+    },
+    {
+      "formation": "chua_mot_cot",
+      "start": 77,
+      "end": 87,
+      "sample_hz": 4,
+      "sample_count": 41,
+      "position_quantum_m": 0.002,
+      "active_count": 12839
+    },
+    {
+      "formation": "cau_long_bien",
+      "start": 94,
+      "end": 103,
+      "sample_hz": 4,
+      "sample_count": 37,
+      "position_quantum_m": 0.002,
+      "active_count": 8295
+    },
+    {
+      "formation": "ho_chi_minh_lotus",
+      "start": 110,
+      "end": 121,
+      "sample_hz": 4,
+      "sample_count": 45,
+      "position_quantum_m": 0.002,
+      "active_count": 8994
+    },
+    {
+      "formation": "dien_bien",
+      "start": 128,
+      "end": 141,
+      "sample_hz": 4,
+      "sample_count": 53,
+      "position_quantum_m": 0.002,
+      "active_count": 7125
+    },
+    {
+      "formation": "reunification",
+      "start": 148,
+      "end": 163,
+      "sample_hz": 4,
+      "sample_count": 61,
+      "position_quantum_m": 0.002,
+      "active_count": 12357
+    },
+    {
+      "formation": "vietnam_flag",
+      "start": 170,
+      "end": 193,
+      "sample_hz": 10,
+      "sample_count": 231,
+      "position_quantum_m": 0.002,
+      "active_count": 19134,
+      "color_animation": {
+        "sample_hz": 30,
+        "sample_count": 691,
+        "ids": "vietnam_flag.color_ids.u32",
+        "rgb": "vietnam_flag.color_motion.u8",
+        "count": 1836
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "index": 0,
+      "kind": "ascent",
+      "start": 0,
+      "end": 5.0,
+      "geometry": "launch.f32",
+      "colors": "launch.rgba.u8",
+      "shape": "eight rigid boxes rise vertically"
+    },
+    {
+      "index": 1,
+      "kind": "assembly",
+      "formation": "dong_son",
+      "start": 5.0,
+      "end": 10,
+      "geometry": "transition_00.f32",
+      "colors": "transition_00.rgba.u8"
+    },
+    {
+      "index": 2,
+      "kind": "morph",
+      "formation": "ly_thai_to",
+      "start": 15,
+      "end": 22,
+      "geometry": "transition_01.f32",
+      "colors": "transition_01.rgba.u8"
+    },
+    {
+      "index": 3,
+      "kind": "morph",
+      "formation": "ly_dragon",
+      "start": 33,
+      "end": 40,
+      "geometry": "transition_02.f32",
+      "colors": "transition_02.rgba.u8"
+    },
+    {
+      "index": 4,
+      "kind": "morph",
+      "formation": "hoang_thanh",
+      "start": 53,
+      "end": 60,
+      "geometry": "transition_03.f32",
+      "colors": "transition_03.rgba.u8"
+    },
+    {
+      "index": 5,
+      "kind": "morph",
+      "formation": "chua_mot_cot",
+      "start": 70,
+      "end": 77,
+      "geometry": "transition_04.f32",
+      "colors": "transition_04.rgba.u8"
+    },
+    {
+      "index": 6,
+      "kind": "morph",
+      "formation": "cau_long_bien",
+      "start": 87,
+      "end": 94,
+      "geometry": "transition_05.f32",
+      "colors": "transition_05.rgba.u8"
+    },
+    {
+      "index": 7,
+      "kind": "morph",
+      "formation": "ho_chi_minh_lotus",
+      "start": 103,
+      "end": 110,
+      "geometry": "transition_06.f32",
+      "colors": "transition_06.rgba.u8"
+    },
+    {
+      "index": 8,
+      "kind": "morph",
+      "formation": "dien_bien",
+      "start": 121,
+      "end": 128,
+      "geometry": "transition_07.f32",
+      "colors": "transition_07.rgba.u8"
+    },
+    {
+      "index": 9,
+      "kind": "morph",
+      "formation": "reunification",
+      "start": 141,
+      "end": 148,
+      "geometry": "transition_08.f32",
+      "colors": "transition_08.rgba.u8"
+    },
+    {
+      "index": 10,
+      "kind": "morph",
+      "formation": "vietnam_flag",
+      "start": 163,
+      "end": 170,
+      "geometry": "transition_09.f32",
+      "colors": "transition_09.rgba.u8"
+    },
+    {
+      "index": 11,
+      "kind": "split",
+      "start": 193,
+      "end": 199,
+      "geometry": "landing_00.f32",
+      "colors": "landing_00.rgba.u8"
+    },
+    {
+      "index": 12,
+      "kind": "descent",
+      "start": 199,
+      "end": 211,
+      "geometry": "landing_01.f32",
+      "colors": "landing_01.rgba.u8"
+    }
+  ],
+  "fireworks": [
+    {
+      "name": "FIREWORKS_START",
+      "time": 180
+    },
+    {
+      "name": "FIREWORKS_BUILDUP",
+      "time": 184
+    },
+    {
+      "name": "FIREWORKS_FINALE",
+      "time": 188
+    },
+    {
+      "name": "FIREWORKS_END",
+      "time": 193
+    }
+  ],
+  "emission_gain": {
+    "value": 2.0,
+    "ramp_up": [
+      163,
+      170
+    ],
+    "ramp_down": [
+      193,
+      196
+    ],
+    "curve": "smoothstep",
+    "apply": "multiply final linear emission of every LED by gain(t); 1.0 outside the ramps"
+  }
+}

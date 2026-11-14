@@ -2,16 +2,14 @@
 import json, hashlib, subprocess, tempfile
 from pathlib import Path
 import numpy as np
-ROOT=Path(__file__).resolve().parents[2]; folder=ROOT/'Frontend/drone-show/blender-v5'
+ROOT=Path(__file__).resolve().parents[2]; folder=ROOT/'Frontend/drone-show/blender-v6'
 m=json.loads((folder/'export_manifest.json').read_text()); tl=json.loads((folder/'show_timeline.json').read_text()); N=m['drone_count']
-APPROVED_COUNTS={'dong_son':9967,'ly_thai_to':11433,'ly_dragon':8519,'hoang_thanh':20154,
- 'chua_mot_cot':19146,'cau_long_bien':17391,'ho_chi_minh_lotus':7589,'dien_bien':6626,
- 'reunification':11932,'lang_bac':18834,'vietnam_flag':5067}
-assert N==21000 and tl['duration']==228,(N,tl['duration'])
+APPROVED_COUNTS={'dong_son':11385,'ly_thai_to':12547,'ly_dragon':10061,'hoang_thanh':12738,'chua_mot_cot':12839,'cau_long_bien':8295,'ho_chi_minh_lotus':8994,'dien_bien':7125,'reunification':12357,'vietnam_flag':19134}
+assert N==20000 and tl['duration']==211,(N,tl['duration'])
 assert tl['scene_order']==list(APPROVED_COUNTS)==[c['formation'] for c in tl['formations']]
 show_end=next(c['time'] for c in tl['fireworks'] if c['name']=='FIREWORKS_END')
-assert show_end==210 and tl['formations'][-1]['end']==show_end
-assert [(c['start'],c['end']) for c in tl['transitions'] if c['kind'] in ('split','descent')]==[(show_end,216),(216,tl['duration'])]
+assert show_end==193 and tl['formations'][-1]['end']==show_end
+assert [(c['start'],c['end']) for c in tl['transitions'] if c['kind'] in ('split','descent')]==[(show_end,199),(199,tl['duration'])]
 B={}
 for e in m['files']:
  raw=(folder/e['path']).read_bytes(); assert len(raw)==e['bytes']; assert hashlib.sha256(raw).hexdigest()==e['sha256']; B[e['path']]=np.frombuffer(raw,dtype=e['dtype']).reshape(e['shape'])
@@ -46,7 +44,7 @@ for c in tl['transitions']+tl['formations']:
 times=sorted(t for t in times if 0<=t<=tl['duration'])
 # Reverse + disordered accesses verify evaluator needs no preceding frames.
 times=times[::-1]+[c['start']+(c['end']-c['start'])*.371 for c in tl['formations'][::2]]+[-1,tl['duration']+1,0]
-script="""const fs=require('fs'),D=require('./Frontend/drone-blender.js');const dir='Frontend/drone-show/blender-v5/'; const m=JSON.parse(fs.readFileSync(dir+'export_manifest.json')),tl=JSON.parse(fs.readFileSync(dir+'show_timeline.json')),B={};for(const e of m.files){const b=fs.readFileSync(dir+e.path); const raw=b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength); B[e.path]=new D.types[e.dtype](raw);}const data=D.validate(m,tl,B),p=new Float32Array(data.N*3),c=new Float32Array(data.N*4);const times=JSON.parse(process.argv[1]);for(let i=0;i<times.length;i++){D.evaluate(data,times[i],p,c);fs.writeFileSync(process.argv[2]+'/'+i+'.bin',Buffer.concat([Buffer.from(p.buffer),Buffer.from(c.buffer)]));}"""
+script="""const fs=require('fs'),D=require('./Frontend/drone-blender.js');const dir='Frontend/drone-show/blender-v6/'; const m=JSON.parse(fs.readFileSync(dir+'export_manifest.json')),tl=JSON.parse(fs.readFileSync(dir+'show_timeline.json')),B={};for(const e of m.files){const b=fs.readFileSync(dir+e.path); const raw=b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength); B[e.path]=new D.types[e.dtype](raw);}const data=D.validate(m,tl,B),p=new Float32Array(data.N*3),c=new Float32Array(data.N*4);const times=JSON.parse(process.argv[1]);for(let i=0;i<times.length;i++){D.evaluate(data,times[i],p,c);fs.writeFileSync(process.argv[2]+'/'+i+'.bin',Buffer.concat([Buffer.from(p.buffer),Buffer.from(c.buffer)]));}"""
 maxp=maxc=0.; counts={}
 with tempfile.TemporaryDirectory() as tmp:
  subprocess.run(['node','-e',script,json.dumps(times),tmp],cwd=ROOT,check=True)

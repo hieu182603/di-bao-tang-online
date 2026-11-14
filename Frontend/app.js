@@ -4999,7 +4999,7 @@ function stopFireworksShow(naturalFinish = false, broadcast = true) {
 
 function toggleFireworksShow() {
   // F9/F10 owns the fireworks while it runs. From the flag scene on, F8 queues the F8 show right after the flag's
-  // fireworks end (210 s; at once if pressed later); music stops when drones end — for every player.
+  // fireworks end (193 s; at once if pressed later); music stops when drones end — for every player.
   const DS = window.DroneShow;
   if (DS && (DS.isRunning || DS.pending)) {
     if (DS.canAddFireworks && DS.canAddFireworks() && DS.setCombo(DS.t)) broadcastDroneState(DS);
@@ -5148,14 +5148,14 @@ addEventListener("keydown", (e) => {
   if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) { if (e.key === "Escape") e.target.blur(); return; }
   if (e.key === "Escape" && !$("emote-wheel").hidden) { toggleWheel(false); return; }
   if (e.key === "Escape") { if (infoOpen) closeInfo(); else if (!$("qr-modal").hidden) $("qr-modal").hidden = true; return; }
-  // F9: Drone Show 210 giây (mười một đội hình lịch sử – văn hoá), kết bằng pháo hoa của hệ thống F8
+  // F9: Drone Show 193 giây (mười đội hình lịch sử – văn hoá), kết bằng pháo hoa của hệ thống F8
   if (e.code === "F9" || e.key === "F9") {
     e.preventDefault();
     if (e.repeat) return;
     toggleDroneShow();
     return;
   }
-  // F10: Drone Show rồi nối liền màn pháo hoa F8 (giây 210), nhạc dừng khi drone kết thúc. Nhấn 2 lần để dừng.
+  // F10: Drone Show rồi nối liền màn pháo hoa F8 (giây 193), nhạc dừng khi drone kết thúc. Nhấn 2 lần để dừng.
   if (e.code === "F10" || e.key === "F10") {
     e.preventDefault();
     if (e.repeat) return;
