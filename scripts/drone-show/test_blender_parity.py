@@ -4,8 +4,8 @@ from pathlib import Path
 import numpy as np
 ROOT=Path(__file__).resolve().parents[2]; folder=ROOT/'Frontend/drone-show/blender-v6'
 m=json.loads((folder/'export_manifest.json').read_text()); tl=json.loads((folder/'show_timeline.json').read_text()); N=m['drone_count']
-APPROVED_COUNTS={'dong_son':11385,'ly_thai_to':12547,'ly_dragon':10061,'hoang_thanh':12738,'chua_mot_cot':12839,'cau_long_bien':8295,'ho_chi_minh_lotus':8994,'dien_bien':7125,'reunification':12357,'vietnam_flag':19134}
-assert N==20000 and tl['duration']==211,(N,tl['duration'])
+APPROVED_COUNTS={'dong_son':11385,'ly_thai_to':12547,'ly_dragon':10061,'hoang_thanh':12738,'chua_mot_cot':12839,'cau_long_bien':8295,'ho_chi_minh_lotus':8994,'dien_bien':7125,'reunification':12357,'vietnam_flag':21285}
+assert N==22000 and tl['duration']==211,(N,tl['duration'])
 assert tl['scene_order']==list(APPROVED_COUNTS)==[c['formation'] for c in tl['formations']]
 show_end=next(c['time'] for c in tl['fireworks'] if c['name']=='FIREWORKS_END')
 assert show_end==193 and tl['formations'][-1]['end']==show_end

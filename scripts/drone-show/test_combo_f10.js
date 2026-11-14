@@ -23,11 +23,11 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
       musicPaused: DroneShow.music.paused, vol: +DroneShow.music.volume.toFixed(3), night: getFireworksState().isNight }));
 
     await page.keyboard.press('F10');
-    await page.waitForFunction('DroneShow.isRunning', { timeout: 120000 });
+    await page.waitForFunction('DroneShow.isRunning', { timeout: 122000 });
     const timeline = await page.evaluate(() => JSON.parse(JSON.stringify(DroneShow.data.timeline)));
     const holds = timeline.formations, flag = holds.at(-1), end = timeline.fireworks.find(c => c.name === 'FIREWORKS_END').time;
     const flagMid = (flag.start + flag.end) / 2, flagScene = holds.length;
-    check('v6 timeline, 20000 capacity and ten scenes', end === 193 && timeline.duration === end && flag.end === end && flagScene === 10 && await page.evaluate(() => DroneShow.data.N === 20000 && !DroneShowConfig.landing && /^b6-[0-9a-f]{12}$/.test(DroneShowConfig.assetTag)));
+    check('v6 timeline, 22000 capacity and ten scenes', end === 193 && timeline.duration === end && flag.end === end && flagScene === 10 && await page.evaluate(() => DroneShow.data.N === 22000 && !DroneShowConfig.landing && /^b6-[0-9a-f]{12}$/.test(DroneShowConfig.assetTag)));
     let s = await S();
     check('F10 starts drone show in combo mode', s.ds.combo && s.ds.running && !s.fw.running, s.ds);
     check('combo music ends with the drones (193 s)', s.ds.musicEnd === end, s.ds.musicEnd);

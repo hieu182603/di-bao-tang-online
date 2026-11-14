@@ -105,13 +105,13 @@
       "sample_hz": 10,
       "sample_count": 231,
       "position_quantum_m": 0.002,
-      "active_count": 19134,
+      "active_count": 21285,
       "color_animation": {
         "sample_hz": 30,
         "sample_count": 691,
         "ids": "vietnam_flag.color_ids.u32",
         "rgb": "vietnam_flag.color_motion.u8",
-        "count": 1836
+        "count": 3126
       }
     }
   ],

@@ -1,9 +1,9 @@
-/* F9: approved Blender playback (10 scenes, 193 s), 20,000 stable IDs, one existing render loop. */
+/* F9: approved Blender playback (10 scenes, 193 s), 22,000 stable IDs, one existing render loop. */
 (() => {
 'use strict';
 const Config = {
   duration: 193, fadeOut: 4.5, tail: 8,
-  revision: DroneBlender.REVISION, assetTag: 'b6-8b8c5ee48818',
+  revision: DroneBlender.REVISION, assetTag: 'b6-7e9559637369',
   landing: false,   // true = play the Blender split + descent (193–211 s) after the flag
   base: 'drone-show/blender-v6/', music: 'audio/thinh-vuong-viet-nam-sang-ngoi.mp3',
   // pLocal = pExport - (0,85,0). One common transform for all formations and QA camera.
@@ -13,7 +13,7 @@ const Config = {
 };
 const VS = `
 attribute vec4 aCol;
-uniform float uProj, uDiameter, uGlow, uEmission;
+uniform float uProj, uDiameter, uGlow, uEmission, uFill;
 varying vec3 vEmission;
 void main() {
   vec3 emitted = aCol.rgb * aCol.a;
@@ -23,15 +23,16 @@ void main() {
   if (max(max(emitted.r, emitted.g), emitted.b) < 0.004) {
     gl_Position = vec4(2.0); gl_PointSize = 0.0; return;
   }
-  gl_PointSize = clamp(uDiameter * uProj / max(0.01, -mv.z) * (uGlow > 0.5 ? 4.0 : 1.0), 1.0, uGlow > 0.5 ? 22.0 : 9.0);
+  // uFill (flag scene only): larger core + wider glow so the 0.82 m flag lattice reads as solid vivid cloth.
+  gl_PointSize = clamp(uDiameter * uProj / max(0.01, -mv.z) * (uGlow > 0.5 ? mix(4.0, 7.0, uFill) : mix(1.0, 1.35, uFill)), 1.0, uGlow > 0.5 ? mix(22.0, 34.0, uFill) : 9.0);
 }`;
 const FS = `
-uniform float uGlow;
+uniform float uGlow, uFill;
 varying vec3 vEmission;
 void main() {
   float r = length(gl_PointCoord - 0.5) * 2.0;
   if (r > 1.0) discard;
-  float mask = uGlow > 0.5 ? exp(-r*r*6.0)*0.045 : 1.0-smoothstep(0.62,1.0,r);
+  float mask = uGlow > 0.5 ? exp(-r*r*mix(6.0, 3.5, uFill))*mix(0.045, 0.11, uFill) : 1.0-smoothstep(0.62,1.0,r);
   gl_FragColor = vec4(vEmission * mask, 1.0);
   // Source is linear, Standard display conversion once; no scene ACES exposure on these LEDs.
   #include <encodings_fragment>
@@ -109,7 +110,7 @@ const Show = {
     g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0,-1.5,-17.6),160);   // v5 crisp: x±128, y-81..78, z-57..22
     this.applyStage();
     this.frustum = new THREE.Frustum(); this.viewProj = new THREE.Matrix4(); this.lastT = NaN;
-    this.uniforms = { uProj:{value:600}, uDiameter:{value:this.data.manifest.render_contract.led_radius_m*2*Math.sqrt(this.liteStride())*0.9}, uEmission:{value:this.data.manifest.render_contract.emission_strength} };
+    this.uniforms = { uProj:{value:600}, uDiameter:{value:this.data.manifest.render_contract.led_radius_m*2*Math.sqrt(this.liteStride())*0.9}, uFill:{value:0}, uEmission:{value:this.data.manifest.render_contract.emission_strength} };
     const material = glow => new THREE.ShaderMaterial({ uniforms:{ ...this.uniforms, uGlow:{value:glow?1:0} }, vertexShader:VS, fragmentShader:FS,
       transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, depthTest:true, fog:false, toneMapped:false });
     this.points = new THREE.Points(g,material(false)); this.points.frustumCulled=true; this.points.renderOrder=22;
@@ -234,6 +235,7 @@ const Show = {
       avgMs:this.stats.frames?this.stats.ms/this.stats.frames:0,loadMs:this.stats.loadMs,initialAt:this.stats.initialAt,musicPlaying:!!this.music&&!this.music.paused,audioBlocked:!!this.audioBlocked };
   },
   computeFrame(t) {
+    const eg=this.data.timeline.emission_gain; this.uniforms.uFill.value = eg ? Math.max(0,Math.min(1,(DroneBlender.emissionGain(this.data.timeline,t)-1)/(eg.value-1))) : 0;
     DroneBlender.evaluate(this.data,t,this.posArr,this.colArr,Config.stage.pivot);
     if(t>Config.duration) { const f=Math.max(0,1-(t-Config.duration)/Config.fadeOut); for(let i=3;i<this.colArr.length;i+=4) this.colArr[i]*=f; }
     this.geo.attributes.position.needsUpdate=true; this.geo.attributes.aCol.needsUpdate=true;

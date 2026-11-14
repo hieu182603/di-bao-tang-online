@@ -1,13 +1,13 @@
 {
   "revision": "ten-scenes-v6-2026-11-14",
-  "ids": 20000,
+  "ids": 22000,
   "scene_count": 10,
   "show_end": 193,
   "landing_end": 211,
   "samples": 150,
   "hashes_verified": true,
-  "max_position_component_error_m": 7.62939453125e-06,
-  "max_rgba_error": 1.1223333107324152e-07,
+  "max_position_component_error_m": 7.6292695609936345e-06,
+  "max_rgba_error": 1.0866698207934178e-07,
   "hold_led_counts": {
     "dong_son": 11385,
     "ly_thai_to": 12547,
@@ -18,7 +18,7 @@
     "ho_chi_minh_lotus": 8994,
     "dien_bien": 7125,
     "reunification": 12357,
-    "vietnam_flag": 19134
+    "vietnam_flag": 21285
   },
   "active_masks_match_visible_ids": true,
   "tank_static": true,

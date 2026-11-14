@@ -1,6 +1,6 @@
 {
   "schema": "vn-source-guided-drone/1.1",
-  "drone_count": 20000,
+  "drone_count": 22000,
   "id_order": "row i is fixed drone ID i in every exported file; no permutation required by consumer",
   "coordinate_system": "Blender(X,Y,Z) -> Three.js(X,Z,-Y), right-handed rotation, determinant +1",
   "units": "metres",
@@ -10,875 +10,875 @@
       "path": "dong_son.position.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 240000,
-      "sha256": "0afb6d0134eb0b42142c2452f66b049aaa785e5d7ff3c84cd069f18532e38e07"
+      "bytes": 264000,
+      "sha256": "8c7f3b60abdd7128c34c38fb873dcd9bfd8e47b9c96b0be2fdca8859764cd43b"
     },
     {
       "path": "dong_son.rgb.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 60000,
-      "sha256": "28bb0bc42780af79a16820020129e2f4df5c18b4baa6b717237926dc5b6ebca0"
+      "bytes": 66000,
+      "sha256": "c0d1f9e7550859ac81956460d113570425f83a7b3943639a8c3b589f5de2cf7a"
     },
     {
       "path": "dong_son.group.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "fd1b8c5e1302244dc5bc1237b2ddb133c791f2c27ab4a7f3768a5a64dd08308e"
+      "bytes": 22000,
+      "sha256": "5afe1e47b1919e754f58a6a52c4c9518d2ba239129808a21fe82485819ef21ba"
     },
     {
       "path": "dong_son.active.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "308b2f49c9b6b10123685dd2c24411b0612d36d05c37f7411f4e56103c9c0296"
+      "bytes": 22000,
+      "sha256": "87923187614222181404b4b63f364caf305f7bc33cbce23fcabe24e30b139a05"
     },
     {
       "path": "dong_son.motion.i16",
       "dtype": "<i2",
       "shape": [
         21,
-        20000,
+        22000,
         3
       ],
-      "bytes": 2520000,
-      "sha256": "6df2a880f1b24f4732d28ec7fb63e7e66958f045d206ca465d4edbb7f9061e25"
+      "bytes": 2772000,
+      "sha256": "ee5927ec89b2a5f8e2b9fa580185a38124d0852c65794c446930cfd33d51cb60"
     },
     {
       "path": "dong_son.brightness.u8",
       "dtype": "u1",
       "shape": [
         21,
-        20000
+        22000
       ],
-      "bytes": 420000,
-      "sha256": "ce462194623ca1e75d896459dce50577c21f5b773b8008e001acfd4130f52eee"
+      "bytes": 462000,
+      "sha256": "0a78072a28025ebdb14be99400a31e65bc8ff929a41baa1b253d1dcf2b43037a"
     },
     {
       "path": "ly_thai_to.position.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 240000,
-      "sha256": "a4d3571a478c2b2f1369819870f1f5d0d339c98d8375e3c3a7a6591b6fc07c3f"
+      "bytes": 264000,
+      "sha256": "d2341efb1b2d47d3438cfd327bcee6f7c80352aa160f24a6c1330c42ee363ec6"
     },
     {
       "path": "ly_thai_to.rgb.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 60000,
-      "sha256": "0e4381f62e246fcb7d0db633dd3369ce163227df2088637908467eed12594db0"
+      "bytes": 66000,
+      "sha256": "d99991e39d2e15a0df333ec4c282dbd64023b30408519a7a910732695c7e7be7"
     },
     {
       "path": "ly_thai_to.group.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "55f1ef17698e7cc4204f7e6396bc56ebbb7be689b2775deeaad21d78ffbbb6ac"
+      "bytes": 22000,
+      "sha256": "5c37ab73e9ce6f60c97dc5e8eec0e2d47bafec994a8762dfce134a62fd799e1d"
     },
     {
       "path": "ly_thai_to.active.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "9ba79b1ca24c0b4d66eed21a98c745bb23114ada97538641b8907cac9ece4fb8"
+      "bytes": 22000,
+      "sha256": "e6d5556cee83c612e5c10bbe997d37699f9ae5b8a1980efb3db3957f53cd0f99"
     },
     {
       "path": "ly_thai_to.motion.i16",
       "dtype": "<i2",
       "shape": [
         45,
-        20000,
+        22000,
         3
       ],
-      "bytes": 5400000,
-      "sha256": "a4647aae04bf401b39515b9939244afe17c04d14aee3a9d32c54ca43a11e8161"
+      "bytes": 5940000,
+      "sha256": "62eea285c3fa416958247d99f0ccf23ba070f0fa008f1e318d37960f86313453"
     },
     {
       "path": "ly_thai_to.brightness.u8",
       "dtype": "u1",
       "shape": [
         45,
-        20000
+        22000
       ],
-      "bytes": 900000,
-      "sha256": "b5e2b166415e3c83e1e9956d28a10cf05937f82cfc72793526953cf3a611cc61"
+      "bytes": 990000,
+      "sha256": "fe84ee3a63485c261d7bdd189c09af64e9b3669f2ec9aa70ca51b5d22df3a3e7"
     },
     {
       "path": "ly_dragon.position.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 240000,
-      "sha256": "66182246df068cf76e674e204d68cf3449cb08666e72615b32f571dbc59e211f"
+      "bytes": 264000,
+      "sha256": "d438a096cafb6d27aa6104af9077e7d1f38bc766cea9b24483dfb9a8ce4f2086"
     },
     {
       "path": "ly_dragon.rgb.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 60000,
-      "sha256": "dab8ed44c77e264fc1509c6822ea5828d548744496e4e887e5795b0ca2a7c5c8"
+      "bytes": 66000,
+      "sha256": "5ed0a92bcb636808d07ca0ca5db70cfe37abe684b4f648018c6c0f18a3bd6bee"
     },
     {
       "path": "ly_dragon.group.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "c5203a5fb032b7ee8db0480b1aacfbc2f52af6b2385ddb2b15ae0d554ef7383c"
+      "bytes": 22000,
+      "sha256": "965c7e8d723e097eccaefa31fbfeebcaa570c443af284f599b640b1b63f2cefa"
     },
     {
       "path": "ly_dragon.active.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "6f3d7f757a20f669daf3916c47915061fd445a941fb02a7ba15809f3bd866f03"
+      "bytes": 22000,
+      "sha256": "aaeb60e7df3644748c2369edd7dafe7783ea8d9ecee313833162e892bb510fe2"
     },
     {
       "path": "ly_dragon.motion.i16",
       "dtype": "<i2",
       "shape": [
         53,
-        20000,
+        22000,
         3
       ],
-      "bytes": 6360000,
-      "sha256": "b4ea243c869ee16a0f871dc285b3735ef458960018e20e9590113050a9f6e062"
+      "bytes": 6996000,
+      "sha256": "da6e1ef3ee20535c7eb199d9a66c94636fcb2421f202beda3990b31c979e9b14"
     },
     {
       "path": "ly_dragon.brightness.u8",
       "dtype": "u1",
       "shape": [
         53,
-        20000
+        22000
       ],
-      "bytes": 1060000,
-      "sha256": "4e9ddcb3651880afe109fe83dbc89ad18bf637443cbd91b6e15168ea77ecfb3a"
+      "bytes": 1166000,
+      "sha256": "d273c2a950fdad7c7c275d74bfa43329d870dc808f9984003b435e66311426a7"
     },
     {
       "path": "hoang_thanh.position.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 240000,
-      "sha256": "6faa4e4cdc6e424f7f0fda1aca0a02c68380c2ca54bd283bd93755582a33ec3a"
+      "bytes": 264000,
+      "sha256": "9827cb048bac404e91c3b48a5e81e2e837194503ee93fbef1208d3683b0bba39"
     },
     {
       "path": "hoang_thanh.rgb.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 60000,
-      "sha256": "a5f7e3a654df4b715923065537f9aaea1ef02afacc9f3604269ffc64687797dd"
+      "bytes": 66000,
+      "sha256": "07e39ba9fda676d34a6100f26d1307d766e2b774fe59d6bf69a92f9ace1846c3"
     },
     {
       "path": "hoang_thanh.group.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "7160adae5e2dc3d37fc8e1b62af559a844d91a5009c9658c40e4019d8e04275f"
+      "bytes": 22000,
+      "sha256": "c10d65a526671af81f76b8c0024f6f52d96dfb9589337e9e6e9860de28490718"
     },
     {
       "path": "hoang_thanh.active.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "9fb41c867ab7dc19c02eaaffaf0569e9ed59ee21b1f4e89f9874b5895f04d759"
+      "bytes": 22000,
+      "sha256": "2fe4fe066a6dd80df3acd01e5797bc8026dc4e5464b1c915787b1a28f9cbc262"
     },
     {
       "path": "hoang_thanh.motion.i16",
       "dtype": "<i2",
       "shape": [
         41,
-        20000,
+        22000,
         3
       ],
-      "bytes": 4920000,
-      "sha256": "c82bfad0e68d768c226b921f9f68a9e71a8929a2baf18b1bdc78e1f1a02e89c4"
+      "bytes": 5412000,
+      "sha256": "9db020e61481faa0bb721ccec708466a505c0fabd269ff121bd53b8cfbfe16db"
     },
     {
       "path": "hoang_thanh.brightness.u8",
       "dtype": "u1",
       "shape": [
         41,
-        20000
+        22000
       ],
-      "bytes": 820000,
-      "sha256": "9c0f24b9d07bac4d192a3cb03305d1fb16566ae09f68d9c03c28d38f2c98c1ef"
+      "bytes": 902000,
+      "sha256": "96ad9a6fbdd294d061fe09458b339ef574d16b5e47063acad2f6272fd765a7e2"
     },
     {
       "path": "chua_mot_cot.position.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 240000,
-      "sha256": "92ea6a99d59db88c8f18d685ed2656c0dda81153d219d2b5b92d03f794397974"
+      "bytes": 264000,
+      "sha256": "897240b100ef475faca7ea1ed5326ea5fa136fdc9dd98d581dfc4edc52efde71"
     },
     {
       "path": "chua_mot_cot.rgb.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 60000,
-      "sha256": "15213e95c5ba08b0a85b93987046af81ecfa626daa1a0344d03184e440438705"
+      "bytes": 66000,
+      "sha256": "5bf132c0fc2af3cb617dd317c617346e94d34aaeb99416f925ac1985fed4a526"
     },
     {
       "path": "chua_mot_cot.group.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "272958906691ce1dbf3b6f83ff2519e725c5b0fc50f10e9c91d4ff398b0e2b7b"
+      "bytes": 22000,
+      "sha256": "a3b117524558fc6214b1aa7ed42ced1321a1cf6d219f334c103759ce60d8ec55"
     },
     {
       "path": "chua_mot_cot.active.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "d466f69dffd0693db496be4978fe5acbb22a1b8adc8cfd553d037096b1b98171"
+      "bytes": 22000,
+      "sha256": "080491fae640f5c67f617045dc6ae3c8e2d970a11693ef93f5652e9afd40189e"
     },
     {
       "path": "chua_mot_cot.motion.i16",
       "dtype": "<i2",
       "shape": [
         41,
-        20000,
+        22000,
         3
       ],
-      "bytes": 4920000,
-      "sha256": "656344aa29b7cb663d837b87171b1ce6f1b3997e4ed87eb4d4c1a57b3c879b30"
+      "bytes": 5412000,
+      "sha256": "7581559b766decde1ca03e23f7df7b5951341835fb91792cc21e2cbe256c583c"
     },
     {
       "path": "chua_mot_cot.brightness.u8",
       "dtype": "u1",
       "shape": [
         41,
-        20000
+        22000
       ],
-      "bytes": 820000,
-      "sha256": "20e844208ef597433983bdb0d49227fbc2670e0df957217253ee6aa56905cec2"
+      "bytes": 902000,
+      "sha256": "a920e75ef09f7620fcb7c9a90d56de29a70d9e7994ba89750de320d4f454809f"
     },
     {
       "path": "cau_long_bien.position.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 240000,
-      "sha256": "fdb1bcd367eff5df6212bb616f2345ecd5f9a37da21a15db2c9d0493c7b4cca4"
+      "bytes": 264000,
+      "sha256": "3ad58b37d585cbccb871b33acdf41b547369d64edb21fee0f19bdcf0055e26b4"
     },
     {
       "path": "cau_long_bien.rgb.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 60000,
-      "sha256": "b70b809f95184059f81b6098cd68529f2ac6594051bb0c6a2bae80dce6c2dd19"
+      "bytes": 66000,
+      "sha256": "1654ddeff9abeda7e84dd5cdf4345b4890ebd4f834a040b8c8f61eb92ca285c5"
     },
     {
       "path": "cau_long_bien.group.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "1aa3a3f57db6481fb101fbbfcaaa43bcc8dcc597c878f2f95b4703ddfa453032"
+      "bytes": 22000,
+      "sha256": "c1d31d09ff714efbcba8dd4ca016b31a729ae3c970c0346518971076ce35f0a3"
     },
     {
       "path": "cau_long_bien.active.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "d3a9fae743cdbd189e916b72477b196e1847c5ff2203cdccb1a9b8d574fe8644"
+      "bytes": 22000,
+      "sha256": "afc4102cd20caa160ea11076b249e39f7527aaead6581290252f32a41f60b5f4"
     },
     {
       "path": "cau_long_bien.motion.i16",
       "dtype": "<i2",
       "shape": [
         37,
-        20000,
+        22000,
         3
       ],
-      "bytes": 4440000,
-      "sha256": "121264d5474feeeb0f598404f3403281307d1c8aef7e33648a9765280da52521"
+      "bytes": 4884000,
+      "sha256": "5e9d3cc09b06f03e334b95b783df0db7b3d41a13f3a52c05e32dad9565523e14"
     },
     {
       "path": "cau_long_bien.brightness.u8",
       "dtype": "u1",
       "shape": [
         37,
-        20000
+        22000
       ],
-      "bytes": 740000,
-      "sha256": "0b46fa676c2e514e4916bc5debf56cbbea27c12bb275a3c73233489b88edcc72"
+      "bytes": 814000,
+      "sha256": "e396b177bb488769d29c55b43923fb4e634ad6136ea262656105296a9ba7027b"
     },
     {
       "path": "ho_chi_minh_lotus.position.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 240000,
-      "sha256": "6d66b62e15cec0b3a8b2a0557cccd3c6f771eb9ab2e6ee947fed00bc34edb8a4"
+      "bytes": 264000,
+      "sha256": "5c40b552bf653fa4d4c7e327112f0b9388c7263eb4e92a50e7f8af216c530ca1"
     },
     {
       "path": "ho_chi_minh_lotus.rgb.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 60000,
-      "sha256": "e778f1ba38fa13083a179b16f5f4078d2d099b4b053e2f0b181bcaaa3291eeb4"
+      "bytes": 66000,
+      "sha256": "3e54a4d3187f6f943a3f23f75d92a8d2c93fbef33bba09addf16130a687bef8b"
     },
     {
       "path": "ho_chi_minh_lotus.group.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "6e16978f1d291c34aa50e14654a30a9df3de4004c497c43b056752a2a0238de4"
+      "bytes": 22000,
+      "sha256": "22edbec464452eff35a1f2a7fa8f8ba2a9416a6ae86a955e0c6fa20b2f6b9f20"
     },
     {
       "path": "ho_chi_minh_lotus.active.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "4004325a9cd87fa28308e90e898f838de715edf1d7b7a7c46c1948bcd55b165a"
+      "bytes": 22000,
+      "sha256": "a83849e936b56f5928f80f10157d2ecd266524b9ac78e4ed1b03caed4dc9802c"
     },
     {
       "path": "ho_chi_minh_lotus.motion.i16",
       "dtype": "<i2",
       "shape": [
         45,
-        20000,
+        22000,
         3
       ],
-      "bytes": 5400000,
-      "sha256": "b15dffc816d408bdd4ed629a92d7b3c4f14ca2708eb160f64f31835ee056fffd"
+      "bytes": 5940000,
+      "sha256": "bf3beee1c109c308f9796b286336ce56635d123e3eeb3f090aefea188ddffa83"
     },
     {
       "path": "ho_chi_minh_lotus.brightness.u8",
       "dtype": "u1",
       "shape": [
         45,
-        20000
+        22000
       ],
-      "bytes": 900000,
-      "sha256": "205e797c8292b1eb004205ede513ccf3fe6b6d8997e9175246760c430c33a21c"
+      "bytes": 990000,
+      "sha256": "3651b0417c39a7912ae23f57de18b23ae6b73c68a4d909cbe6cfc87cb7f1634d"
     },
     {
       "path": "dien_bien.position.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 240000,
-      "sha256": "e3ded07520b405d298f692c179a463844c7c74658b1f10074ef07ad3a29fed46"
+      "bytes": 264000,
+      "sha256": "3361bcc1e8c294030d21f61c9f88e97e69ce346138788e7f86fa7ea934caf87a"
     },
     {
       "path": "dien_bien.rgb.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 60000,
-      "sha256": "b9f84178d70fb0fcfa8e124c122dde7b6753cc37bb4d5000f359c5d7a3109d4f"
+      "bytes": 66000,
+      "sha256": "b1f60d8b80b2249cd1a93189373d052d6a52c23256051f4cd66a4a0ed53e756d"
     },
     {
       "path": "dien_bien.group.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "628f76fc1cd9bc76d2dd2d8748ecc19af4fb85c85ac2be5ccbe1d9262052ae36"
+      "bytes": 22000,
+      "sha256": "9363e7ed6ea4cde37a31765940cc269d5b4c9efb155d1dd593a104f95c43080e"
     },
     {
       "path": "dien_bien.active.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "0c7a673f9af03dd88dc9c85cb74103060270e39cc34d31a3b6683968c1ec5621"
+      "bytes": 22000,
+      "sha256": "593e425a684b1fcd53b79eae4d863f1b27707aa7b223d4becf4be7b2f49ac345"
     },
     {
       "path": "dien_bien.motion.i16",
       "dtype": "<i2",
       "shape": [
         53,
-        20000,
+        22000,
         3
       ],
-      "bytes": 6360000,
-      "sha256": "5abc459e4abac21e45b8d1f96933254915c646237a820b77886d38a41d5424d3"
+      "bytes": 6996000,
+      "sha256": "34de081b5e09ea24081236689673ba6be52374b1c071e7a5e913e39c35408524"
     },
     {
       "path": "dien_bien.brightness.u8",
       "dtype": "u1",
       "shape": [
         53,
-        20000
+        22000
       ],
-      "bytes": 1060000,
-      "sha256": "f5434250c4194a27fb0dfb3c0e325af37ae26d215993f959fa5384634b84f9d7"
+      "bytes": 1166000,
+      "sha256": "747bf7bf8d0d104983d49103f55dcdc8c1a5d294cba9bf246413bfea6b3fb7b3"
     },
     {
       "path": "reunification.position.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 240000,
-      "sha256": "ecc996a78c34cf8ab2b8f29f09c259f98e71950941c4f4bbbf0f31b22f85df86"
+      "bytes": 264000,
+      "sha256": "5e94b41b8852084b2da04f3c8b5d65f0049c6b7db3a1028c067d5aedc31a7475"
     },
     {
       "path": "reunification.rgb.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 60000,
-      "sha256": "968f0a8f8a4d4f281dc6131d9209bcd90d69febd36201f8ad9a79fe966352f5f"
+      "bytes": 66000,
+      "sha256": "c27314771044fb03b59809a210d150fd1dc06a911a3112cb063a752c8efa5782"
     },
     {
       "path": "reunification.group.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "3fa406ae7592cd2c2de0b8257bc6ecccd2adc6d62f48aded3f0da438ae2414d5"
+      "bytes": 22000,
+      "sha256": "203432f48cd3adbc49430ed8b5c2f1b96aa6de7fcc32484fcb9009927f07e79e"
     },
     {
       "path": "reunification.active.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "ecde9acd5810876475cc7a988d7a04510f75b3ddf3e5e675871bc6f2a09e3fb3"
+      "bytes": 22000,
+      "sha256": "a777eacc9c213958c557e8c95ab8b1d6d15bae403578fa67fc69003693500a20"
     },
     {
       "path": "reunification.motion.i16",
       "dtype": "<i2",
       "shape": [
         61,
-        20000,
+        22000,
         3
       ],
-      "bytes": 7320000,
-      "sha256": "d3538cdd3bd2328470764a20cd4ba2dfc391b3c68fc3e957eedea6a2f7c0d6da"
+      "bytes": 8052000,
+      "sha256": "fe3fa937992f8ce8f3523111d89050e297c7ff55eac334cb6b9be8620657f401"
     },
     {
       "path": "reunification.brightness.u8",
       "dtype": "u1",
       "shape": [
         61,
-        20000
+        22000
       ],
-      "bytes": 1220000,
-      "sha256": "85b4b939b22b7939fa21f3b6149a415797464999d833bf6969bc0014f9bd246f"
+      "bytes": 1342000,
+      "sha256": "79ea382f62d41de44a13ed3e0321952af0eeab7fdf66417b772db19e90fcf153"
     },
     {
       "path": "vietnam_flag.position.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 240000,
-      "sha256": "44f3812aa5dbfd1e27fdd56ee4de419582d506b62913d3e57e1e1c9562f9dce8"
+      "bytes": 264000,
+      "sha256": "8b9e90f468a54b6117ec69308325a85be55f624113a30ca062bcfef104da09eb"
     },
     {
       "path": "vietnam_flag.rgb.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         3
       ],
-      "bytes": 60000,
-      "sha256": "a8a10603710840f805d2677966c2c31854930c515bb12508cd8f8d9a774110e9"
+      "bytes": 66000,
+      "sha256": "76abb1c22079ba948158ca90b6fe4ea505a0358b62f73facfb767ed8137e0b1b"
     },
     {
       "path": "vietnam_flag.group.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "b0b4a982ad21b1043c6bc263b5ad30604596ed8b6fb09c140ac8515273ccd9d9"
+      "bytes": 22000,
+      "sha256": "1a610cfd9ae7e25b11584313b6e26b3a7be701dd8e449af90a682c721667d11b"
     },
     {
       "path": "vietnam_flag.active.u8",
       "dtype": "u1",
       "shape": [
-        20000
+        22000
       ],
-      "bytes": 20000,
-      "sha256": "fa87aecf78490527b6d9ce04df6ab5ca187fe9cd2af1fe4dff84cca1d9212ee4"
+      "bytes": 22000,
+      "sha256": "ee173b712f22b25ea9fc65b7b66675ab6ba6e79c6c5a32ccd8deb17cc508638e"
     },
     {
       "path": "vietnam_flag.motion.i16",
       "dtype": "<i2",
       "shape": [
         231,
-        20000,
+        22000,
         3
       ],
-      "bytes": 27720000,
-      "sha256": "3adc76d0a890795bf47894d9601ef4d5f7980d65fb329a30b6d640e77ef4f1a2"
+      "bytes": 30492000,
+      "sha256": "5d3bff4a72a9a43aaefbf1aab85f3fa3a9d7e0e7d5c32e5aab13e707d9adbb87"
     },
     {
       "path": "vietnam_flag.brightness.u8",
       "dtype": "u1",
       "shape": [
         231,
-        20000
+        22000
       ],
-      "bytes": 4620000,
-      "sha256": "683c0e927172616f173447be3a4dd9845898ee824d21753a54f75ff8074c3089"
+      "bytes": 5082000,
+      "sha256": "0dd6a3c498efb72233a836abea1ea296f7d43f00449c1f98dc98af88166287a9"
     },
     {
       "path": "vietnam_flag.color_ids.u32",
       "dtype": "<u4",
       "shape": [
-        1836
+        3126
       ],
-      "bytes": 7344,
-      "sha256": "e116274452fd20995326a32219e6d483186d0ef77f8d21bd13f893974f943d89"
+      "bytes": 12504,
+      "sha256": "dcce4bc585b63f94ad3d753701d9962f06eaf2fe259bee5a3226d5b5736af02f"
     },
     {
       "path": "vietnam_flag.color_motion.u8",
       "dtype": "u1",
       "shape": [
         691,
-        1836,
+        3126,
         3
       ],
-      "bytes": 3806028,
-      "sha256": "eae6117b9f971b5be9dc6158730eedd109a785b8b6feee8b968714838405fec9"
+      "bytes": 6480198,
+      "sha256": "88acc79cb6ace456a857c0e074fe4d899d415a82346b27caaf2bdf3519ce91e0"
     },
     {
       "path": "launch.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "322f52d83937bdcbc9038b998bc28a99b722ba39e58f7ee9315120751af572b8"
+      "bytes": 880000,
+      "sha256": "5f2e32759d0607734025fb5968959d908eb104c36780bf394a8edb641329ef2b"
     },
     {
       "path": "launch.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "0655dea479da53d42376df440054c36ed08e42c313abcc5781753654a595242c"
+      "bytes": 176000,
+      "sha256": "2c33bf21f6fa83e55553355270544f9a4ef16f09a602e65bfdc8645cacb33b61"
     },
     {
       "path": "transition_00.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "2203db1a550cfce5e5967bba600afea8959422d8832fd642021d429e2fdaa0da"
+      "bytes": 880000,
+      "sha256": "83357fb4446ba4d3d3372048641a87c1bc624abae35561f640067499b5dca7b1"
     },
     {
       "path": "transition_00.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "2b25c5e076fa0835bf66cdbbabb237e7f87c95bfd2b751f3d196b2dc22a7c51a"
+      "bytes": 176000,
+      "sha256": "bba88ac8c8436f626e950633ffc4680c4a76643324f34031c7a7992e87c83033"
     },
     {
       "path": "transition_01.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "65985906beb33c59850857cafebbd9151fe600f0611d562cedfa54c4bdd5c565"
+      "bytes": 880000,
+      "sha256": "df4d73c615e26d77a439ded6b546c1ea57baa29a40f124abf7c9e1feb2869739"
     },
     {
       "path": "transition_01.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "928e2931a8abeac7eec4941b1ae50c6ced5769279de5087bce06f3f3abe0240d"
+      "bytes": 176000,
+      "sha256": "03dd73884635544856178a4197d868a9371c95e356a37354d013e8279a59f514"
     },
     {
       "path": "transition_02.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "d56eaa0685988fc5d3e8acc7606055e524b5c88df6c545cc009a24f68e8abc45"
+      "bytes": 880000,
+      "sha256": "bb0780555d29db4325414be343fc1227a99685b4125818bb8a4e6c55486ca663"
     },
     {
       "path": "transition_02.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "01a3e264fd3660d6cff5aeb0b22faddcfd6c45127e66a16525d9009752e7feb5"
+      "bytes": 176000,
+      "sha256": "8c7d31f77f654622d09b5ea56188ad704b1e63d976487d8a07b73c83b1aa8768"
     },
     {
       "path": "transition_03.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "08214f47c7020552e988578f54bc5711254fd0f67d2024b2528bea37ef59ce53"
+      "bytes": 880000,
+      "sha256": "b0186bb2e0582dee00876ccd7027c8963041b08c600ee2c87b73b16d8632f0da"
     },
     {
       "path": "transition_03.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "4311a105f5d9683bb13de7742726ab793ad66aa358a8414905df95419d752c5a"
+      "bytes": 176000,
+      "sha256": "b2f5e289ff6dcccdddca78cb2686232dee87b69b8438b7b0e41fab2f1b55ffd9"
     },
     {
       "path": "transition_04.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "848e954787092a7a9d7aad3ef6f02bce0381d583a3d3a7e44737cac044602812"
+      "bytes": 880000,
+      "sha256": "ce44932401f87b672a7e512e1cbe54b84eb0d88841f530ca6a76477c6cd89615"
     },
     {
       "path": "transition_04.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "8eab62147024c095bdd435addf583a7f44cb268a6f1c15ce36a83fbc4ff43b82"
+      "bytes": 176000,
+      "sha256": "481c2fb7bdb8ebb6eef1acc6b959f94f3cb0be56a9fce5bcbd64560736f7c17e"
     },
     {
       "path": "transition_05.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "28707095b5525bda1dfa8943a709355ace65c3faa8ede12a07e53c6c5215c02c"
+      "bytes": 880000,
+      "sha256": "9830ae6faf033a0b7300ccb0cbfcf9f1a472d1d80104586ede756df2aaa12295"
     },
     {
       "path": "transition_05.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "d487489ca4ffee53ae6c93ef17d92aa1e6a7e30d55019f0d295f4cef00cbe401"
+      "bytes": 176000,
+      "sha256": "43770ef668d760e42f31ea896e10608694c7ebc08a66f2a697cd863ebc1d4ed7"
     },
     {
       "path": "transition_06.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "79b0ec102252da3d429a0407587e24cec8ad15dd15e82f24562f45f65d4f40ac"
+      "bytes": 880000,
+      "sha256": "fcee6847e5a2de047e7800c0116b773a7fed5c6559b25818bf0e6a65e4d20dcc"
     },
     {
       "path": "transition_06.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "17ca18888abd5d9eb7c28e75d60eba68dc57ebb2a5f3831eaa4588aca75a9df3"
+      "bytes": 176000,
+      "sha256": "5b5bc38f8d5fc3c3fb5e0937941e6466db28d657307a49e19922551e590b8598"
     },
     {
       "path": "transition_07.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "f9a271a39ff6b427c992dae6f4f1cb49c6387f1d6581d72e833d264227b5de02"
+      "bytes": 880000,
+      "sha256": "6cc54d6dd92c15d1829e6e76a06197c2b6ad664c24dd180549cdb02b328b65c4"
     },
     {
       "path": "transition_07.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "d0cfb07a5dd4bb2d3a8301df6b715e8d5c57f2a63a862de5596789fe7c066110"
+      "bytes": 176000,
+      "sha256": "6911e37401eb78d76321ad014da8279fdf50dbaecdfcbc7c7002e9d0b9804bc1"
     },
     {
       "path": "transition_08.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "c3fc0a00bf3e3382f92eb3fef10efd007ae55d53717672d665f16620bbf2201b"
+      "bytes": 880000,
+      "sha256": "016ab01d403d666fd46741a7af4f11bf8fac7eb28fff83a4414ec79f18e9671c"
     },
     {
       "path": "transition_08.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "ac5e2e49de4783ec5077d2955f342541cc6c17b0cc9aadf3f0c171e60fa473bb"
+      "bytes": 176000,
+      "sha256": "45e175c5cf42fd56cbd62765baa7e00d64c2153bd79510dc093271a4fb6d89c4"
     },
     {
       "path": "transition_09.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "d521ab944b6ddd19e6936f404c6ce7b41036f161984b2343c9b06aab34a90db4"
+      "bytes": 880000,
+      "sha256": "9b7c8d90e3cadc3ef24c9222391f39302b1fe161e4baee2d58274ff4e463a361"
     },
     {
       "path": "transition_09.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "dba4da33173430c393584c748619184d938cfeb8e8e5287162734007d8edbe32"
+      "bytes": 176000,
+      "sha256": "5bbb1efe98c7601a0fdd236ab9c4701b63e92828d9f4372e07a661a728789018"
     },
     {
       "path": "landing_00.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "ae567097d1907cdf7c8af7d9ac70bd38a50f811ab338e6f60a2b5f63154c6ce7"
+      "bytes": 880000,
+      "sha256": "6aeb95195f1ec046562b1d5fa095337eb718cec50181cad2d5bc95eb695002cb"
     },
     {
       "path": "landing_00.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "3c541889ded41387f63b8f28e8e45ae1220778c81acc3a861941fee50a590b19"
+      "bytes": 176000,
+      "sha256": "4a2e1c217cea3a9be32fad1296c4a82e8b34d40a79436025aec538e2dd0581b0"
     },
     {
       "path": "landing_01.f32",
       "dtype": "<f4",
       "shape": [
-        20000,
+        22000,
         10
       ],
-      "bytes": 800000,
-      "sha256": "93933a6af428aae2770dffce8d88b2b783885e9603dba985393a66ebf6ea1f22"
+      "bytes": 880000,
+      "sha256": "8f419098c3e44a434bda99c199037832228a5e0f7946860174cc97203fa85b27"
     },
     {
       "path": "landing_01.rgba.u8",
       "dtype": "u1",
       "shape": [
-        20000,
+        22000,
         8
       ],
-      "bytes": 160000,
-      "sha256": "92279d03c88684f771b94d0b8674bc16bd7e4f2f30ee9c24b560e2a81b4281dc"
+      "bytes": 176000,
+      "sha256": "188f8a0a0ffd273d252e481b64f7b0ad87bf9e86b324c32d003364090e6cdc71"
     }
   ],
   "timeline": "show_timeline.json",
-  "total_binary_bytes": 107613372,
+  "total_binary_bytes": 120672702,
   "art_geometry": "Authored 2.5D relief based on supplied image; no textured planes in rendered show",
   "revision": "ten-scenes-v6-2026-11-14",
   "scene_order": [

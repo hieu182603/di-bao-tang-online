@@ -33,30 +33,30 @@
       "ok": true,
       "detail": {
         "initialAt": 0,
-        "observedAt": 1.496
+        "observedAt": 1.38
       }
     },
     {
-      "name": "F9 starts 20000 IDs and music",
+      "name": "F9 starts 22000 IDs and music",
       "ok": true,
       "detail": {
         "running": true,
         "pending": false,
         "paused": false,
-        "t": 1.503,
-        "frameT": 1.4610999999940395,
+        "t": 1.382,
+        "frameT": 1.342800000005962,
         "combo": false,
         "fwAt": 0,
         "fireworks": false,
         "musicEnd": 193,
         "tier": "BALANCED",
-        "drones": 20000,
-        "revision": "b6-8b8c5ee48818",
-        "showId": "b6-8b8c5ee48818-1468616484",
-        "seed": 1468616484,
+        "drones": 22000,
+        "revision": "b6-7e9559637369",
+        "showId": "b6-7e9559637369-201793522",
+        "seed": 201793522,
         "scene": 1,
-        "avgMs": 3.1631578928545903,
-        "loadMs": 19214.09999999404,
+        "avgMs": 0.7585365881280202,
+        "loadMs": 4467.5,
         "initialAt": 0,
         "musicPlaying": true,
         "audioBlocked": false
@@ -82,223 +82,223 @@
       "name": "music catches seek time",
       "ok": true,
       "detail": {
-        "audio": 82.916005,
-        "show": 83.037
+        "audio": 82.907489,
+        "show": 83.028
       }
     },
     {
-      "name": "all quality tiers preserve 20000 IDs and all approved active LEDs, including dim plaque",
+      "name": "all quality tiers preserve 22000 IDs and all approved active LEDs, including dim plaque",
       "ok": true,
       "detail": [
         {
           "tier": "LOW",
           "key": "dong_son",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 11385,
           "active": 11385
         },
         {
           "tier": "LOW",
           "key": "ly_thai_to",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 12547,
           "active": 12547
         },
         {
           "tier": "LOW",
           "key": "ly_dragon",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 10061,
           "active": 10061
         },
         {
           "tier": "LOW",
           "key": "hoang_thanh",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 12738,
           "active": 12738
         },
         {
           "tier": "LOW",
           "key": "chua_mot_cot",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 12839,
           "active": 12839
         },
         {
           "tier": "LOW",
           "key": "cau_long_bien",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 8295,
           "active": 8295
         },
         {
           "tier": "LOW",
           "key": "ho_chi_minh_lotus",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 8994,
           "active": 8994
         },
         {
           "tier": "LOW",
           "key": "dien_bien",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 7125,
           "active": 7125
         },
         {
           "tier": "LOW",
           "key": "reunification",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 12357,
           "active": 12357
         },
         {
           "tier": "LOW",
           "key": "vietnam_flag",
-          "ids": 20000,
-          "lit": 19134,
-          "active": 19134
+          "ids": 22000,
+          "lit": 21285,
+          "active": 21285
         },
         {
           "tier": "BALANCED",
           "key": "dong_son",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 11385,
           "active": 11385
         },
         {
           "tier": "BALANCED",
           "key": "ly_thai_to",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 12547,
           "active": 12547
         },
         {
           "tier": "BALANCED",
           "key": "ly_dragon",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 10061,
           "active": 10061
         },
         {
           "tier": "BALANCED",
           "key": "hoang_thanh",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 12738,
           "active": 12738
         },
         {
           "tier": "BALANCED",
           "key": "chua_mot_cot",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 12839,
           "active": 12839
         },
         {
           "tier": "BALANCED",
           "key": "cau_long_bien",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 8295,
           "active": 8295
         },
         {
           "tier": "BALANCED",
           "key": "ho_chi_minh_lotus",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 8994,
           "active": 8994
         },
         {
           "tier": "BALANCED",
           "key": "dien_bien",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 7125,
           "active": 7125
         },
         {
           "tier": "BALANCED",
           "key": "reunification",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 12357,
           "active": 12357
         },
         {
           "tier": "BALANCED",
           "key": "vietnam_flag",
-          "ids": 20000,
-          "lit": 19134,
-          "active": 19134
+          "ids": 22000,
+          "lit": 21285,
+          "active": 21285
         },
         {
           "tier": "HIGH",
           "key": "dong_son",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 11385,
           "active": 11385
         },
         {
           "tier": "HIGH",
           "key": "ly_thai_to",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 12547,
           "active": 12547
         },
         {
           "tier": "HIGH",
           "key": "ly_dragon",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 10061,
           "active": 10061
         },
         {
           "tier": "HIGH",
           "key": "hoang_thanh",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 12738,
           "active": 12738
         },
         {
           "tier": "HIGH",
           "key": "chua_mot_cot",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 12839,
           "active": 12839
         },
         {
           "tier": "HIGH",
           "key": "cau_long_bien",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 8295,
           "active": 8295
         },
         {
           "tier": "HIGH",
           "key": "ho_chi_minh_lotus",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 8994,
           "active": 8994
         },
         {
           "tier": "HIGH",
           "key": "dien_bien",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 7125,
           "active": 7125
         },
         {
           "tier": "HIGH",
           "key": "reunification",
-          "ids": 20000,
+          "ids": 22000,
           "lit": 12357,
           "active": 12357
         },
         {
           "tier": "HIGH",
           "key": "vietnam_flag",
-          "ids": 20000,
-          "lit": 19134,
-          "active": 19134
+          "ids": 22000,
+          "lit": 21285,
+          "active": 21285
         }
       ]
     },
@@ -325,12 +325,12 @@
         "before": {
           "children": 2,
           "geo": 3249,
-          "arrays": 60000
+          "arrays": 66000
         },
         "after": {
           "children": 2,
           "geo": 3249,
-          "arrays": 60000
+          "arrays": 66000
         }
       }
     },
@@ -541,13 +541,13 @@
         "sample_hz": 10,
         "sample_count": 231,
         "position_quantum_m": 0.002,
-        "active_count": 19134,
+        "active_count": 21285,
         "color_animation": {
           "sample_hz": 30,
           "sample_count": 691,
           "ids": "vietnam_flag.color_ids.u32",
           "rgb": "vietnam_flag.color_motion.u8",
-          "count": 1836
+          "count": 3126
         }
       }
     ],
@@ -685,11 +685,11 @@
     }
   },
   "performance": {
-    "fps": 10.899362552432498,
-    "p95ms": 111.30000000000291,
-    "cpuMs": 1.1117647044798906,
+    "fps": 33.51362113017225,
+    "p95ms": 35,
+    "cpuMs": 0.26862745016228917,
     "calls": 1628,
     "geometries": 3247,
-    "heap": 196212986
+    "heap": 220832841
   }
 }

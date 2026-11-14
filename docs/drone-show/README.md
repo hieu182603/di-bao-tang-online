@@ -29,7 +29,7 @@ F9 kết thúc nội dung ở giây 210, nhạc dừng ở 210, LED mờ dần 4
 | 7 | Chân dung Chủ tịch Hồ Chí Minh | 110–121 | 3465 | 8,994 |
 | 8 | Điện Biên Phủ | 128–141 | 4035 | 7,125 |
 | 9 | Xe tăng 390 — Dinh Độc Lập | 148–163 | 4665 | 12,357 |
-| 10 | Quốc kỳ Việt Nam | 170–193 | 5445 | 19,134 |
+| 10 | Quốc kỳ Việt Nam | 170–193 | 5445 | 21,285 |
 
 Cất cánh theo tám khối hộp: 0–5 giây; ghép cảnh đầu: 5–10 giây. Morph giữa các cảnh dài 7 giây. Marker pháo hoa: 197 / 201 / 205 / 210. Gain cờ ×2 tăng 180–187 giây; nhánh hạ cánh giảm 210–213 giây.
 
@@ -80,4 +80,6 @@ Lăng Bác dùng đúng lưới đèn đều của ảnh mẫu (bước 9 px), g
 
 ## Bản 10 cảnh (14/11/2026)
 
-Đã bỏ cảnh Lăng Chủ tịch Hồ Chí Minh theo yêu cầu. Xe tăng chuyển thẳng sang Quốc kỳ (morph 163–170 s). Show web dài 193 giây (3:13), nhạc dừng ở 193 s; pháo hoa trong cảnh cờ ở 180/184/188/193 s; F10 nối pháo hoa F8 từ 193 s. Tách khối và hạ cánh trong Blender 193–211 s. Revision `ten-scenes-v6-2026-11-14`, file `blender/Vietnam_DroneShow_10Scenes_Review.blend`, dữ liệu web `Frontend/drone-show/blender-v6/`, tag `b6-…`. Đội 20.000 drone.
+Đã bỏ cảnh Lăng Chủ tịch Hồ Chí Minh theo yêu cầu. Xe tăng chuyển thẳng sang Quốc kỳ (morph 163–170 s). Show web dài 193 giây (3:13), nhạc dừng ở 193 s; pháo hoa trong cảnh cờ ở 180/184/188/193 s; F10 nối pháo hoa F8 từ 193 s. Tách khối và hạ cánh trong Blender 193–211 s. Revision `ten-scenes-v6-2026-11-14`, file `blender/Vietnam_DroneShow_10Scenes_Review.blend`, dữ liệu web `Frontend/drone-show/blender-v6/`, tag `b6-…`. Đội 22.000 drone.
+
+Quốc kỳ dựng lại (14/11/2026): nền đỏ tươi trên lưới đều 0,82 m, ngôi sao 5 cánh chính xác lấp đặc màu vàng (lưới 0,55 m, viền liền), không còn viền đen quanh sao; lấp lánh của sao giữ màu vàng. Đội tăng lên 22.000 drone; bãi đỗ drone tắt đèn thu gọn (1,1 m).
