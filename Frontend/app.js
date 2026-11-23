@@ -5091,7 +5091,7 @@ function toggleDroneShow(combo = false) {
   droneStopArmed = 0;
 }
 
-/* ---- Drone Show Bản lưu đời đầu (F5): 7 đội hình, 150s, kết nối tiếp pháo hoa F8 ---- */
+/* ---- Drone Show 7 đội hình Blender (F6): 150s, kết nối tiếp pháo hoa F8 ---- */
 let legacyDroneStopArmed = 0;
 function startLegacyDroneShow(opts = {}, broadcast = true) {
   const DLS = window.DroneLegacyShow;
@@ -5105,7 +5105,7 @@ function startLegacyDroneShow(opts = {}, broadcast = true) {
   const seed = opts.seed || ((Math.random() * 2 ** 31) >>> 0);
   return DLS.start({ ...opts, seed }).then((ok) => {
     if (ok && broadcast && window.Net && typeof window.Net.broadcastDroneShow === "function") {
-      window.Net.broadcastDroneShow("start", { seed: DLS.seed, startTime: DLS.startTime, revision: "legacy-v1-2026", combo: 1 });
+      window.Net.broadcastDroneShow("start", { seed: DLS.seed, startTime: DLS.startTime, revision: "b3-4fc20580bd46", combo: 1 });
     }
     return ok;
   });
@@ -5115,7 +5115,7 @@ function stopLegacyDroneShow(broadcast = true) {
   if (!DLS || (!DLS.isRunning && !DLS.pending)) return;
   DLS.stop(false);
   if (broadcast && window.Net && typeof window.Net.broadcastDroneShow === "function") {
-    window.Net.broadcastDroneShow("stop", { seed: DLS.seed, revision: "legacy-v1-2026" });
+    window.Net.broadcastDroneShow("stop", { seed: DLS.seed, revision: "b3-4fc20580bd46" });
   }
 }
 function toggleLegacyDroneShow() {
@@ -5159,7 +5159,7 @@ if (typeof window !== "undefined") {
       });
     }
     window.Net.onDroneShow = (action, data) => {
-      if (data && data.revision === "legacy-v1-2026") {
+      if (data && (data.revision === "b3-4fc20580bd46" || data.revision === "legacy-v1-2026")) {
         const DLS = window.DroneLegacyShow;
         if (!DLS) return;
         if (action === "start") {
@@ -5214,8 +5214,8 @@ addEventListener("keydown", (e) => {
   if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) { if (e.key === "Escape") e.target.blur(); return; }
   if (e.key === "Escape" && !$("emote-wheel").hidden) { toggleWheel(false); return; }
   if (e.key === "Escape") { if (infoOpen) closeInfo(); else if (!$("qr-modal").hidden) $("qr-modal").hidden = true; return; }
-  // F5: Trình diễn Drone Show Bản lưu đời đầu (150 giây, 7 đội hình), kết nối tiếp pháo hoa F8
-  if (e.code === "F5" || e.key === "F5") {
+  // F6: Trình diễn Drone Show 7 đội hình Blender (150 giây, 14.000 drone), kết nối tiếp pháo hoa F8
+  if (e.code === "F6" || e.key === "F6") {
     e.preventDefault();
     if (e.repeat) return;
     toggleLegacyDroneShow();
@@ -5512,7 +5512,7 @@ $("chatbox").addEventListener("submit", (e) => {
     $("say").value = ""; $("say").blur();
     return;
   }
-  if (cmd === "/f5" || cmd === "/legacy" || cmd === "/drone-legacy" || cmd === "/droneshow-legacy" || cmd === "/drone1") {
+  if (cmd === "/f6" || cmd === "/f5" || cmd === "/legacy" || cmd === "/drone-legacy" || cmd === "/droneshow-legacy" || cmd === "/drone7") {
     toggleLegacyDroneShow();
     $("say").value = ""; $("say").blur();
     return;

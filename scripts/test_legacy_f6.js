@@ -88,18 +88,18 @@ async function runTest() {
     throw new Error("Museum did not start within 30 seconds");
   }
 
-  console.log("4. Testing F5 keyboard event dispatch...");
+  console.log("4. Testing F6 keyboard event dispatch...");
   await send("Runtime.evaluate", {
     expression: `(() => {
-      const evt = new KeyboardEvent("keydown", { code: "F5", key: "F5", bubbles: true, cancelable: true });
+      const evt = new KeyboardEvent("keydown", { code: "F6", key: "F6", bubbles: true, cancelable: true });
       window.dispatchEvent(evt);
     })()`
   });
 
   // Wait for legacy show to start
   let legacyRunning = false;
-  for (let i = 0; i < 15; i++) {
-    await new Promise(r => setTimeout(r, 500));
+  for (let i = 0; i < 20; i++) {
+    await new Promise(r => setTimeout(r, 1000));
     const res = await send("Runtime.evaluate", {
       expression: `(() => {
         const DLS = window.DroneLegacyShow;
@@ -107,22 +107,23 @@ async function runTest() {
           isRunning: DLS ? DLS.isRunning : false,
           pending: DLS ? DLS.pending : false,
           t: DLS ? DLS.t : -1,
-          drones: DLS && DLS.data ? DLS.data.N : 0
+          drones: DLS && DLS.data ? DLS.data.N : 0,
+          formations: DLS && DLS.data && DLS.data.timeline ? DLS.data.timeline.formations.length : 0
         };
       })()`,
       returnByValue: true
     });
     const st = res.result?.value;
-    console.log(`[Check F5 state ${i + 1}]:`, st);
+    console.log(`[Check F6 state ${i + 1}]:`, st);
     if (st && st.isRunning) {
       legacyRunning = true;
-      console.log(`PASS: Legacy Drone Show is running with ${st.drones} drones at t=${st.t}s!`);
+      console.log(`PASS: Blender 7-scene Drone Show is running with ${st.drones} drones (${st.formations} formations) at t=${st.t}s!`);
       break;
     }
   }
 
   if (!legacyRunning) {
-    throw new Error("Legacy drone show failed to start from F5");
+    throw new Error("Legacy drone show failed to start from F6");
   }
 
   console.log("5. Seeking to t = 148s (final flag scene, right before F8 fireworks transition)...");
