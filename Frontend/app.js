@@ -4549,6 +4549,7 @@ if ($("sfx-btn")) {
   $("sfx-btn").addEventListener("click", () => {
     SFX.enabled = !SFX.enabled;
     if (window.DroneShow && window.DroneShow.music) window.DroneShow.music.muted = !SFX.enabled;
+    if (window.DroneLegacyShow && window.DroneLegacyShow.music) window.DroneLegacyShow.music.muted = !SFX.enabled;
     $("sfx-icon").textContent = SFX.enabled ? "volume_up" : "volume_off";
     if (!SFX.enabled) stopSpeech();
   });
@@ -4970,9 +4971,12 @@ let fireworkStartTime = 0;
 let fireworkScheduleIndex = 0;
 
 function startFireworksShow(opts = {}, broadcast = true) {
-  // Quy tắc xung đột: khi Drone Show (F9) đang chạy, không mở thêm màn pháo hoa độc lập —
+  // Quy tắc xung đột: khi Drone Show (F9 / F5) đang chạy, không mở thêm màn pháo hoa độc lập —
   // pháo hoa vẫn bắn theo các cue đã biên đạo ở màn kết của Drone Show.
   if (window.DroneShow && (window.DroneShow.isRunning || window.DroneShow.pending)) {
+    return;
+  }
+  if (window.DroneLegacyShow && (window.DroneLegacyShow.isRunning || window.DroneLegacyShow.pending)) {
     return;
   }
   if (window.FireworksShow) {
@@ -5003,6 +5007,10 @@ function toggleFireworksShow() {
   const DS = window.DroneShow;
   if (DS && (DS.isRunning || DS.pending)) {
     if (DS.canAddFireworks && DS.canAddFireworks() && DS.setCombo(DS.t)) broadcastDroneState(DS);
+    return;
+  }
+  const DLS = window.DroneLegacyShow;
+  if (DLS && (DLS.isRunning || DLS.pending)) {
     return;
   }
   if (window.FireworksShow && window.FireworksShow.isRunning) {
@@ -5052,6 +5060,9 @@ function broadcastDroneState(DS) {
 function startDroneShow(opts = {}, broadcast = true) {
   const DS = window.DroneShow;
   if (!DS || DS.isRunning || DS.pending) return;
+  if (window.DroneLegacyShow && (window.DroneLegacyShow.isRunning || window.DroneLegacyShow.pending)) {
+    window.DroneLegacyShow.stop(false);
+  }
   if (window.FireworksShow && window.FireworksShow.isRunning) {
     return;
   }
@@ -5079,6 +5090,48 @@ function toggleDroneShow(combo = false) {
   startDroneShow({ combo }, true);
   droneStopArmed = 0;
 }
+
+/* ---- Drone Show Bản lưu đời đầu (F5): 7 đội hình, 150s, kết nối tiếp pháo hoa F8 ---- */
+let legacyDroneStopArmed = 0;
+function startLegacyDroneShow(opts = {}, broadcast = true) {
+  const DLS = window.DroneLegacyShow;
+  if (!DLS || DLS.isRunning || DLS.pending) return;
+  if (window.DroneShow && (window.DroneShow.isRunning || window.DroneShow.pending)) {
+    window.DroneShow.stop(false);
+  }
+  if (window.FireworksShow && window.FireworksShow.isRunning && !DLS.fwStarted) {
+    window.FireworksShow.stop(false);
+  }
+  const seed = opts.seed || ((Math.random() * 2 ** 31) >>> 0);
+  return DLS.start({ ...opts, seed }).then((ok) => {
+    if (ok && broadcast && window.Net && typeof window.Net.broadcastDroneShow === "function") {
+      window.Net.broadcastDroneShow("start", { seed: DLS.seed, startTime: DLS.startTime, revision: "legacy-v1-2026", combo: 1 });
+    }
+    return ok;
+  });
+}
+function stopLegacyDroneShow(broadcast = true) {
+  const DLS = window.DroneLegacyShow;
+  if (!DLS || (!DLS.isRunning && !DLS.pending)) return;
+  DLS.stop(false);
+  if (broadcast && window.Net && typeof window.Net.broadcastDroneShow === "function") {
+    window.Net.broadcastDroneShow("stop", { seed: DLS.seed, revision: "legacy-v1-2026" });
+  }
+}
+function toggleLegacyDroneShow() {
+  const DLS = window.DroneLegacyShow; if (!DLS) return;
+  if (DLS.isRunning || DLS.pending) {
+    const now = performance.now();
+    if (now - legacyDroneStopArmed < 2500) { legacyDroneStopArmed = 0; stopLegacyDroneShow(true); }
+    else { legacyDroneStopArmed = now; }
+    return;
+  }
+  startLegacyDroneShow({}, true);
+  legacyDroneStopArmed = 0;
+}
+window.toggleLegacyDroneShow = toggleLegacyDroneShow;
+window.startLegacyDroneShow = startLegacyDroneShow;
+window.stopLegacyDroneShow = stopLegacyDroneShow;
 let droneJoinSyncRegistered = false, droneReannounceTimer = 0, droneJoinAt = 0, droneHeardAt = 0;
 if (typeof window !== "undefined") {
   const registerDroneNet = () => {
@@ -5106,8 +5159,21 @@ if (typeof window !== "undefined") {
       });
     }
     window.Net.onDroneShow = (action, data) => {
+      if (data && data.revision === "legacy-v1-2026") {
+        const DLS = window.DroneLegacyShow;
+        if (!DLS) return;
+        if (action === "start") {
+          if (window.DroneShow && (window.DroneShow.isRunning || window.DroneShow.pending)) window.DroneShow.stop(false);
+          if (DLS.isRunning || DLS.pending) DLS.stop(false);
+          startLegacyDroneShow({ seed: data.seed, startTime: data.startTime, revision: data.revision }, false);
+        } else if (action === "stop") {
+          if ((DLS.isRunning || DLS.pending) && (!data.seed || DLS.seed === (data.seed >>> 0))) DLS.stop(false);
+        }
+        return;
+      }
       const DS = window.DroneShow; if (!DS) return;
       if (action === "start") {
+        if (window.DroneLegacyShow && (window.DroneLegacyShow.isRunning || window.DroneLegacyShow.pending)) window.DroneLegacyShow.stop(false);
         if (data.revision !== window.DroneShowConfig.assetTag) { console.warn("[DroneShow] Remote revision mismatch", data.revision); return; }
         droneHeardAt = performance.now();
         if ((DS.isRunning || DS.pending) && DS.seed === (data.seed >>> 0)) {
@@ -5148,6 +5214,13 @@ addEventListener("keydown", (e) => {
   if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) { if (e.key === "Escape") e.target.blur(); return; }
   if (e.key === "Escape" && !$("emote-wheel").hidden) { toggleWheel(false); return; }
   if (e.key === "Escape") { if (infoOpen) closeInfo(); else if (!$("qr-modal").hidden) $("qr-modal").hidden = true; return; }
+  // F5: Trình diễn Drone Show Bản lưu đời đầu (150 giây, 7 đội hình), kết nối tiếp pháo hoa F8
+  if (e.code === "F5" || e.key === "F5") {
+    e.preventDefault();
+    if (e.repeat) return;
+    toggleLegacyDroneShow();
+    return;
+  }
   // F9: Drone Show 193 giây (mười đội hình lịch sử – văn hoá), kết bằng pháo hoa của hệ thống F8
   if (e.code === "F9" || e.key === "F9") {
     e.preventDefault();
@@ -5439,6 +5512,11 @@ $("chatbox").addEventListener("submit", (e) => {
     $("say").value = ""; $("say").blur();
     return;
   }
+  if (cmd === "/f5" || cmd === "/legacy" || cmd === "/drone-legacy" || cmd === "/droneshow-legacy" || cmd === "/drone1") {
+    toggleLegacyDroneShow();
+    $("say").value = ""; $("say").blur();
+    return;
+  }
   if (cmd === "/f9" || cmd === "/drone" || cmd === "/drones" || cmd === "/droneshow") {
     toggleDroneShow();
     $("say").value = ""; $("say").blur();
@@ -5625,6 +5703,7 @@ function frame(now) {
   updateFireworks(dt, now);
   if (window.FireworksShow) window.FireworksShow.update(dt, now);
   if (window.DroneShow) window.DroneShow.update(dt, now);
+  if (window.DroneLegacyShow) window.DroneLegacyShow.update(dt, now);
   // the statue is built from a front and a back image: turn it so the viewer always sees one of them, never the thin edge
   if (statueBoard) {
     const face = (window.STATUE && window.STATUE.faceY) || 0;
@@ -5756,6 +5835,10 @@ async function init() {
   if (window.DroneShow) window.DroneShow.init(scene, camera, renderer, {
     soundEnabled: () => SFX.enabled,
     // vị trí xem chính (sân trước bảo tàng, ngẩng nhìn lên vùng trời trình diễn) — dùng cho công cụ debug
+    mainView: () => { player.x = 0; player.z = 37; player.yaw = 0; player.pitch = 0.66; },
+  });
+  if (window.DroneLegacyShow) window.DroneLegacyShow.init(scene, camera, renderer, {
+    soundEnabled: () => SFX.enabled,
     mainView: () => { player.x = 0; player.z = 37; player.yaw = 0; player.pitch = 0.66; },
   });
   requestAnimationFrame(frame);
