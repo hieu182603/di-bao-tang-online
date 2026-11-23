@@ -174,16 +174,8 @@ button.primary:disabled { opacity: 0.6; cursor: progress; }
   .card-left { border-right: none; border-bottom: 1px solid var(--line); padding-right: 0; padding-bottom: 18px; height: auto; }
 }
 
-/* HUD */
-#hud {
-  position: fixed; z-index: 5; pointer-events: none;
-  top: calc(12px + env(safe-area-inset-top, 0px)); left: calc(12px + env(safe-area-inset-left, 0px));
-  background: var(--panel); backdrop-filter: blur(10px);
-  border: 1px solid rgba(201,162,74,0.5); border-radius: 8px;
-  padding: 8px 14px; max-width: 55vw; box-shadow: 0 6px 20px rgba(0,0,0,0.35);
-}
-#hud .eyebrow { font-size: 10px; }
-#room { font-family: var(--font-display); font-size: 15px; margin-top: 2px; }
+/* HUD (ẩn theo yêu cầu) */
+#hud { display: none !important; }
 /* đồng hồ parkour: chỉ hiện khi đang chạy thử thách */
 #pk-timer {
   position: fixed; z-index: 5; pointer-events: none; text-align: center;

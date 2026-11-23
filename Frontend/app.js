@@ -564,13 +564,6 @@ function buildOutdoor() {
   // portico floor + steps
   box(19, 0.16, 5.4, 0, 0.08, 2.7, M.granite);
 
-  // gate
-  for (const s of [-1, 1]) { box(1, 3.8, 1, s * 4.4, 1.9, 30, M.ochreDark); box(1.2, 0.3, 1.2, s * 4.4, 3.95, 30, M.gold); CIRCLES.push([s * 4.4, 30, 0.9]); }
-  box(9.8, 0.9, 0.8, 0, 4.4, 30, M.ochreDark);
-  const gs = textPlane([{ text: "BẢO TÀNG LỊCH SỬ ĐẢNG", size: 64, weight: 700, color: GOLD_TXT }], 8.4, 0.62, { bg: "#681313", borderColor: "#cfa84a", ppm: 160 });
-  placeAt(gs, 0, 4.4, 30.41, 0);
-  const gs2 = gs.clone(); placeAt(gs2, 0, 4.4, 29.59, PI);
-
   // flags: Bên trái (s = -1) là Cờ Đảng, Bên phải (s = 1) là Cờ Tổ quốc
   const vnFlagTex = canvasTex(flagCanvas());
   const partyFallbackTex = canvasTex(partyFlagCanvas());
@@ -3534,23 +3527,9 @@ function propagandaBannerCanvas(kind) {
   return c;
 }
 
-/* ---- trang trí: dây đèn, băng rôn, biển chỉ đường, bồn hoa; cây + hàng rào + hoa dựng bằng InstancedMesh ---- */
+/* ---- trang trí: băng rôn, biển chỉ đường, bồn hoa; cây + hàng rào + hoa dựng bằng InstancedMesh ---- */
 function buildDecor() {
-  // dây đèn màu dọc lối chính (nối các cột đèn x=±3.4, z=18…54) + dây ngang qua lối
-  const pts = [], bulbs = [], strand = (a, b, sag, n) => {
-    for (let i = 0; i < n; i++) for (const u of [i / n, (i + 1) / n]) pts.push(a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u - sag * 4 * u * (1 - u), a[2] + (b[2] - a[2]) * u);
-    for (let i = 1; i < n; i++) { const u = i / n; bulbs.push([a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u - sag * 4 * u * (1 - u) - 0.08, a[2] + (b[2] - a[2]) * u]); }
-  };
-  for (let z = 18; z <= 54; z += 9) {
-    if (z < 54) for (const s of [-1, 1]) strand([s * 3.4, 3.45, z], [s * 3.4, 3.45, z + 9], 0.45, 12);
-    strand([-3.4, 3.45, z], [3.4, 3.45, z], 0.5, 10);
-  }
-  const wire = new THREE.LineSegments(new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute(pts, 3)), new THREE.LineBasicMaterial({ color: 0x222222 }));
-  scene.add(wire);
-  const bm = new THREE.InstancedMesh(new THREE.SphereGeometry(0.08, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffffff }), bulbs.length), m4 = new THREE.Matrix4(), col = new THREE.Color();
-  bulbs.forEach((p, i) => { bm.setMatrixAt(i, m4.makeTranslation(p[0], p[1], p[2])); bm.setColorAt(i, col.setHex([0xffd166, 0xff8fab, 0xfff3d0, 0x7ee0c3, 0xffb347][i % 5])); });
-  bm.instanceColor.needsUpdate = true; scene.add(bm);
-
+  const m4 = new THREE.Matrix4(), col = new THREE.Color();
   // băng rôn đỏ chữ vàng dọc quảng trường trước toà nhà: khung 2 cột hai bên, không che chữ, biểu tượng chuẩn
   const bannerConfigs = [
     { pos: [-15.6, 7.6], kind: "fatherland" }, // Cánh trái ngoài: Nước Cộng hoà XHCN Việt Nam muôn năm
@@ -5734,7 +5713,7 @@ function frame(now) {
       pr.hidden = false;
     } else pr.hidden = true;
     const zone = zoneName(player.x, player.z, player.base);
-    if (zone !== lastZone) { $("room").textContent = zone; lastZone = zone; if (!$("people-panel").hidden) scheduleRenderPeople(); }
+    if (zone !== lastZone) { if ($("room")) $("room").textContent = zone; lastZone = zone; if (!$("people-panel").hidden) scheduleRenderPeople(); }
   }
 
   // Bóng: cảnh gần như tĩnh nên chỉ dựng lại bản đồ bóng mỗi 3 khung hình (~1800 vật thể đổ bóng)
@@ -5788,7 +5767,7 @@ $("go").addEventListener("click", () => {
   started = true; window.started = true; joinedAt = performance.now(); lockPointer(); updateLookHint();
   // Tải trước dữ liệu Drone Show sau khi bảo tàng đã đẩy xong texture lên GPU (warmUp 2,5/6/12 s) để F9/F10 chạy ngay.
   setTimeout(() => { if (window.DroneShow) window.DroneShow.preload(); }, 15000);
-  $("start").hidden = true; $("hud").hidden = false; $("chatlog").hidden = false; $("dot").hidden = thirdPerson; $("people-btn").hidden = false; $("sfx-btn").hidden = false;
+  $("start").hidden = true; if ($("hud")) $("hud").hidden = false; $("chatlog").hidden = false; $("dot").hidden = thirdPerson; $("people-btn").hidden = false; $("sfx-btn").hidden = false;
   if (isTouch) joy.hidden = false;
   setMyFigure();
   renderPeople();
