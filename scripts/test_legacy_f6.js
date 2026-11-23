@@ -126,7 +126,35 @@ async function runTest() {
     throw new Error("Legacy drone show failed to start from F6");
   }
 
-  console.log("5. Seeking to t = 148s (final flag scene, right before F8 fireworks transition)...");
+  console.log("5. Seeking to t = 125s (Quoc ky 21.285 drone tu v6)...");
+  await send("Runtime.evaluate", {
+    expression: `(() => {
+      window.DroneLegacyShow.seek(125);
+    })()`
+  });
+
+  await new Promise(r => setTimeout(r, 1000));
+
+  const flagActive = await send("Runtime.evaluate", {
+    expression: `(() => {
+      const DLS = window.DroneLegacyShow;
+      if (!DLS || !DLS.geo) return { active: 0, total: 0 };
+      const col = DLS.geo.attributes.aCol.array;
+      let active = 0;
+      for (let i = 0; i < DLS.data.N; i++) {
+        if (col[i * 4 + 3] > 0.05) active++;
+      }
+      return { active, total: DLS.data.N };
+    })()`,
+    returnByValue: true
+  });
+  console.log("[Quoc ky v6 check at t=125s]:", flagActive.result?.value);
+  if (!flagActive.result?.value || flagActive.result.value.active < 21000) {
+    throw new Error(`Expected > 21,000 active drones in Quoc ky v6 scene, got ${flagActive.result?.value?.active}`);
+  }
+  console.log(`PASS: Quoc ky scene has ${flagActive.result.value.active} active drones (total buffer ${flagActive.result.value.total})!`);
+
+  console.log("5b. Seeking to t = 148s (right before F8 fireworks transition)...");
   await send("Runtime.evaluate", {
     expression: `(() => {
       window.DroneLegacyShow.seek(148);

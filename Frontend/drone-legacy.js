@@ -1,145 +1,27 @@
 /* ============================================================================
  * DRONE LIGHT SHOW — BẢN LƯU 7 ĐỘI HÌNH BLENDER (F6)
- * 14.000 drone, thời lượng 150 giây, kết nối tiếp màn pháo hoa nghệ thuật F8
- * Sử dụng bộ dữ liệu Blender v3 (box-launch-landing-v3) từ commit trước khi mở rộng 10 đội hình
+ * 7 đội hình lịch sử: Đông Sơn, Lý Thái Tổ, Rồng Lý, Bác Hồ, Điện Biên, Dinh Độc Lập
+ * và QUỐC KỲ VIỆT NAM NÂNG CẤP TỪ BẢN 10 CẢNH (21.285 drone, đỏ tươi, sao vàng đặc, lượn sóng)
+ * Kết thúc ở giây 150 kết nối tiếp màn pháo hoa nghệ thuật F8
  * ============================================================================ */
 (() => {
 'use strict';
 
-/* -------- 1. BỘ GIẢI MÃ BLENDER V3 ĐỘC LẬP (tránh xung đột với DroneBlender v6 toàn cục) -------- */
-const DroneBlenderV3 = (() => {
-  const REVISION = 'box-launch-landing-v3-2026-11-12';
-  const MANIFEST_HASH = '4fc20580bd46ce0e0c73e0e967103033b886762fa622c53eb61c980be8702d1c';
-  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
-  const types = { '<f4': Float32Array, '<i2': Int16Array, u1: Uint8Array, '<u4': Uint32Array };
+const N3 = 14000;
+const N = 22000;
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const types = { '<f4': Float32Array, '<i2': Int16Array, u1: Uint8Array, '<u4': Uint32Array };
 
-  function validate(manifest, timeline, buffers) {
-    if (manifest.schema !== 'vn-source-guided-drone/1.1' || manifest.revision !== REVISION || timeline.revision !== REVISION || manifest.endianness !== 'little') {
-      throw Error('Unsupported Blender revision/schema');
-    }
-    if (!Number.isInteger(manifest.drone_count) || manifest.drone_count <= 0 || !manifest.id_order.includes('fixed drone ID')) {
-      throw Error('Invalid drone ID convention');
-    }
-    for (const e of manifest.files) {
-      const a = buffers[e.path], T = types[e.dtype];
-      if (!T || !(a instanceof T) || a.byteLength !== e.bytes || a.length !== e.shape.reduce((n, v) => n * v, 1)) {
-        throw Error('Invalid buffer: ' + e.path);
-      }
-      if (T === Float32Array) {
-        for (let i = 0; i < a.length; i++) {
-          if (!Number.isFinite(a[i])) throw Error('Nonfinite: ' + e.path);
-        }
-      }
-    }
-    const N = manifest.drone_count;
-    for (const c of timeline.formations) {
-      if (buffers[c.formation + '.position.f32'].length !== N * 3 ||
-          buffers[c.formation + '.motion.i16'].length !== c.sample_count * N * 3 ||
-          buffers[c.formation + '.brightness.u8'].length !== c.sample_count * N) {
-        throw Error('Invalid formation shape');
-      }
-      if (c.color_animation) {
-        for (const id of buffers[c.color_animation.ids]) {
-          if (id >= N) throw Error('Invalid color drone ID');
-        }
-      }
-    }
-    return { manifest, timeline, buffers, N };
-  }
-
-  async function load(base) {
-    async function get(path, json) {
-      const r = await fetch(base + path);
-      if (!r.ok) throw Error(path + ': HTTP ' + r.status);
-      if (!json) return r.arrayBuffer();
-      const raw = await r.arrayBuffer();
-      if (path === 'export_manifest.json' && globalThis.crypto && crypto.subtle) {
-        const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', raw)), b => b.toString(16).padStart(2, '0')).join('');
-        if (digest !== MANIFEST_HASH) throw Error('Unexpected Blender manifest hash');
-      }
-      return JSON.parse(new TextDecoder().decode(raw));
-    }
-
-    const [manifest, timeline] = await Promise.all([get('export_manifest.json', true), get('show_timeline.json', true)]);
-    if (manifest.revision !== REVISION || manifest.schema !== 'vn-source-guided-drone/1.1') throw Error('Blender asset revision mismatch');
-
-    const buffers = {}, queue = manifest.files.slice();
-    await Promise.all(Array.from({ length: 4 }, async () => {
-      while (queue.length) {
-        const e = queue.shift();
-        if (!/^[a-z0-9_.]+$/i.test(e.path) || !types[e.dtype]) throw Error('Invalid asset entry');
-        const raw = await get(e.path, false);
-        if (raw.byteLength !== e.bytes) throw Error('Truncated ' + e.path);
-        if (globalThis.crypto && crypto.subtle) {
-          const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', raw)), b => b.toString(16).padStart(2, '0')).join('');
-          if (hash !== e.sha256) throw Error('SHA256 mismatch: ' + e.path);
-        }
-        buffers[e.path] = new types[e.dtype](raw);
-      }
-    }));
-
-    return validate(manifest, timeline, buffers);
-  }
-
-  function evaluate(D, time, pos, rgba, pivot = 0) {
-    const t = clamp(time, 0, D.timeline.duration), N = D.N, B = D.buffers;
-    const hold = D.timeline.formations.find(c => t >= c.start && (t < c.end || (t === D.timeline.duration && c.end === t)));
-    if (hold) {
-      const key = hold.formation;
-      const base = B[key + '.position.f32'], motion = B[key + '.motion.i16'], rgb = B[key + '.rgb.u8'], bri = B[key + '.brightness.u8'];
-      const phase = clamp((t - hold.start) * hold.sample_hz, 0, hold.sample_count - 1);
-      const a = Math.floor(phase), b = Math.min(a + 1, hold.sample_count - 1), w = phase - a, Q = hold.position_quantum_m;
-      const a3 = a * N * 3, b3 = b * N * 3, an = a * N, bn = b * N;
-      for (let i = 0; i < N; i++) {
-        const j = i * 3, k = i * 4;
-        for (let c = 0; c < 3; c++) {
-          pos[j + c] = base[j + c] + (motion[a3 + j + c] * (1 - w) + motion[b3 + j + c] * w) * Q - (c === 1 ? pivot : 0);
-          rgba[k + c] = rgb[j + c] / 255;
-        }
-        rgba[k + 3] = (bri[an + i] * (1 - w) + bri[bn + i] * w) / 255;
-      }
-      if (hold.color_animation) {
-        const c = hold.color_animation, ids = B[c.ids], colors = B[c.rgb];
-        const phaseC = clamp((t - hold.start) * c.sample_hz, 0, c.sample_count - 1);
-        const aC = Math.floor(phaseC), bC = Math.min(aC + 1, c.sample_count - 1), wC = phaseC - aC;
-        for (let i = 0; i < c.count; i++) {
-          for (let ch = 0; ch < 3; ch++) {
-            rgba[ids[i] * 4 + ch] = (colors[(aC * c.count + i) * 3 + ch] * (1 - wC) + colors[(bC * c.count + i) * 3 + ch] * wC) / 255;
-          }
-        }
-      }
-      return;
-    }
-
-    const cue = D.timeline.transitions.find(c => t >= c.start && (t < c.end || (t === D.timeline.duration && c.end === t)));
-    if (!cue) throw Error('Timeline gap: ' + t);
-    const g = B[cue.geometry], colors = B[cue.colors], duration = cue.end - cue.start;
-    for (let i = 0; i < N; i++) {
-      const j = i * 10, k = i * 4, ci = i * 8;
-      const u = clamp((t - cue.start - g[j + 9]) / (duration - g[j + 9]), 0, 1);
-      const q = u * u * u * (u * (6 * u - 15) + 10);
-      const arc = 16 * q * q * (1 - q) * (1 - q);
-      for (let c = 0; c < 3; c++) {
-        pos[i * 3 + c] = g[j + c] + (g[j + 3 + c] - g[j + c]) * q + g[j + 6 + c] * arc - (c === 1 ? pivot : 0);
-      }
-      for (let c = 0; c < 4; c++) {
-        rgba[k + c] = (colors[ci + c] * (1 - q) + colors[ci + 4 + c] * q) / 255;
-      }
-    }
-  }
-
-  return { REVISION, types, validate, load, evaluate };
-})();
-
-/* -------- 2. CẤU HÌNH VÀ SHADER -------- */
+/* -------- 1. CẤU HÌNH -------- */
 const DroneLegacyConfig = {
   duration: 150,
   fadeOut: 4.5,
   tail: 8,
-  landing: false,
-  revision: 'box-launch-landing-v3-2026-11-12',
-  assetTag: 'b3-4fc20580bd46',
+  drones: N,
+  revision: 'box-launch-landing-v3-flag-v6-2026',
+  assetTag: 'b3-flag6-22k',
   base: 'drone-show/blender-v3/',
+  flagBase: 'drone-show/blender-v6/',
   music: 'audio/thinh-vuong-viet-nam-sang-ngoi.mp3',
   stage: { x: 0, height: 120, z: -100, scale: 1.15, pivot: 85 },
   tiers: { LOW: { glow: false }, BALANCED: { glow: true }, HIGH: { glow: true } },
@@ -150,7 +32,7 @@ const DroneLegacyConfig = {
     [66, 78, "Chủ tịch Hồ Chí Minh (1890 – 1969)", "“Không có gì quý hơn độc lập, tự do”"],
     [86, 98, "7/5/1954 · Chiến thắng Điện Biên Phủ", "Lá cờ “Quyết chiến Quyết thắng” tung bay trên nóc hầm De Castries"],
     [106, 116, "30/4/1975 · Xe tăng 390 húc đổ cổng chính Dinh Độc Lập", "Giải phóng hoàn toàn miền Nam, thống nhất đất nước"],
-    [124, 150, "Quốc kỳ Việt Nam", "Độc lập – Tự do – Hạnh phúc"],
+    [124, 150, "Quốc kỳ Việt Nam", "Độc lập – Tự do – Hạnh phúc (21.285 drone đỏ tươi, sao vàng đặc)"],
   ]
 };
 
@@ -205,7 +87,186 @@ function buildFireworkCues(timeline) {
   return C;
 }
 
-/* -------- 3. TRÌNH ĐIỀU KHIỂN SHOW (F6) -------- */
+/* -------- 2. TẢI DỮ LIỆU KẾT HỢP (6 CẢNH V3 + CỜ V6 21.285 DRONE) -------- */
+async function loadDataset() {
+  async function fetchBuffer(base, path, dtype) {
+    const r = await fetch(base + path);
+    if (!r.ok) throw Error(path + ': HTTP ' + r.status);
+    const raw = await r.arrayBuffer();
+    return new types[dtype](raw);
+  }
+
+  const [manifest, timeline] = await Promise.all([
+    fetch(DroneLegacyConfig.base + 'export_manifest.json').then(r => r.json()),
+    fetch(DroneLegacyConfig.base + 'show_timeline.json').then(r => r.json())
+  ]);
+
+  const B = {};
+  const v3_list = [
+    ['launch.f32', '<f4'], ['launch.rgba.u8', 'u1'],
+    ['dong_son.position.f32', '<f4'], ['dong_son.motion.i16', '<i2'], ['dong_son.rgb.u8', 'u1'], ['dong_son.brightness.u8', 'u1'],
+    ['transition_00.f32', '<f4'], ['transition_00.rgba.u8', 'u1'],
+    ['ly_thai_to.position.f32', '<f4'], ['ly_thai_to.motion.i16', '<i2'], ['ly_thai_to.rgb.u8', 'u1'], ['ly_thai_to.brightness.u8', 'u1'],
+    ['transition_01.f32', '<f4'], ['transition_01.rgba.u8', 'u1'],
+    ['ly_dragon.position.f32', '<f4'], ['ly_dragon.motion.i16', '<i2'], ['ly_dragon.rgb.u8', 'u1'], ['ly_dragon.brightness.u8', 'u1'],
+    ['transition_02.f32', '<f4'], ['transition_02.rgba.u8', 'u1'],
+    ['ho_chi_minh_lotus.position.f32', '<f4'], ['ho_chi_minh_lotus.motion.i16', '<i2'], ['ho_chi_minh_lotus.rgb.u8', 'u1'], ['ho_chi_minh_lotus.brightness.u8', 'u1'],
+    ['transition_03.f32', '<f4'], ['transition_03.rgba.u8', 'u1'],
+    ['dien_bien.position.f32', '<f4'], ['dien_bien.motion.i16', '<i2'], ['dien_bien.rgb.u8', 'u1'], ['dien_bien.brightness.u8', 'u1'],
+    ['transition_04.f32', '<f4'], ['transition_04.rgba.u8', 'u1'],
+    ['reunification.position.f32', '<f4'], ['reunification.motion.i16', '<i2'], ['reunification.rgb.u8', 'u1'], ['reunification.brightness.u8', 'u1'],
+    ['transition_05.f32', '<f4'], ['transition_05.rgba.u8', 'u1']
+  ];
+
+  const v6_list = [
+    ['launch.f32', '<f4'],
+    ['vietnam_flag.position.f32', '<f4'], ['vietnam_flag.motion.i16', '<i2'], ['vietnam_flag.brightness.u8', 'u1'],
+    ['vietnam_flag.rgb.u8', 'u1'], ['vietnam_flag.color_ids.u32', '<u4'], ['vietnam_flag.color_motion.u8', 'u1']
+  ];
+
+  await Promise.all([
+    ...v3_list.map(async ([path, dtype]) => { B['v3:' + path] = await fetchBuffer(DroneLegacyConfig.base, path, dtype); }),
+    ...v6_list.map(async ([path, dtype]) => { B['v6:' + path] = await fetchBuffer(DroneLegacyConfig.flagBase, path, dtype); })
+  ]);
+
+  // Chuẩn bị sẵn vị trí và màu bắt đầu tại t = 116 (kết thúc Dinh Độc Lập) cho toàn bộ 22.000 drone
+  const reun_pos = B['v3:reunification.position.f32'], reun_mot = B['v3:reunification.motion.i16'];
+  const reun_rgb = B['v3:reunification.rgb.u8'], reun_bri = B['v3:reunification.brightness.u8'];
+  const v6_launch = B['v6:launch.f32'];
+  const flag_rgb = B['v6:vietnam_flag.rgb.u8'];
+
+  const startPos = new Float32Array(N * 3);
+  const startCol = new Float32Array(N * 4);
+  const lastFrame = 40, Q = 0.002;
+  for (let i = 0; i < N3; i++) {
+    const j = i * 3, k = i * 4, s = lastFrame * N3 * 3 + j;
+    startPos[j] = reun_pos[j] + reun_mot[s] * Q;
+    startPos[j + 1] = reun_pos[j + 1] + reun_mot[s + 1] * Q;
+    startPos[j + 2] = reun_pos[j + 2] + reun_mot[s + 2] * Q;
+    startCol[k] = reun_rgb[j] / 255;
+    startCol[k + 1] = reun_rgb[j + 1] / 255;
+    startCol[k + 2] = reun_rgb[j + 2] / 255;
+    startCol[k + 3] = reun_bri[lastFrame * N3 + i] / 255;
+  }
+  for (let i = N3; i < N; i++) {
+    const j = i * 3, k = i * 4, lj = i * 10;
+    startPos[j] = v6_launch[lj];
+    startPos[j + 1] = v6_launch[lj + 1];
+    startPos[j + 2] = v6_launch[lj + 2];
+    startCol[k] = flag_rgb[j] / 255;
+    startCol[k + 1] = flag_rgb[j + 1] / 255;
+    startCol[k + 2] = flag_rgb[j + 2] / 255;
+    startCol[k + 3] = 0; // drone mặt đất ban đầu tắt đèn
+  }
+
+  return { manifest, timeline, buffers: B, startPos, startCol, N };
+}
+
+/* -------- 3. HÀM TÍNH TOÁN TOẠ ĐỘ VÀ MÀU SẮC (CPU EVALUATE) -------- */
+function evaluateFrame(D, time, pos, rgba, pivot = 85) {
+  const t = clamp(time, 0, 150);
+  const B = D.buffers;
+
+  // Giai đoạn 1: 0 -> 116s (6 đội hình lịch sử v3)
+  if (t < 116) {
+    const hold = D.timeline.formations.find(c => t >= c.start && t < c.end && c.formation !== 'vietnam_flag');
+    if (hold) {
+      const key = hold.formation;
+      const base = B['v3:' + key + '.position.f32'], motion = B['v3:' + key + '.motion.i16'], rgb = B['v3:' + key + '.rgb.u8'], bri = B['v3:' + key + '.brightness.u8'];
+      const phase = clamp((t - hold.start) * hold.sample_hz, 0, hold.sample_count - 1);
+      const a = Math.floor(phase), b = Math.min(a + 1, hold.sample_count - 1), w = phase - a, Q = hold.position_quantum_m;
+      const a3 = a * N3 * 3, b3 = b * N3 * 3, an = a * N3, bn = b * N3;
+      for (let i = 0; i < N3; i++) {
+        const j = i * 3, k = i * 4;
+        for (let c = 0; c < 3; c++) {
+          pos[j + c] = base[j + c] + (motion[a3 + j + c] * (1 - w) + motion[b3 + j + c] * w) * Q - (c === 1 ? pivot : 0);
+          rgba[k + c] = rgb[j + c] / 255;
+        }
+        rgba[k + 3] = (bri[an + i] * (1 - w) + bri[bn + i] * w) / 255;
+      }
+      const v6_launch = B['v6:launch.f32'];
+      for (let i = N3; i < N; i++) {
+        const j = i * 3, k = i * 4, lj = i * 10;
+        pos[j] = v6_launch[lj]; pos[j + 1] = v6_launch[lj + 1] - pivot; pos[j + 2] = v6_launch[lj + 2];
+        rgba[k] = 0; rgba[k + 1] = 0; rgba[k + 2] = 0; rgba[k + 3] = 0;
+      }
+      return;
+    }
+
+    const cue = D.timeline.transitions.find(c => t >= c.start && t < c.end && c.index < 7);
+    if (cue) {
+      const g = B['v3:' + cue.geometry], colors = B['v3:' + cue.colors], duration = cue.end - cue.start;
+      for (let i = 0; i < N3; i++) {
+        const j = i * 10, k = i * 4, ci = i * 8;
+        const u = clamp((t - cue.start - g[j + 9]) / (duration - g[j + 9]), 0, 1);
+        const q = u * u * u * (u * (6 * u - 15) + 10);
+        const arc = 16 * q * q * (1 - q) * (1 - q);
+        for (let c = 0; c < 3; c++) pos[i * 3 + c] = g[j + c] + (g[j + 3 + c] - g[j + c]) * q + g[j + 6 + c] * arc - (c === 1 ? pivot : 0);
+        for (let c = 0; c < 4; c++) rgba[k + c] = (colors[ci + c] * (1 - q) + colors[ci + 4 + c] * q) / 255;
+      }
+      const v6_launch = B['v6:launch.f32'];
+      for (let i = N3; i < N; i++) {
+        const j = i * 3, k = i * 4, lj = i * 10;
+        pos[j] = v6_launch[lj]; pos[j + 1] = v6_launch[lj + 1] - pivot; pos[j + 2] = v6_launch[lj + 2];
+        rgba[k] = 0; rgba[k + 1] = 0; rgba[k + 2] = 0; rgba[k + 3] = 0;
+      }
+      return;
+    }
+  }
+
+  const flag_pos = B['v6:vietnam_flag.position.f32'];
+  const flag_rgb = B['v6:vietnam_flag.rgb.u8'];
+  const flag_bri = B['v6:vietnam_flag.brightness.u8'];
+  const flag_mot = B['v6:vietnam_flag.motion.i16'];
+  const flag_cids = B['v6:vietnam_flag.color_ids.u32'];
+  const flag_cmot = B['v6:vietnam_flag.color_motion.u8'];
+
+  // Giai đoạn 2: 116 -> 124s (Chuyển tiếp mượt mà từ Dinh Độc Lập vào Quốc kỳ 22.000 drone)
+  if (t < 124) {
+    const u = clamp((t - 116) / 8.0, 0, 1);
+    const q = u * u * u * (u * (6 * u - 15) + 10);
+    const arc = 16 * q * q * (1 - q) * (1 - q);
+    const startP = D.startPos, startC = D.startCol;
+    for (let i = 0; i < N; i++) {
+      const j = i * 3, k = i * 4;
+      const tx = flag_pos[j], ty = flag_pos[j + 1], tz = flag_pos[j + 2];
+      const tb = flag_bri[i] / 255;
+      pos[j] = startP[j] + (tx - startP[j]) * q;
+      pos[j + 1] = startP[j + 1] + (ty - startP[j + 1]) * q + (i >= N3 ? 12 : 5) * arc - pivot;
+      pos[j + 2] = startP[j + 2] + (tz - startP[j + 2]) * q;
+      for (let c = 0; c < 3; c++) rgba[k + c] = startC[k + c] * (1 - q) + (flag_rgb[j + c] / 255) * q;
+      rgba[k + 3] = startC[k + 3] * (1 - q) + tb * q;
+    }
+    return;
+  }
+
+  // Giai đoạn 3: 124 -> 150s (Lá cờ Quốc kỳ Việt Nam 21.285 drone v6 hoàn mỹ, lượn sóng tuần hoàn)
+  const elapsed = (t - 124) % 23.0;
+  const phase = clamp(elapsed * 10, 0, 230);
+  const a = Math.floor(phase), b = Math.min(a + 1, 230), w = phase - a, Q = 0.002;
+  const a3 = a * N * 3, b3 = b * N * 3, an = a * N, bn = b * N;
+  for (let i = 0; i < N; i++) {
+    const j = i * 3, k = i * 4;
+    for (let c = 0; c < 3; c++) {
+      pos[j + c] = flag_pos[j + c] + (flag_mot[a3 + j + c] * (1 - w) + flag_mot[b3 + j + c] * w) * Q - (c === 1 ? pivot : 0);
+      rgba[k + c] = flag_rgb[j + c] / 255;
+    }
+    rgba[k + 3] = (flag_bri[an + i] * (1 - w) + flag_bri[bn + i] * w) / 255;
+  }
+
+  // Sóng màu 30Hz
+  const phaseC = clamp(elapsed * 30, 0, 690);
+  const aC = Math.floor(phaseC), bC = Math.min(aC + 1, 690), wC = phaseC - aC;
+  const count = 3126;
+  for (let i = 0; i < count; i++) {
+    const id = flag_cids[i];
+    for (let ch = 0; ch < 3; ch++) {
+      rgba[id * 4 + ch] = (flag_cmot[(aC * count + i) * 3 + ch] * (1 - wC) + flag_cmot[(bC * count + i) * 3 + ch] * wC) / 255;
+    }
+  }
+}
+
+/* -------- 4. TRÌNH ĐIỀU KHIỂN SHOW (F6) -------- */
 const DroneLegacyShow = {
   isRunning: false, pending: false, paused: false, t: 0, tier: 'BALANCED', seed: 0,
   generation: 0, data: null, loading: null, music: null, endAt: 0,
@@ -237,15 +298,8 @@ const DroneLegacyShow = {
     if (this.data) return this.data;
     if (!this.loading) {
       const begun = performance.now();
-      this.loading = DroneBlenderV3.load(DroneLegacyConfig.base).then(D => {
-        const fwEnd = D.timeline.fireworks ? D.timeline.fireworks.find(c => c.name === 'FIREWORKS_END') : null;
-        DroneLegacyConfig.fireworksEnd = fwEnd ? fwEnd.time : 150;
-        if (!DroneLegacyConfig.landing && DroneLegacyConfig.fireworksEnd < D.timeline.duration) {
-          D.timeline.transitions = D.timeline.transitions.filter(c => c.start < DroneLegacyConfig.fireworksEnd);
-          D.timeline.duration = DroneLegacyConfig.fireworksEnd;
-        }
+      this.loading = loadDataset().then(D => {
         this.data = D;
-        DroneLegacyConfig.duration = D.timeline.duration;
         this.buildGpu(D.N);
         this.warmShaders();
         this.stats.loadMs = performance.now() - begun;
@@ -264,10 +318,10 @@ const DroneLegacyShow = {
     finally { meshes.forEach((m, i) => { m.visible = vis[i]; }); this.group.visible = gv; }
   },
 
-  buildGpu(N) {
+  buildGpu(droneCount) {
     this.disposeGpu();
-    this.posArr = new Float32Array(N * 3);
-    this.colArr = new Float32Array(N * 4);
+    this.posArr = new Float32Array(droneCount * 3);
+    this.colArr = new Float32Array(droneCount * 4);
     const g = this.geo = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(this.posArr, 3).setUsage(THREE.DynamicDrawUsage));
     g.setAttribute('aCol', new THREE.BufferAttribute(this.colArr, 4).setUsage(THREE.DynamicDrawUsage));
@@ -278,8 +332,8 @@ const DroneLegacyShow = {
     this.lastT = NaN;
     this.uniforms = {
       uProj: { value: 600 },
-      uDiameter: { value: this.data.manifest.render_contract ? this.data.manifest.render_contract.led_radius_m * 2 : 0.44 },
-      uEmission: { value: this.data.manifest.render_contract ? this.data.manifest.render_contract.emission_strength : 3.2 }
+      uDiameter: { value: 0.44 },
+      uEmission: { value: 3.2 }
     };
     const material = glow => new THREE.ShaderMaterial({
       uniforms: { ...this.uniforms, uGlow: { value: glow ? 1 : 0 } },
@@ -363,11 +417,9 @@ const DroneLegacyShow = {
 
   async start(opts = {}) {
     if (this.isRunning || this.pending) return false;
-    // Dừng show F9/F10 nếu đang chạy
     if (window.DroneShow && (window.DroneShow.isRunning || window.DroneShow.pending)) {
       window.DroneShow.stop(false);
     }
-    // Dừng pháo hoa độc lập nếu đang nổ trước đó
     if (window.FireworksShow && window.FireworksShow.isRunning && !this.fwStarted) {
       window.FireworksShow.stop(false);
     }
@@ -389,7 +441,7 @@ const DroneLegacyShow = {
     if (!this.startTime) this.startTime = opts.at !== undefined ? Date.now() - opts.at * 1000 : Date.now();
     const at = Math.max(opts.at === undefined ? 0 : opts.at, (Date.now() - this.startTime) / 1000);
     this.stats.initialAt = at;
-    this.combo = opts.combo !== undefined ? !!opts.combo : true; // Mặc định nối tiếp pháo hoa F8 theo yêu cầu
+    this.combo = opts.combo !== undefined ? !!opts.combo : true;
     this.fwStarted = false;
 
     if (at > (this.combo ? this.musicEnd() : DroneLegacyConfig.duration + DroneLegacyConfig.fadeOut)) {
@@ -468,9 +520,9 @@ const DroneLegacyShow = {
   },
 
   sceneIndex(t) {
-    const holds = this.data ? this.data.timeline.formations : [];
+    const scenes = DroneLegacyConfig.scenes;
     let k = 0;
-    for (let i = 0; i < holds.length; i++) if (t >= holds[i].start) k = i;
+    for (let i = 0; i < scenes.length; i++) if (t >= scenes[i][0]) k = i;
     return k;
   },
 
@@ -499,7 +551,7 @@ const DroneLegacyShow = {
   },
 
   computeFrame(t) {
-    DroneBlenderV3.evaluate(this.data, t, this.posArr, this.colArr, DroneLegacyConfig.stage.pivot);
+    evaluateFrame(this.data, t, this.posArr, this.colArr, DroneLegacyConfig.stage.pivot);
     if (t > DroneLegacyConfig.duration) {
       const f = Math.max(0, 1 - (t - DroneLegacyConfig.duration) / DroneLegacyConfig.fadeOut);
       for (let i = 3; i < this.colArr.length; i += 4) this.colArr[i] *= f;
