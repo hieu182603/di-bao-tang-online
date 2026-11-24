@@ -5721,7 +5721,12 @@ function frame(now) {
   if ((shadowTick++ % SHADOW_EVERY) === 0) renderer.shadowMap.needsUpdate = true;
   if (LITE) updateLightPool(dt, player.x, player.base + EYE + player.jy, player.z, false);
   // Độ phân giải thích ứng: máy yếu / lia nhanh bị chậm thì tự hạ pixel ratio, ổn định lại thì nâng dần
-  if (dt < 0.25 && (started || !LITE)) {
+  // Drone show (desktop): its slow frames come from CPU work on 22.000 drones, so a lower pixel ratio only blurs the LEDs.
+  const droneShowOn = !LITE && ((window.DroneShow && window.DroneShow.isRunning) || (window.DroneLegacyShow && window.DroneLegacyShow.isRunning));
+  if (droneShowOn) {
+    if (dprNow < DPR_MAX) { dprNow = DPR_MAX; renderer.setPixelRatio(dprNow); renderer.setSize(innerWidth, innerHeight, false); }
+    slowN = fastN = 0;
+  } else if (dt < 0.25 && (started || !LITE)) {
     if (dt > SLOW_DT) { slowN++; fastN = 0; } else if (dt < FAST_DT) { fastN++; slowN = 0; } else { slowN = fastN = 0; }
     if (slowN > 15 && dprNow > DPR_MIN) { dprNow = Math.max(DPR_MIN, dprNow - 0.25); renderer.setPixelRatio(dprNow); renderer.setSize(innerWidth, innerHeight, false); slowN = 0; dprDowns = LITE ? dprDowns + 1 : dprDowns; }
     else if (fastN > FAST_N && dprNow < DPR_MAX && dprDowns < 3) { dprNow = Math.min(DPR_MAX, dprNow + 0.25); renderer.setPixelRatio(dprNow); renderer.setSize(innerWidth, innerHeight, false); fastN = 0; }

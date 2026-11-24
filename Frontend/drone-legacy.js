@@ -35,7 +35,7 @@ const DroneLegacyConfig = {
 
 const VS = `
 attribute vec4 aCol;
-uniform float uProj, uDiameter, uGlow, uEmission;
+uniform float uProj, uDiameter, uGlow, uEmission, uFill;
 varying vec3 vEmission;
 void main() {
   vec3 emitted = aCol.rgb * aCol.a;
@@ -45,16 +45,17 @@ void main() {
   if (max(max(emitted.r, emitted.g), emitted.b) < 0.004) {
     gl_Position = vec4(2.0); gl_PointSize = 0.0; return;
   }
-  gl_PointSize = clamp(uDiameter * uProj / max(0.01, -mv.z) * (uGlow > 0.5 ? 4.0 : 1.0), 1.0, uGlow > 0.5 ? 22.0 : 9.0);
+  // Figure scenes: tight halo so single LEDs stay crisp; the flag (uFill = 1) keeps a wide halo that fills the cloth.
+  gl_PointSize = clamp(uDiameter * uProj / max(0.01, -mv.z) * (uGlow > 0.5 ? mix(2.6, 4.0, uFill) : 1.0), 1.0, uGlow > 0.5 ? mix(14.0, 22.0, uFill) : 9.0);
 }`;
 
 const FS = `
-uniform float uGlow;
+uniform float uGlow, uFill;
 varying vec3 vEmission;
 void main() {
   float r = length(gl_PointCoord - 0.5) * 2.0;
   if (r > 1.0) discard;
-  float mask = uGlow > 0.5 ? exp(-r*r*6.0)*0.045 : 1.0-smoothstep(0.62,1.0,r);
+  float mask = uGlow > 0.5 ? exp(-r*r*mix(5.0, 6.0, uFill))*mix(0.08, 0.045, uFill) : 1.0-smoothstep(0.62,1.0,r);
   gl_FragColor = vec4(vEmission * mask, 1.0);
   #include <encodings_fragment>
 }`;
@@ -87,16 +88,16 @@ function buildFireworkCues(timeline) {
 /* -------- 2. SEVEN F10 FORMATIONS ON THE F6 TIMELINE -------- */
 const formationKeys = ['dong_son', 'ly_thai_to', 'ly_dragon', 'ho_chi_minh_lotus', 'dien_bien', 'reunification', 'vietnam_flag'];
 
-// Use the entire fleet in every silhouette. Inactive export IDs must not remain
-// on the ground until the flag. Extra IDs thicken existing strokes in depth.
+// Inactive export IDs fly unlit alongside an active drone (so they never stay on the ground).
+// They must stay dark: lit copies were stacked on the lowest IDs only and, with additive
+// blending, doubled the brightness of one side of every formation (e.g. the flag's left edge).
 function fillFleet(h, pos, col) {
   for (let i = 0; i < h.assignments.length; i++) {
     const donor = h.assignments[i];
     if (donor < 0) continue;
-    const j = i * 3, d = donor * 3, k = i * 4, c = donor * 4;
-    pos[j] = pos[d]; pos[j + 1] = pos[d + 1];
-    pos[j + 2] = pos[d + 2] + h.depthOffsets[i];
-    for (let channel = 0; channel < 4; channel++) col[k + channel] = col[c + channel];
+    const j = i * 3, d = donor * 3, k = i * 4;
+    pos[j] = pos[d]; pos[j + 1] = pos[d + 1]; pos[j + 2] = pos[d + 2];
+    col[k] = col[k + 1] = col[k + 2] = col[k + 3] = 0;
   }
 }
 
@@ -115,15 +116,10 @@ async function loadDataset() {
     const donors = [];
     for (let id = 0; id < source.N; id++) if (active[id]) donors.push(id);
     if (!donors.length) throw Error('Empty formation: ' + key);
-    const assignments = new Int32Array(source.N).fill(-1), depthOffsets = new Float32Array(source.N);
-    const copies = new Uint16Array(source.N);
+    const assignments = new Int32Array(source.N).fill(-1);
     let spare = 0;
-    for (let id = 0; id < source.N; id++) if (!active[id]) {
-      const donor = donors[spare++ % donors.length], layer = ++copies[donor];
-      assignments[id] = donor;
-      depthOffsets[id] = (layer % 2 ? 1 : -1) * Math.ceil(layer / 2) * 0.45;
-    }
-    const h = { start, end, cue, data, firstPos, firstCol, lastPos, lastCol, assignments, depthOffsets };
+    for (let id = 0; id < source.N; id++) if (!active[id]) assignments[id] = donors[spare++ % donors.length];
+    const h = { start, end, cue, data, firstPos, firstCol, lastPos, lastCol, assignments };
     window.DroneBlender.evaluate(data, cue.start, firstPos, firstCol);
     window.DroneBlender.evaluate(data, cue.end, lastPos, lastCol);
     fillFleet(h, firstPos, firstCol);
@@ -141,6 +137,13 @@ async function loadDataset() {
 }
 
 /* -------- 3. PLAY F10 ANIMATION; REBUILD TRANSITIONS FOR SEVEN SCENES -------- */
+// 0..1 flag fill of a hold at its export time (the export's emission_gain ramp; 0 for other scenes).
+function holdFill(h, cueTime) {
+  const g = h.data.timeline.emission_gain;
+  return g ? clamp((window.DroneBlender.emissionGain(h.data.timeline, cueTime) - 1) / (g.value - 1), 0, 1) : 0;
+}
+
+// Writes positions/colours and returns the flag fill for the frame.
 function evaluateFrame(D, time, pos, rgba, pivot = 85) {
   const t = clamp(time, 0, DroneLegacyConfig.duration);
   const index = D.holds.findIndex(h => t <= h.end);
@@ -149,7 +152,7 @@ function evaluateFrame(D, time, pos, rgba, pivot = 85) {
     const u = clamp((t - h.start) / (h.end - h.start), 0, 1);
     window.DroneBlender.evaluate(h.data, h.cue.start + u * (h.cue.end - h.cue.start), pos, rgba, pivot);
     fillFleet(h, pos, rgba);
-    return;
+    return holdFill(h, h.cue.start + u * (h.cue.end - h.cue.start));
   }
   const previous = index > 0 ? D.holds[index - 1] : null;
   const fromPos = previous ? previous.lastPos : D.groundPos;
@@ -166,6 +169,8 @@ function evaluateFrame(D, time, pos, rgba, pivot = 85) {
     }
     for (let c = 0; c < 4; c++) rgba[k + c] = fromCol[k + c] + (h.firstCol[k + c] - fromCol[k + c]) * q;
   }
+  const fromFill = previous ? holdFill(previous, previous.cue.end) : 0;
+  return fromFill + (holdFill(h, h.cue.start) - fromFill) * q;
 }
 
 /* -------- 4. TRÌNH ĐIỀU KHIỂN SHOW (F6) -------- */
@@ -235,6 +240,7 @@ const DroneLegacyShow = {
     this.uniforms = {
       uProj: { value: 600 },
       uDiameter: { value: 0.44 },
+      uFill: { value: 0 },
       uEmission: { value: 3.2 }
     };
     const material = glow => new THREE.ShaderMaterial({
@@ -453,7 +459,7 @@ const DroneLegacyShow = {
   },
 
   computeFrame(t) {
-    evaluateFrame(this.data, t, this.posArr, this.colArr, DroneLegacyConfig.stage.pivot);
+    this.uniforms.uFill.value = evaluateFrame(this.data, t, this.posArr, this.colArr, DroneLegacyConfig.stage.pivot);
     if (t > DroneLegacyConfig.duration) {
       const f = Math.max(0, 1 - (t - DroneLegacyConfig.duration) / DroneLegacyConfig.fadeOut);
       for (let i = 3; i < this.colArr.length; i += 4) this.colArr[i] *= f;

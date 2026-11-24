@@ -23,8 +23,8 @@ void main() {
   if (max(max(emitted.r, emitted.g), emitted.b) < 0.004) {
     gl_Position = vec4(2.0); gl_PointSize = 0.0; return;
   }
-  // uFill (flag scene only): larger core + wider glow so the 0.82 m flag lattice reads as solid vivid cloth.
-  gl_PointSize = clamp(uDiameter * uProj / max(0.01, -mv.z) * (uGlow > 0.5 ? mix(4.0, 7.0, uFill) : mix(1.0, 1.35, uFill)), 1.0, uGlow > 0.5 ? mix(22.0, 34.0, uFill) : 9.0);
+  // Figure scenes: tight halo so single LEDs stay crisp. uFill (flag scene only): larger core + wider glow so the 0.82 m flag lattice reads as solid vivid cloth.
+  gl_PointSize = clamp(uDiameter * uProj / max(0.01, -mv.z) * (uGlow > 0.5 ? mix(2.6, 7.0, uFill) : mix(1.0, 1.35, uFill)), 1.0, uGlow > 0.5 ? mix(14.0, 34.0, uFill) : 9.0);
 }`;
 const FS = `
 uniform float uGlow, uFill;
@@ -32,7 +32,7 @@ varying vec3 vEmission;
 void main() {
   float r = length(gl_PointCoord - 0.5) * 2.0;
   if (r > 1.0) discard;
-  float mask = uGlow > 0.5 ? exp(-r*r*mix(6.0, 3.5, uFill))*mix(0.045, 0.11, uFill) : 1.0-smoothstep(0.62,1.0,r);
+  float mask = uGlow > 0.5 ? exp(-r*r*mix(5.0, 3.5, uFill))*mix(0.08, 0.11, uFill) : 1.0-smoothstep(0.62,1.0,r);
   gl_FragColor = vec4(vEmission * mask, 1.0);
   // Source is linear, Standard display conversion once; no scene ACES exposure on these LEDs.
   #include <encodings_fragment>
