@@ -26,9 +26,9 @@ window.REAL_MODELS = {
   bench: { url: "models/bench.glb", size: 1.9 },
 };
 
-// Cấu hình máy chủ Backend SignalR (.NET 8).
-// Kết nối trực tiếp máy chủ Azure SignalR Hub (hoặc đổi sang http://localhost:5089 nếu tự chạy .NET local).
-window.BACKEND_URL = null;
+// Cấu hình máy chủ Backend SignalR (.NET 10).
+// Kết nối máy chủ Render (hoặc đổi sang http://localhost:5089 nếu chạy .NET local).
+window.BACKEND_URL = "https://di-bao-tang-online.onrender.com";
 
 // Cấu hình chế độ nhiều người dự phòng bằng Firebase khi chạy tĩnh hoàn toàn.
 // Để trống (null) thì bảo tàng dùng BACKEND_URL hoặc chạy chế độ một người.
