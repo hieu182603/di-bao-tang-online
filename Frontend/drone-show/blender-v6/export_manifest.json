@@ -132,7 +132,7 @@
         3
       ],
       "bytes": 264000,
-      "sha256": "bd8fed026cdf9557b1313ff5983fd32112aec8a217950993b37357a4337cbc19"
+      "sha256": "96d4d5fa99fa144a1277092909310925ded7f03edd04c65a5d1c85e416ec2ba8"
     },
     {
       "path": "ly_dragon.rgb.u8",
@@ -171,7 +171,7 @@
         3
       ],
       "bytes": 6996000,
-      "sha256": "e389e76909a6fe862ff74dc852f54d2401396de15b19cf16026d694d381a4741"
+      "sha256": "e0d25e3a0cf886bf2a31317caa709b5c4bba51c1f3d37183f8a7154ee92390ab"
     },
     {
       "path": "ly_dragon.brightness.u8",
@@ -250,7 +250,7 @@
         3
       ],
       "bytes": 264000,
-      "sha256": "897240b100ef475faca7ea1ed5326ea5fa136fdc9dd98d581dfc4edc52efde71"
+      "sha256": "f875644fdd6a05e7cad169b01769a854d0d9fbba7b703a2f3b6863d66a20d18d"
     },
     {
       "path": "chua_mot_cot.rgb.u8",
@@ -289,7 +289,7 @@
         3
       ],
       "bytes": 5412000,
-      "sha256": "7581559b766decde1ca03e23f7df7b5951341835fb91792cc21e2cbe256c583c"
+      "sha256": "209b155cf37a8f43f51b82bd20659b2567e1de32f60386438ba6e853813d7bf4"
     },
     {
       "path": "chua_mot_cot.brightness.u8",
@@ -299,7 +299,7 @@
         22000
       ],
       "bytes": 902000,
-      "sha256": "a920e75ef09f7620fcb7c9a90d56de29a70d9e7994ba89750de320d4f454809f"
+      "sha256": "67bcc9c709934055502a3d79026dc80b38811d7f2fcc6364b3df31ca8af4c00e"
     },
     {
       "path": "cau_long_bien.position.f32",
@@ -684,7 +684,7 @@
         10
       ],
       "bytes": 880000,
-      "sha256": "fae2454e6686b554c315e4d9d47e47de68c2657f40a4f6b539db9b68936cae90"
+      "sha256": "b301795c53515c0d929d935bb3645678a1493a3f4b7dfb9715d5b574f2589a50"
     },
     {
       "path": "transition_02.rgba.u8",
@@ -704,7 +704,7 @@
         10
       ],
       "bytes": 880000,
-      "sha256": "9f534df65114527f492c41b6dddc483f941362cda81d5bd08eca40e7faf7157f"
+      "sha256": "f65463b70146823def6279bee005b9f56e3c348c4f36763f464f9c35a5376ba1"
     },
     {
       "path": "transition_03.rgba.u8",
@@ -724,7 +724,7 @@
         10
       ],
       "bytes": 880000,
-      "sha256": "ce44932401f87b672a7e512e1cbe54b84eb0d88841f530ca6a76477c6cd89615"
+      "sha256": "97a2a837791fe68abb5a6f35474fa8b1f5ce3e2640d9f25bfca3ce6793e8b5bc"
     },
     {
       "path": "transition_04.rgba.u8",
@@ -734,7 +734,7 @@
         8
       ],
       "bytes": 176000,
-      "sha256": "481c2fb7bdb8ebb6eef1acc6b959f94f3cb0be56a9fce5bcbd64560736f7c17e"
+      "sha256": "1efe61b794abbf110af32052a4359443c78bd00493ac2a9d236daf9354599606"
     },
     {
       "path": "transition_05.f32",
@@ -744,7 +744,7 @@
         10
       ],
       "bytes": 880000,
-      "sha256": "9830ae6faf033a0b7300ccb0cbfcf9f1a472d1d80104586ede756df2aaa12295"
+      "sha256": "bb5678c8baaff25695d5d52daf2d808163b844d48f4fa665aedb81790ec4cbdd"
     },
     {
       "path": "transition_05.rgba.u8",
@@ -754,7 +754,7 @@
         8
       ],
       "bytes": 176000,
-      "sha256": "43770ef668d760e42f31ea896e10608694c7ebc08a66f2a697cd863ebc1d4ed7"
+      "sha256": "908153439c646619d14df6509f564e35b25bfe88490f63ec195cbe13169b06cd"
     },
     {
       "path": "transition_06.f32",

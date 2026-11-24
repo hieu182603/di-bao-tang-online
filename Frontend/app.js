@@ -4883,7 +4883,7 @@ function detonateRocket(rocket) {
 }
 
 // 60-Second Choreographed Timetable
-const FIREWORK_SHOW_DURATION = 60; // 1 phút
+const FIREWORK_SHOW_DURATION = 64;
 const FIREWORK_TIMELINE = [
   // 0s - 12s: Mở màn rực rỡ
   { t: 0.5, type: "chrysanthemum", x: 0, z: -52, col: "gold", targetY: 53 },

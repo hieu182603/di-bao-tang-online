@@ -2,7 +2,7 @@
 (function (root) {
   'use strict';
   const REVISION = 'ten-scenes-v6-2026-11-14';
-  const MANIFEST_HASH = '7ac5b57c07b929944d0163b31bbbabe46cf25826f559f12ea8e956cfa8d0a2ec';
+  const MANIFEST_HASH = '3fb369a032114697786013e8ee5a12d059c7ea882316983422733c1a4770ebf2';
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
   const types = { '<f4': Float32Array, '<i2': Int16Array, u1: Uint8Array, '<u4': Uint32Array };
   function validate(manifest, timeline, buffers) {

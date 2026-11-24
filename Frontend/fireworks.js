@@ -70,14 +70,14 @@ const MORTARS = ["L4", "L3", "L2", "L1", "C1", "C2", "R1", "R2", "R3", "R4"];
 const ARC = ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9"];
 
 const FireworksConfig = {
-  duration: 60.0,           // phát cue trong 60 giây
-  tail: 7.5,                // sau 60s chỉ cho hạt tàn tự nhiên
+  duration: 64.0,           // phát cue trong 64 giây
+  tail: 13,                 // sau đó chỉ cho hạt tàn (liễu vàng rủ) tự tắt
   shellGravity: 30.0,
-  heightScale: 1.22, heightLift: 12,   // nâng toàn bộ độ cao nổ trong cue (h' = h*1.22 + 12, tối đa 268m)       // gia tốc hiệu dụng của vỏ pháo khi bay lên (thời gian bay 1.8–3.9s)
+  heightScale: 1.4, heightLift: 22, exactScale: 1.2, maxHeight: 320,   // nâng toàn bộ độ cao nổ trong cue (h' = h*1.22 + 12, tối đa 268m)       // gia tốc hiệu dụng của vỏ pháo khi bay lên (thời gian bay 1.8–3.9s)
   altitudes: { low: [45, 90], mid: [100, 160], high: [165, 235], extreme: [235, 268] },   // sau khi nâng
   launchPoints: PADS,
   colors: C,
-  caps: window.LITE ? { points: 12288, trails: 6144, segs: 8, glow: 64 } : { points: 32768, trails: 16384, segs: 8, glow: 160 },   // điện thoại: pool nhỏ hơn ~2,7 lần   // pool gấp đôi cho mật độ x2
+  caps: window.LITE ? { points: 12288, trails: 6144, segs: 8, glow: 64 } : { points: 32768, trails: 16384, segs: 12, glow: 160 },   // điện thoại: pool nhỏ hơn ~2,7 lần   // pool gấp đôi cho mật độ x2
   density: 2,   // x2 số quả pháo: mỗi quả tầm cao có thêm 1 quả "song sinh" ở lớp sâu hơn
   qualityBudgets: {
     LOW:      { scale: 0.42, glitter: 0.25, maxStars: 1500 },
@@ -694,7 +694,7 @@ const GLOW_FS = `
   void main() {
     vec2 c = gl_PointCoord - 0.5; float r2 = dot(c, c) * 4.0;
     if (r2 > 1.0 || vAlpha < 0.004) discard;
-    gl_FragColor = vec4(vColor, (exp(-r2 * 5.0) * 0.55 + exp(-r2 * 1.4) * 0.12) * vAlpha);
+    gl_FragColor = vec4(vColor, (exp(-r2 * 6.0) * 0.45 + exp(-r2 * 2.5) * 0.06) * (1.0 - r2) * vAlpha);
   }
 `;
 class SoftPool {
@@ -1070,16 +1070,22 @@ const FireworkEffects = {
   },
 
   // ---- N. KAMURO: vương miện vàng cực dày, đuôi dài rồi rủ thành mành (đoạn cuối video 1, đầu video 3)
+  // Sao bay ra nhanh rồi bị lực cản hãm lại, rơi đều (vận tốc rơi tối đa g/k ≈ 8.6 m/s) kéo đuôi ~3 s
+  // => thành mành sợi vàng rủ xuống như cây liễu (cuối video 1), đầu sợi lấp lánh, sống ~8 giây.
   kamuro(p, b, now, o = {}) {
-    const R = (o.r || 1) * 42, k = 1.35, g = 4.2, N = this.n(o.n || 300, 90), rot = this.random() * TAU;
-    const life = o.life || 6.2;
-    this.flash(p, b, now, 10, C.champagne);
+    const R = (o.r || 1) * 44, k = 1.1, g = 9.5, N = this.n(o.n || 280, 90), rot = this.random() * TAU;
+    const life = o.life || 9, tr = o.tr || 3;
+    this.flash(p, b, now, 11, C.champagne);
     for (let i = 0; i < N; i++) {
-      const d = fib(i, N, rot), v = scale3(d, R * k * (0.9 + this.random() * 0.2)); v[1] += 0.12 * R * k;
-      const L = life * (0.78 + this.random() * 0.36);
-      this.emit({ p, v, b, life: L, k, g, size: 1.25, a: C.champagne, c: C.goldDeep, tr: 1.9, seed: this.random() }, now);
-      if (i % 3 === 0) this.glitterAlong(p, v, k, g, b, [1.2, 2.2, 3.2, 4.2].filter((t) => t < L), now, { life: 0.9, hz: 12, size: 0.45 });
+      const d = fib(i, N, rot), v = scale3(d, R * k * (0.88 + this.random() * 0.24)); v[1] += 0.1 * R * k;
+      const L = life * (0.8 + this.random() * 0.3);
+      this.emit({ p, v, b, life: L, k, g, size: 1.05, a: C.champagne, c: C.goldDeep, tr: tr * (0.85 + this.random() * 0.3), seed: this.random() }, now);
+      if (i % 3 === 0) {
+        const ts = []; for (let t = 1.4 + this.random() * 0.5; t < L - 0.6; t += 0.8 + this.random() * 0.4) ts.push(t);
+        this.glitterAlong(p, v, k, g, b, ts, now, { life: 1.0, hz: 9, size: 0.42, a: C.white, c: C.gold });
+      }
     }
+    this.show.at(b + 1.2, () => FireworksAudio.sizzle(p[0], p[1], p[2], life * 0.7));
     return { power: 1.6, light: 1.2, color: C.champagne, willow: life };
   },
 
@@ -1196,18 +1202,21 @@ const FireworksCueSheet = [
   G(49.6, "fountain", ARC, { stagger: 0.08, dur: 3, h: 32, c: "champagne" }),
   A(50.8, "strobe", ["L4", "L2", "C1", "R2", "R4"], [140, 165, 190, 165, 140], { exact: true, stagger: 0.1, r: 1.2 }),
 
-  // ===== CHƯƠNG 5 — CÂY PHÁO HOA (52–60s, cuối video 3): thân trắng ánh xanh phụt liên tục từ đất,
-  // tán liễu vàng liền khối, kamuro vàng nổ dồn, ngôi sao vàng trên ngọn, hạt trắng nhấp nháy khắp trời.
+  // ===== CHƯƠNG 5 — CÂY LIỄU VÀNG (52–64s, rủ tới ~74s; cuối video 1 + video 3):
+  // thân trắng ánh xanh phụt liên tục từ đất; trên cao một hàng kamuro khổng lồ nổ lan từ giữa ra hai bên thành
+  // vòm vàng liền khối, rồi quả lớn nhất ở giữa, lớp liễu thấp hơn lấp kín, mưa vàng lấp lánh, mành sợi rủ chậm.
   G(52.6, "flare", ["A1", "A9"], { dur: 7, c: "blue" }),
-  G(53.6, "trunk", "T0", { dur: 6.2, rate: 170, v: 108, spread: 0.27 }),
-  G(54.0, "crowd", "C1", { dur: 9, level: 0.2 }),
+  G(53.6, "trunk", "T0", { dur: 8, rate: 170, v: 112, spread: 0.27 }),
+  G(54.0, "crowd", "C1", { dur: 14, level: 0.22 }),
   G(54.2, "mine", ["A2", "A4", "A6", "A8"], { stagger: 0.25, c: "white", n: 20 }),
-  A(55.2, "canopy", "T0", 162, { exact: true, rx: 95, ry: 52, rz: 34, dur: 2.8, n: 1500 }),
-  ...[0, -34, 34, -64, 64, -16, 16].map((x, i) => A(55.2 + i * 0.3, i < 3 ? "kamuro" : "willow", "T0", 214 - 0.012 * x * x,
-    { exact: true, ox: x, oz: i % 2 ? -10 : 8, size: Math.abs(x) < 30 ? "G" : "M", r: i < 3 ? 0.7 : 0.72, n: 200 })),
-  A(57.4, "canopy", "T0", 186, { exact: true, rx: 72, ry: 34, rz: 26, dur: 1.6, n: 700 }),
-  A(58.3, "star", "T0", 262, { exact: true, size: "M", c: "gold" }),
-  A(58.6, "strobe", ["FL", "L3", "R3", "FR"], [200, 170, 170, 200], { exact: true, stagger: 0.12, r: 1.5, n: 180 }),
+  A(55.0, "canopy", "T0", 168, { exact: true, rx: 110, ry: 56, rz: 36, dur: 2.8, n: 1500 }),
+  ...[0, -48, 48, -94, 94].map((x, i) => A(55.6 + i * 0.22, "kamuro", "T0", [212, 202, 202, 186, 186][i],
+    { exact: true, ox: x, oz: i % 2 ? -12 : 6, r: i ? 0.85 : 1.0, n: 240 })),
+  A(57.8, "kamuro", "T0", 240, { exact: true, r: 1.5, n: 380, life: 10.5, tr: 3.6 }),
+  ...[-72, -26, 26, 72].map((x, i) => A(59.2 + i * 0.15, "willow", "T0", 150, { exact: true, ox: x, oz: 10, size: "M" })),
+  A(60.4, "canopy", "T0", 196, { exact: true, rx: 84, ry: 38, rz: 28, dur: 1.8, n: 800 }),
+  A(61.6, "strobe", ["FL", "L3", "C1", "R3", "FR"], [190, 165, 205, 165, 190], { exact: true, stagger: 0.1, r: 1.5, n: 180, c: "champagne" }),
+  A(62.6, "kamuro", ["L2", "R2"], 200, { exact: true, r: 1.1, n: 260 }),
 ];
 
 /* ================= 9. DIRECTOR (biên dịch cue -> sự kiện phóng/nổ đã tính lead-time) ================= */
@@ -1222,7 +1231,7 @@ class FireworksDirector {
         const t = cue.t + (cue.o.stagger || 0) * j;
         if (!cue.aerial) { ev.push({ t, kind: "ground", fx: cue.fx, pad, o: cue.o }); return; }
         const exact = !!cue.o.exact, raw = cue.h[j] !== undefined ? cue.h[j] : cue.h[0];
-        const h = exact ? raw : Math.min(268, raw * FireworksConfig.heightScale + FireworksConfig.heightLift) + (rng() - 0.5) * 6;
+        const FC = FireworksConfig, h = exact ? Math.min(FC.maxHeight, raw * FC.exactScale) : Math.min(FC.maxHeight, raw * FC.heightScale + FC.heightLift) + (rng() - 0.5) * 6;
         const jit = exact ? 0 : 8;
         const burst = [pad[0] + (cue.o.ox || 0) + (rng() - 0.5) * jit, h, pad[2] + (cue.o.oz || 0) + (rng() - 0.5) * jit];
         const T = FireworksDirector.ascent(pad[1], h);
@@ -1234,7 +1243,7 @@ class FireworksDirector {
         if (FireworksConfig.density >= 2 && !exact && cue.fx !== "star") {
           const side = pad[0] > 4 ? 1 : pad[0] < -4 ? -1 : (rng() < 0.5 ? -1 : 1);
           const pad2 = [Math.max(-135, Math.min(135, pad[0] + side * (16 + rng() * 16))), 0, pad[2] - 26 - rng() * 22];
-          const h2 = Math.max(45, Math.min(268, h * (0.88 + rng() * 0.18)));
+          const h2 = Math.max(55, Math.min(FireworksConfig.maxHeight, h * (0.88 + rng() * 0.18)));
           const burst2 = [pad2[0] + (rng() - 0.5) * 8, h2, pad2[2] + (rng() - 0.5) * 8];
           const T2 = FireworksDirector.ascent(0, h2), tb2 = Math.max(T2, tb + 0.15 + rng() * 0.25);
           ev.push({ t: tb2 - T2, kind: "launch", pad: pad2, burst: burst2, T: T2 });
@@ -1383,7 +1392,7 @@ const FireworksShow = {
         FireworksAudio.boom(e.burst[0], e.burst[1], e.burst[2], r.power);
         if (r.willow) FireworksAudio.sizzle(e.burst[0], e.burst[1], e.burst[2], r.willow * 0.85);
         this.light(r.color, r.light, [e.burst[0], e.burst[1] * 0.7, e.burst[2] + 40]);
-        FX.glow(e.burst, b, r.color, 46 * r.power);
+        FX.glow(e.burst, b, r.color, 30 * r.power);
       }
     }
   },

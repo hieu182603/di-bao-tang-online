@@ -192,9 +192,9 @@ button.primary:disabled { opacity: 0.6; cursor: progress; }
 #pk-timer[data-st="fail"] #pk-time { color: #ff8f8f; }
 @media (max-width: 700px) { #pk-timer { left: calc(12px + env(safe-area-inset-left, 0px)); top: calc(70px + env(safe-area-inset-top, 0px)); transform: none; text-align: left; max-width: 55vw; } }
 #dot {
-  position: fixed; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px;
-  border-radius: 50%; background: var(--gold-soft); box-shadow: 0 0 8px rgba(226, 201, 138, 0.8);
-  opacity: 0.85; z-index: 4; pointer-events: none;
+  position: fixed; left: 50%; top: 50%; width: 3px; height: 3px; margin: -1.5px 0 0 -1.5px;
+  border-radius: 50%; background: var(--gold-soft);
+  opacity: 0.45; z-index: 4; pointer-events: none;
 }
 #prompt {
   position: fixed; z-index: 5; left: 50%; transform: translateX(-50%);
