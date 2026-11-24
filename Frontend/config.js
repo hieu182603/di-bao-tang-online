@@ -28,7 +28,7 @@ window.REAL_MODELS = {
 
 // Cấu hình máy chủ Backend SignalR (.NET 8).
 // Kết nối trực tiếp máy chủ Azure SignalR Hub (hoặc đổi sang http://localhost:5089 nếu tự chạy .NET local).
-window.BACKEND_URL = "https://baotang-lsd-12222.azurewebsites.net";
+window.BACKEND_URL = null;
 
 // Cấu hình chế độ nhiều người dự phòng bằng Firebase khi chạy tĩnh hoàn toàn.
 // Để trống (null) thì bảo tàng dùng BACKEND_URL hoặc chạy chế độ một người.

@@ -5214,7 +5214,7 @@ addEventListener("keydown", (e) => {
     toggleDroneShow(true);
     return;
   }
-  // Lệnh ẩn F8 / F1: Kích hoạt màn pháo hoa nghệ thuật 45s (Mỹ Đình Celebration) & F2: Chuyển ngày/tối
+  // Lệnh ẩn F8 / F1: Kích hoạt màn pháo hoa nghệ thuật 60s (Mỹ Đình Celebration) & F2: Chuyển ngày/tối
   if (e.code === "F8" || e.key === "F8" || e.code === "F1" || e.key === "F1") {
     e.preventDefault();
     if (e.repeat) return;

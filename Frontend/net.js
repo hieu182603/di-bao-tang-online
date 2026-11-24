@@ -315,12 +315,8 @@
   };
 
   Net.start = async function (initial) {
-    const urls = [];
-    if (window.BACKEND_URL) urls.push(window.BACKEND_URL);
-    const azureUrl = "https://baotang-lsd-12222.azurewebsites.net";
-    if (!urls.includes(azureUrl)) urls.push(azureUrl);
-
-    for (const u of urls) {
+    const u = window.BACKEND_URL;
+    if (u) {
       try {
         setStatus("connecting");
         await startSignalR(u, initial);

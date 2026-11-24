@@ -512,6 +512,10 @@ const GLSL_COMMON = `
     else { float e = (1.0 - exp(-k * t)) / k; p += aVel * e; p.y -= g / k * (t - e); }
     return p;
   }
+  float colorPhase(float age, float normalPhase) {
+    if (aMisc.z >= 0.0) return normalPhase;
+    return smoothstep(-aMisc.z - 0.06, -aMisc.z + 0.06, age);
+  }
   float lifeAlpha(float u) { return smoothstep(0.0, 0.015, u) * (1.0 - smoothstep(0.55, 1.0, u)); }
   float strobe(float age) {
     if (aMisc.y <= 0.0) return 1.0;
@@ -528,7 +532,7 @@ const POINT_VS = GLSL_COMMON + `
     float s = aMisc.x * uProj / max(1.0, -mv.z) * mix(1.0, 0.55, u);
     vAlpha = lifeAlpha(u) * strobe(age) * clamp(s / 1.8, 0.3, 1.0);
     gl_PointSize = clamp(s, 1.8, 11.0);
-    vColor = mix(aColA, aColB, smoothstep(0.05, 0.9, u));
+    vColor = mix(aColA, aColB, colorPhase(u, smoothstep(0.05, 0.9, u)));
   }
 `;
 const POINT_FS = `
@@ -537,7 +541,7 @@ const POINT_FS = `
     vec2 c = gl_PointCoord - 0.5; float r2 = dot(c, c) * 4.0;
     if (r2 > 1.0 || vAlpha < 0.004) discard;
     float core = exp(-r2 * 16.0); float halo = exp(-r2 * 3.2) * 0.22;
-    vec3 col = mix(vColor, vec3(1.0, 0.98, 0.92), core * 0.7);
+    vec3 col = mix(vColor, vec3(1.0, 0.98, 0.92), core * 0.48);
     gl_FragColor = vec4(col, (core + halo) * vAlpha);
   }
 `;
@@ -551,7 +555,7 @@ const TRAIL_VS = GLSL_COMMON + `
     vec4 mv = modelViewMatrix * vec4(simPos(tl), 1.0);
     gl_Position = projectionMatrix * mv;
     vAlpha = lifeAlpha(min(1.0, u * 1.06)) * pow(1.0 - aLag, 1.6) * 0.95 * strobe(age);
-    vColor = mix(aColA, aColB, clamp(aLag * 0.85 + u * 0.5, 0.0, 1.0));
+    vColor = mix(aColA, aColB, colorPhase(tl / life, clamp(aLag * 0.85 + u * 0.5, 0.0, 1.0)));
   }
 `;
 // Hạt lửa dọc đuôi: vẽ lại chính các đỉnh của đuôi dưới dạng điểm nhỏ => đuôi dày & lấp lánh, không tốn buffer
@@ -599,6 +603,10 @@ class StarPool {
       this.dots.frustumCulled = false; this.dots.renderOrder = 19; this.mesh.add(this.dots);
     }
     this.death = new Float32Array(cap);
+    this.blockSize = 128;
+    this.blockExpiry = new Float64Array(Math.ceil(cap / this.blockSize));
+    this.geo.setDrawRange(0, 0);
+    this.mesh.visible = false;
     this.head = 0; this.dmin = Infinity; this.dmax = -1; this.drops = 0;
   }
   alloc(birth, life, now) {
@@ -611,6 +619,8 @@ class StarPool {
     }
     this.head = (i + 1) % this.cap;
     this.death[i] = birth + life;
+    const block = Math.floor(i / this.blockSize);
+    this.blockExpiry[block] = Math.max(this.blockExpiry[block], birth + life);
     if (i < this.dmin) this.dmin = i; if (i > this.dmax) this.dmax = i;
     return i;
   }
@@ -627,7 +637,14 @@ class StarPool {
     }
   }
   active(now) { let n = 0; for (let i = 0; i < this.cap; i++) if (this.death[i] > now) n++; return n; }
-  flush() {
+  flush(now) {
+    // Trim expired blocks from both ends; keep future births and wrapped slots.
+    let first = 0, last = this.blockExpiry.length - 1;
+    while (first <= last && this.blockExpiry[first] <= now) first++;
+    while (last >= first && this.blockExpiry[last] <= now) last--;
+    const start = Math.min(this.cap, first * this.blockSize);
+    const end = Math.min(this.cap, (last + 1) * this.blockSize);
+    this.geo.setDrawRange(start * this.vps, (end - start) * this.vps);
     if (this.dmax < 0) return;
     for (const k in this.arr) {
       const at = this.geo.attributes[k], sz = this.size[k];
@@ -639,6 +656,7 @@ class StarPool {
   }
   clear() {
     this.death.fill(0); this.arr.aTime.fill(0);
+    this.blockExpiry.fill(0); this.geo.setDrawRange(0, 0);
     const at = this.geo.attributes.aTime; at.updateRange.offset = 0; at.updateRange.count = -1; at.needsUpdate = true;
     this.head = 0;
   }
@@ -664,6 +682,7 @@ const col = (c, fb) => (typeof c === "string" ? C[c] : c) || fb || C.gold;
 /* ================= 7. HIỆU ỨNG (pattern) ================= */
 const FireworkEffects = {
   show: null,
+  random: Math.random,
   get q() { return FireworksQualityManager.budget; },
   n(base, min = 12) { return Math.max(min, Math.round(base * this.q.scale)); },
   emit(s, now) { return this.show.emit(s, now); },
@@ -672,12 +691,12 @@ const FireworkEffects = {
   },
   // Sao "lấp lánh" dọc đường bay của một sao mẹ (vị trí lấy từ cùng công thức với GPU)
   glitterAlong(p, v, k, g, b, times, now, o = {}) {
-    if (Math.random() > this.q.glitter + 0.001 && !o.force) return;
+    if (this.random() > this.q.glitter + 0.001 && !o.force) return;
     for (const t of times) {
       const q = simAt(p, v, k, g, t);
-      this.emit({ p: q, v: [(Math.random() - 0.5) * 2, -1.5 - Math.random() * 2, (Math.random() - 0.5) * 2], b: b + t,
+      this.emit({ p: q, v: [(this.random() - 0.5) * 2, -1.5 - this.random() * 2, (this.random() - 0.5) * 2], b: b + t,
         life: o.life || 0.6, k: 1.5, g: 4, size: (o.size || 0.42) * 1.5, a: o.a || C.champagne, c: o.c || C.goldDeep,
-        hz: o.hz || 14, seed: Math.random() }, now);
+        hz: o.hz || 14, seed: this.random() }, now);
     }
   },
   viewerBasis(p) {   // mặt phẳng hướng về người xem (để vòng/ngôi sao đọc rõ hình)
@@ -691,22 +710,22 @@ const FireworkEffects = {
   chrys(p, b, now, o = {}) {
     const sz = o.size || "M", R = ({ S: 13, M: 24, G: 38 })[sz] * (o.r || 1), k = 1.6;
     const N = this.n(({ S: 90, M: 150, G: 240 })[sz], 50);
-    const life = ({ S: 2.2, M: 2.8, G: 3.4 })[sz], rot = Math.random() * TAU;
+    const life = ({ S: 2.2, M: 2.8, G: 3.4 })[sz], rot = this.random() * TAU;
     const ca = col(o.c, C.gold), cb = col(o.end, mix3(ca, C.ember, 0.55));
     const tr = sz === "G" ? 0.45 : 0.36, head = sz === "G" ? 1.7 : 1.4;
     this.flash(p, b, now, sz === "G" ? 9 : 6);
     const sparks = [];
     for (let i = 0; i < N; i++) {
-      const d = fib(i, N, rot), sp = R * k * (0.95 + Math.random() * 0.1);
-      const v = scale3(d, sp), L = life * (0.9 + Math.random() * 0.2);
-      this.emit({ p, v, b, life: L, k, g: 6, size: head, a: ca, c: cb, tr, seed: Math.random() }, now);
+      const d = fib(i, N, rot), sp = R * k * (0.95 + this.random() * 0.1);
+      const v = scale3(d, sp), L = life * (0.9 + this.random() * 0.2);
+      this.emit({ p, v, b, life: L, k, g: 6, size: head, a: ca, c: cb, tr, seed: this.random() }, now);
       if (sz !== "S" && i % 3 === 0) sparks.push([v, L]);
     }
     if (o.core) {
       const cc = col(o.core), Nc = this.n(N * 0.32, 16);
       for (let i = 0; i < Nc; i++) {
-        const d = fib(i, Nc, rot + 1.3), v = scale3(d, R * 0.42 * k * (0.95 + Math.random() * 0.1));
-        this.emit({ p, v, b, life: life * 0.75, k, g: 5, size: 0.8, a: cc, c: mix3(cc, C.ember, 0.4), tr: 0.12 }, now);
+        const d = fib(i, Nc, rot + 1.3), v = scale3(d, R * 0.42 * k * (0.95 + this.random() * 0.1));
+        this.emit({ p, v, b, life: life * 0.75, k, g: 5, size: 1.12, a: cc, c: mix3(cc, C.ember, 0.4), tr: 0.12 }, now);
       }
     }
     for (const [v, L] of sparks) this.glitterAlong(p, v, k, 6, b, [L * 0.45, L * 0.62, L * 0.78], now);
@@ -716,12 +735,12 @@ const FireworkEffects = {
   // ---- B. PEONY: bông tròn dày, gần như không đuôi, nở & tàn nhanh
   peony(p, b, now, o = {}) {
     const sz = o.size || "M", R = ({ S: 12, M: 19, G: 27 })[sz], k = 2.4;
-    const N = this.n(({ S: 110, M: 170, G: 240 })[sz], 50), rot = Math.random() * TAU;
+    const N = this.n(({ S: 110, M: 170, G: 240 })[sz], 50), rot = this.random() * TAU;
     const ca = col(o.c, C.red), cb = col(o.end, mix3(ca, C.white, 0.15));
     this.flash(p, b, now, 5);
     for (let i = 0; i < N; i++) {
-      const v = scale3(fib(i, N, rot), R * k * (0.93 + Math.random() * 0.14));
-      this.emit({ p, v, b, life: 1.6 + Math.random() * 0.3, k, g: 5, size: 1.6, a: ca, c: cb, tr: 0.07 }, now);
+      const v = scale3(fib(i, N, rot), R * k * (0.93 + this.random() * 0.14));
+      this.emit({ p, v, b, life: 1.6 + this.random() * 0.3, k, g: 5, size: 1.6, a: ca, c: cb, tr: 0.07 }, now);
     }
     return { power: 1.0, light: 0.6, color: ca };
   },
@@ -730,42 +749,74 @@ const FireworkEffects = {
   willow(p, b, now, o = {}) {
     const sz = o.size || "G", R = ({ S: 18, M: 28, G: 40 })[sz] * (o.r || 1), k = 1.25, g = 5.0;
     const B = Math.max(24, Math.round(({ S: 30, M: 42, G: 56 })[sz] * Math.max(0.6, this.q.scale)));
-    const life = ({ S: 4.4, M: 5.0, G: 5.8 })[sz], rot = Math.random() * TAU;
+    const life = ({ S: 4.4, M: 5.0, G: 5.8 })[sz], rot = this.random() * TAU;
     const hd = C.champagne, tl = C.goldDeep;
     this.flash(p, b, now, 8, C.champagne);
     const total = Math.round(B / 0.8); let made = 0;
     const branches = [];
     for (let i = 0; i < total && made < B; i++) {
       const d = fib(i, total, rot); if (d[1] < -0.45) continue; made++;
-      const v = scale3(d, R * k * (0.95 + Math.random() * 0.1)); v[1] += 0.18 * R * k;
-      const L = life * (0.92 + Math.random() * 0.16);
+      const v = scale3(d, R * k * (0.95 + this.random() * 0.1)); v[1] += 0.18 * R * k;
+      const L = life * (0.82 + this.random() * 0.32);
       this.emit({ p, v, b, life: L, k, g, size: 1.3, a: hd, c: tl, tr: 1.7 }, now);
       branches.push([v, L]);
       const subs = this.q.scale > 0.6 ? 3 : 2;
       for (let s = 0; s < subs; s++) {
-        const j = norm3([d[0] + (Math.random() - 0.5) * 0.06, d[1] + (Math.random() - 0.5) * 0.06, d[2] + (Math.random() - 0.5) * 0.06]);
+        const j = norm3([d[0] + (this.random() - 0.5) * 0.06, d[1] + (this.random() - 0.5) * 0.06, d[2] + (this.random() - 0.5) * 0.06]);
         const vs = scale3(j, Math.hypot(v[0], v[1], v[2]) * (0.86 + s * 0.05)); vs[1] += 0.03 * R * k;
         this.emit({ p, v: vs, b: b + 0.02 * s, life: L * 0.94, k, g, size: 0.8, a: C.gold, c: C.ember, tr: 1.35 }, now);
       }
     }
     for (const [v, L] of branches) {
-      const ts = []; for (let t = 2.0; t < L - 0.3; t += 0.55 + Math.random() * 0.3) ts.push(t);
+      const ts = []; for (let t = 2.0; t < L - 0.3; t += 0.55 + this.random() * 0.3) ts.push(t);
       this.glitterAlong(p, v, k, g, b, ts, now, { life: 0.9, hz: 11, size: 0.45 });
     }
     return { power: 1.4, light: 1.1, color: C.champagne, willow: life };
+  },
+
+  crossette(p, b, now, o = {}) {
+    const { u, w } = this.viewerBasis(p);
+    const color = col(o.c, C.red), count = this.n(12, 7);
+    const rotate = this.random() * TAU;
+    for (let i = 0; i < count; i++) {
+      const angle = rotate + TAU * i / count;
+      const plane = theta => u.map((axis, j) => axis * Math.cos(theta) + w[j] * Math.sin(theta));
+      const v = scale3(plane(angle), 46);
+      const split = 0.72;
+      this.emit({ p, v, b, life: split, k: 1, g: 4, size: 1.8, a: color, c: C.champagne, tr: 0.28 }, now);
+      const origin = simAt(p, v, 1, 4, split);
+      for (let arm = 0; arm < 4; arm++) {
+        const child = scale3(plane(angle + arm * TAU / 4), 16);
+        this.emit({ p: origin, v: child, b: b + split, life: 1.25, k: 1, g: 4,
+          size: 1.35, a: C.champagne, c: color, tr: 0.35 }, now);
+      }
+    }
+    return { power: 0.9, light: 0.55, color };
+  },
+
+  ghost(p, b, now) {
+    const count = this.n(210, 84), rotate = this.random() * TAU;
+    for (let i = 0; i < count; i++) {
+      const direction = fib(i, count, rotate);
+      // Negative seed encodes the colour transition time for this star.
+      const transition = 0.25 + 0.46 * (direction[0] + 1) / 2;
+      this.emit({ p, v: scale3(direction, 62), b, life: 3.2, k: 1.5, g: 3, size: 1.65,
+        a: C.red, c: C.gold, tr: 0.14, seed: -transition }, now);
+    }
+    return { power: 1.1, light: 0.65, color: C.red };
   },
 
   // ---- D. RING: vòng tròn rõ trong không gian 3D, đơn hoặc kép, có thể nghiêng
   ring(p, b, now, o = {}) {
     const sz = o.size || "M", R = ({ S: 14, M: 22, G: 32 })[sz], k = 2.0;
     const { n, u, w } = this.viewerBasis(p);
-    const tilt = o.tilt !== undefined ? o.tilt : (Math.random() - 0.5) * 0.9;
+    const tilt = o.tilt !== undefined ? o.tilt : (this.random() - 0.5) * 0.9;
     // quay vòng quanh trục u một góc tilt => vòng nghiêng (vẫn đọc được là hình tròn/elip)
     const w2 = norm3(mix3(w, n, Math.sin(tilt)));
     const ring = (rad, N, ca, cb, delay) => {
       for (let i = 0; i < N; i++) {
         const a = (i / N) * TAU, d = [u[0] * Math.cos(a) + w2[0] * Math.sin(a), u[1] * Math.cos(a) + w2[1] * Math.sin(a), u[2] * Math.cos(a) + w2[2] * Math.sin(a)];
-        this.emit({ p, v: scale3(d, rad * k * (0.985 + Math.random() * 0.03)), b: b + delay, life: 2.4, k, g: 2.0, size: 1.5, a: ca, c: cb, tr: 0.12 }, now);
+        this.emit({ p, v: scale3(d, rad * k * (0.985 + this.random() * 0.03)), b: b + delay, life: 2.4, k, g: 2.0, size: 1.5, a: ca, c: cb, tr: 0.12 }, now);
       }
     };
     const ca = col(o.c, C.gold);
@@ -778,14 +829,14 @@ const FireworkEffects = {
   // ---- E. PALM: 8–12 nhánh dày, đầu nhánh sáng, xòe rồi cong xuống
   palm(p, b, now, o = {}) {
     const arms = o.arms || 10, R = (o.size === "G" ? 40 : 31), k = 1.0, g = 9.8;
-    const ca = col(o.c, C.gold), cb = col(o.end, C.orange), rot = Math.random() * TAU;
+    const ca = col(o.c, C.gold), cb = col(o.end, C.orange), rot = this.random() * TAU;
     this.flash(p, b, now, 6);
     for (let a = 0; a < arms; a++) {
-      const az = rot + (a / arms) * TAU + (Math.random() - 0.5) * 0.15;
-      const el = 0.35 + Math.random() * 0.75;
+      const az = rot + (a / arms) * TAU + (this.random() - 0.5) * 0.15;
+      const el = 0.35 + this.random() * 0.75;
       const d = [Math.cos(az) * Math.cos(el), Math.sin(el), Math.sin(az) * Math.cos(el)];
       for (let s = 0; s < 3; s++) {
-        const j = s === 0 ? d : norm3([d[0] + (Math.random() - 0.5) * 0.05, d[1] + (Math.random() - 0.5) * 0.05, d[2] + (Math.random() - 0.5) * 0.05]);
+        const j = s === 0 ? d : norm3([d[0] + (this.random() - 0.5) * 0.05, d[1] + (this.random() - 0.5) * 0.05, d[2] + (this.random() - 0.5) * 0.05]);
         const v = scale3(j, R * k * [1.0, 0.95, 1.03][s]);
         this.emit({ p, v, b, life: 3.0, k, g, size: s === 0 ? 2.0 : 1.0, a: s === 0 ? C.white : ca, c: cb, tr: 1.0 }, now);
         if (s === 0) this.glitterAlong(p, v, k, g, b, [0.6, 1.0, 1.4, 1.8, 2.2], now, { size: 0.4 });
@@ -797,7 +848,7 @@ const FireworkEffects = {
   // ---- F. MULTI-BREAK: nổ cha -> 6 sao "mang" trên một vòng nghiêng -> nổ con tại đúng vị trí sao mang (-> nổ cháu)
   multi(p, b, now, o = {}) {
     const k = 1.6, R = 22, info = this.chrys(p, b, now, { size: "M", c: o.c || C.gold, end: C.goldDeep, r: 0.9 });
-    const { u, w } = this.viewerBasis(p), kids = 6, delay = 0.5, rot = Math.random() * TAU;
+    const { u, w } = this.viewerBasis(p), kids = 6, delay = 0.5, rot = this.random() * TAU;
     for (let i = 0; i < kids; i++) {
       const a = rot + (i / kids) * TAU;
       const d = norm3([u[0] * Math.cos(a) + w[0] * Math.sin(a), u[1] * Math.cos(a) + w[1] * Math.sin(a) + 0.1, u[2] * Math.cos(a) + w[2] * Math.sin(a)]);
@@ -809,7 +860,7 @@ const FireworkEffects = {
         FireworksAudio.boom(q[0], q[1], q[2], 0.5);
         if (o.levels === 3) {
           for (let m = 0; m < 3; m++) {
-            const dd = norm3([Math.random() - 0.5, Math.random() - 0.2, Math.random() - 0.5]);
+            const dd = norm3([this.random() - 0.5, this.random() - 0.2, this.random() - 0.5]);
             const v2 = scale3(dd, 10 * 2.4); const q2 = simAt(q, v2, 2.4, 5, 0.42);
             this.show.at(bb + 0.42, (b3, n3) => this.crackle(q2, b3, n3, { small: true, c: C.gold }));
           }
@@ -828,7 +879,7 @@ const FireworkEffects = {
     FireworksAudio.launch(pad[0], pad[1], pad[2], 0); FireworksAudio.whoosh(pad[0], pad[1] + 40, pad[2], 1.8);
     for (let i = 0; i < n; i++) {
       const th = lean + (n === 1 ? 0 : (i / (n - 1) - 0.5) * spread);
-      const v = [Math.sin(th) * V, Math.cos(th) * V * (0.97 + Math.random() * 0.06), (Math.random() - 0.5) * 3];
+      const v = [Math.sin(th) * V, Math.cos(th) * V * (0.97 + this.random() * 0.06), (this.random() - 0.5) * 3];
       this.emit({ p: pad, v, b, life, k, g, size: 1.8, a: ca, c: cb, tr: 0.65 }, now);
       const ts = []; for (let t = 0.15; t < life - 0.2; t += 0.14) ts.push(t);
       this.glitterAlong(pad, v, k, g, b, ts, now, { life: 0.55, hz: 16, size: 0.38 });
@@ -847,10 +898,10 @@ const FireworkEffects = {
     const ca = col(o.c, C.gold), v0 = Math.sqrt(2 * g * H) * 1.12;
     if (!o.quiet) FireworksShow.at(b, () => FireworksAudio.whoosh(pad[0], pad[1], pad[2], D));
     for (let i = 0; i < N; i++) {
-      const az = Math.random() * TAU, cone = Math.random() * 0.13, sp = v0 * (0.85 + Math.random() * 0.2);
+      const az = this.random() * TAU, cone = this.random() * 0.13, sp = v0 * (0.85 + this.random() * 0.2);
       const v = [Math.cos(az) * Math.sin(cone) * sp, Math.cos(cone) * sp, Math.sin(az) * Math.sin(cone) * sp];
-      this.emit({ p: pad, v, b: b + (i / N) * D, life: 1.5 + Math.random() * 0.5, k, g, size: 0.85, a: ca, c: C.ember,
-        tr: i % 3 === 0 ? 0.18 : 0, hz: i % 5 === 0 ? 18 : 0, seed: Math.random() }, now);
+      this.emit({ p: pad, v, b: b + (i / N) * D, life: 1.5 + this.random() * 0.5, k, g, size: 0.85, a: ca, c: C.ember,
+        tr: i % 3 === 0 ? 0.18 : 0, hz: i % 5 === 0 ? 18 : 0, seed: this.random() }, now);
     }
     return null;
   },
@@ -860,13 +911,13 @@ const FireworkEffects = {
     const N = o.small ? 10 : this.n(34, 16), k = 2.0, R = o.small ? 5 : 9;
     const ca = col(o.c, C.white);
     for (let i = 0; i < N; i++) {
-      const v = scale3(fib(i, N, Math.random() * TAU), R * k * (0.8 + Math.random() * 0.4));
-      const L = 0.55 + Math.random() * 0.25;
+      const v = scale3(fib(i, N, this.random() * TAU), R * k * (0.8 + this.random() * 0.4));
+      const L = 0.55 + this.random() * 0.25;
       this.emit({ p, v, b, life: L, k, g: 4, size: 0.9, a: ca, c: C.gold, tr: 0.05 }, now);
       const q = simAt(p, v, k, 4, L);
       for (let s = 0; s < 4; s++) {
-        this.emit({ p: q, v: [(Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6], b: b + L + Math.random() * 0.25,
-          life: 0.22 + Math.random() * 0.15, k: 3, g: 3, size: 0.85, a: C.white, c: ca, hz: 28, seed: Math.random() }, now);
+        this.emit({ p: q, v: [(this.random() - 0.5) * 6, (this.random() - 0.5) * 6, (this.random() - 0.5) * 6], b: b + L + this.random() * 0.25,
+          life: 0.22 + this.random() * 0.15, k: 3, g: 3, size: 0.85, a: C.white, c: ca, hz: 28, seed: this.random() }, now);
       }
     }
     if (!o.small) FireworksAudio.crackle(p[0], p[1], p[2], 26);
@@ -879,13 +930,13 @@ const FireworkEffects = {
     const k = 0.3, g = 9.8, spread = o.spread || 0.24;
     FireworksAudio.whoosh(pad[0], pad[1] + 40, pad[2], D);
     for (let i = 0; i < N; i++) {
-      const bt = b + (i / N) * D + Math.random() * 0.03;
-      const th = (Math.random() * 2 - 1) * spread, ph = (Math.random() * 2 - 1) * spread * 0.6;
-      const V = (o.v || 74) * (0.88 + Math.random() * 0.2);
+      const bt = b + (i / N) * D + this.random() * 0.03;
+      const th = (this.random() * 2 - 1) * spread, ph = (this.random() * 2 - 1) * spread * 0.6;
+      const V = (o.v || 74) * (0.88 + this.random() * 0.2);
       const v = [Math.sin(th) * V, Math.cos(th) * Math.cos(ph) * V, Math.sin(ph) * V];
-      const base = [pad[0] + (Math.random() - 0.5) * 6, pad[1], pad[2] + (Math.random() - 0.5) * 4];
-      const life = 1.9 + Math.random() * 0.5;
-      this.emit({ p: base, v, b: bt, life, k, g, size: 1.1, a: i % 3 === 0 ? C.ice : C.white, c: C.champagne, tr: 0.85, seed: Math.random() }, now);
+      const base = [pad[0] + (this.random() - 0.5) * 6, pad[1], pad[2] + (this.random() - 0.5) * 4];
+      const life = 1.9 + this.random() * 0.5;
+      this.emit({ p: base, v, b: bt, life, k, g, size: 1.1, a: i % 3 === 0 ? C.ice : C.white, c: C.champagne, tr: 0.85, seed: this.random() }, now);
       if (i % 3 === 0) this.glitterAlong(base, v, k, g, bt, [0.35, 0.7, 1.05], now, { life: 0.45, hz: 20, size: 0.36, a: C.white, c: C.ice });
     }
     if (FireworksShow.at) for (let t = 0; t < D; t += 0.5) FireworksShow.at(b + t, () => FireworksAudio.crackle(pad[0], 60, pad[2], 8, 0));
@@ -897,19 +948,19 @@ const FireworkEffects = {
     const RX = o.rx || 88, RY = o.ry || 42, RZ = o.rz || 30, D = o.dur || 2.6;
     const N = Math.round((o.n || 520) * Math.max(0.4, this.q.scale)), k = 1.1, g = 9.0;
     for (let i = 0; i < N; i++) {
-      const az = Math.random() * TAU, e = -0.25 + Math.pow(Math.random(), 0.8) * 1.75;   // nhiều sợi ở đỉnh & vai vòm
+      const az = this.random() * TAU, e = -0.25 + Math.pow(this.random(), 0.8) * 1.75;   // nhiều sợi ở đỉnh & vai vòm
       const ce = Math.cos(Math.min(e, Math.PI / 2)), se = Math.sin(Math.min(e, Math.PI / 2));
-      const rr = 0.55 + 0.45 * Math.sqrt(Math.random());
+      const rr = 0.55 + 0.45 * Math.sqrt(this.random());
       const q = [p[0] + Math.cos(az) * ce * RX * rr, p[1] + se * RY * rr, p[2] + Math.sin(az) * ce * RZ * rr];
       const out = norm3([q[0] - p[0], (q[1] - p[1]) * 0.3 - 6, q[2] - p[2]]);   // hơi toả ra & chúc xuống => sợi rủ
-      const v = scale3(out, 3 + Math.random() * 4);
+      const v = scale3(out, 3 + this.random() * 4);
       // tán nở từ trong ra ngoài: sợi gần tâm xuất hiện trước
-      const bt = b + Math.min(1, Math.hypot(q[0] - p[0], q[2] - p[2]) / RX) * D * 0.75 + Math.random() * D * 0.25;
-      const life = 3.6 + Math.random() * 1.6;
-      this.emit({ p: q, v, b: bt, life, k, g, size: 1.0, a: Math.random() < 0.3 ? C.champagne : C.gold, c: C.ember, tr: 2.4, seed: Math.random() }, now);
-      if (i % 2 === 0) this.glitterAlong(q, v, k, g, bt, [0.8 + Math.random(), 2.0 + Math.random() * 1.5], now, { life: 0.8, hz: 13, size: 0.5, a: C.white, c: C.gold });
+      const bt = b + Math.min(1, Math.hypot(q[0] - p[0], q[2] - p[2]) / RX) * D * 0.75 + this.random() * D * 0.25;
+      const life = 3.6 + this.random() * 1.6;
+      this.emit({ p: q, v, b: bt, life, k, g, size: 1.0, a: this.random() < 0.3 ? C.champagne : C.gold, c: C.ember, tr: 2.4, seed: this.random() }, now);
+      if (i % 2 === 0) this.glitterAlong(q, v, k, g, bt, [0.8 + this.random(), 2.0 + this.random() * 1.5], now, { life: 0.8, hz: 13, size: 0.5, a: C.white, c: C.gold });
     }
-    if (FireworksShow.at) for (let t = 0; t < D + 2; t += 0.6) FireworksShow.at(b + t, () => FireworksAudio.crackle(p[0] + (Math.random() - 0.5) * RX, p[1], p[2], 14, 0));
+    if (FireworksShow.at) for (let t = 0; t < D + 2; t += 0.6) FireworksShow.at(b + t, () => FireworksAudio.crackle(p[0] + (this.random() - 0.5) * RX, p[1], p[2], 14, 0));
     FireworksAudio.sizzle(p[0], p[1], p[2], D + 4);
     return { power: 0.4, light: 1.0, color: C.gold };
   },
@@ -944,17 +995,18 @@ function lowMidLayer() {
   const pal = (t) => t < 17 ? ["gold", "red"] : t < 27 ? ["gold", "champagne"] : t < 37 ? ["red", "white"] : t < 47 ? ["red", "gold"] : ["gold", "white"];
   const lowFx = ["peony", "chrys", "crackle", "ring", "peony", "palm"];
   const midFx = ["chrys", "peony", "ring", "chrys", "palm"];
-  const arcSide = (k, tree) => tree ? (k % 2 ? ["A1", "A2"] : ["A8", "A9"])[k % 2 ? 0 : 1] : ARC[(k * 5 + 2) % 9];
   let k = 0;
-  for (let t = 1.2; t < 59.5; t += 0.62, k++) {         // tầng thấp
-    const tree = t > 53.4, c = pal(t)[k % 2], fx = lowFx[k % lowFx.length];
-    out.push(A(t, fx, arcSide(k, tree), 30 + ((k * 7) % 28), { size: "S", c, inner: fx === "ring" ? "white" : undefined, arms: 8 }));
+  for (let t = 10.2; t < 53; t += 2.6, k++) {         // tầng thấp
+    if (t >= 22 && t < 44) continue;
+    const c = pal(t)[k % 2], fx = lowFx[k % lowFx.length];
+    out.push(A(t, fx, ARC[(k * 5 + 2) % ARC.length], 30 + ((k * 7) % 28), { size: "S", c, inner: fx === "ring" ? "white" : undefined, arms: 8 }));
   }
   k = 0;
   const midL = ["L4", "L3", "L2", "L1"], midR = ["R4", "R3", "R2", "R1"];
-  for (let t = 2.0; t < 59.5; t += 0.95, k++) {         // tầng trung
-    const tree = t > 53.4, side = k % 2 ? midR : midL;
-    const pad = tree ? side[k % 2] : (k % 5 === 4 ? (k % 2 ? "C2" : "C1") : side[(k >> 1) % 4]);
+  for (let t = 11.0; t < 53; t += 3.1, k++) {         // tầng trung
+    if (t >= 22 && t < 44) continue;
+    const side = k % 2 ? midR : midL;
+    const pad = k % 5 === 4 ? (k % 2 ? "C2" : "C1") : side[(k >> 1) % 4];
     const fx = midFx[k % midFx.length], c = pal(t)[(k + 1) % 2];
     out.push(A(t, fx, pad, 75 + ((k * 11) % 45), { size: k % 3 === 0 ? "M" : "S", c, core: fx === "chrys" ? "gold" : undefined, inner: fx === "ring" ? "gold" : undefined, arms: 9 }));
   }
@@ -986,60 +1038,18 @@ const FireworksCueSheet = [
   A(15.6, "crackle", ["L3", "R3"], 80, { c: "white" }),
   A(16.4, "peony", ["L4", "R4"], 62, { size: "S", c: "gold" }),
 
-  // ===== CHƯƠNG 3 — THÁC VÀNG (17–27s)
-  A(17.0, "willow", "FC", 225, { size: "G" }),
-  A(18.6, "willow", ["L3", "R3"], 160, { size: "M" }),
-  G(20.0, "fountain", ARC, { stagger: 0.1, dur: 3.4, h: 26, c: "champagne" }),
-  A(21.5, "chrys", ["FL", "FR"], 175, { size: "M", c: "red", core: "gold" }),
-  A(23.0, "crackle", ["L2", "R2"], 92, { c: "white" }),
-  A(24.5, "willow", "FR", 142, { size: "S" }),
-  A(25.4, "chrys", "C1", 132, { size: "M", c: "gold", core: "red" }),
-  A(26.4, "ring", ["L1", "R1"], 110, { size: "M", c: "gold" }),
-
-  // ===== CHƯƠNG 4 — LIÊN HOÀN TĂNG TỐC (27–37s): quét trái -> phải, khoảng cách 0.45s
-  ...["L4", "L3", "L2", "L1", "C1", "C2", "R1", "R2", "R3", "R4"].map((pad, i) => {
-    const fx = ["ring", "palm", "chrys"][i % 3], h = [92, 122, 150, 106, 172, 135, 115, 146, 124, 96][i];
-    return A(27.0 + i * 0.45, fx, pad, h, { size: "M", c: i % 2 ? "red" : "gold", inner: fx === "ring" ? "white" : undefined, core: fx === "chrys" ? "gold" : undefined });
-  }),
-  G(30.6, "fan", "L1", { rays: 9, spread: 0.55, lean: -0.42, v: 66, c: "gold" }),
-  G(30.6, "fan", "R1", { rays: 9, spread: 0.55, lean: 0.42, v: 66, c: "gold" }),
-  A(31.6, "chrys", ["L2", "R2"], 140, { size: "M", c: "gold" }),
-  A(32.2, "chrys", ["L3", "C1", "R3"], [150, 186, 150], { size: "M", c: "red", core: "gold" }),
-  A(33.2, "multi", "C2", 180, { c: "gold", sub: "white", levels: 3 }),
-  A(34.3, "crackle", ["L1", "C1", "R1"], 85, { c: "white" }),
-  A(35.0, "palm", ["L3", "R3"], 122, { c: "white", end: "gold", arms: 11 }),
-  A(35.9, "peony", ["L2", "R2"], 76, { size: "M", c: "red" }),
-  A(36.6, "chrys", "FC", 200, { size: "M", c: "gold" }),
-
-  // ===== CHƯƠNG 5 — DƯỚI LÁ CỜ VẺ VANG (37–47s)
-  A(37.4, "chrys", ["L4", "R4"], 130, { size: "M", c: "red", core: "gold" }),
-  A(37.4, "chrys", ["L1", "R1"], 162, { size: "M", c: "gold", core: "champagne" }),
-  A(38.1, "peony", "C1", 115, { size: "M", c: "gold" }),
-  A(38.7, "palm", "L2", 125, { c: "gold" }),
-  A(39.3, "ring", "R2", 130, { size: "M", c: "red", inner: "gold" }),
-  A(39.9, "chrys", "C2", 150, { size: "M", c: "white", core: "gold" }),
-  A(40.6, "peony", ["L4", "L3", "L2", "R2", "R3", "R4"], [92, 100, 96, 96, 100, 92], { size: "M", c: "red" }),  // nền đỏ
-  A(41.0, "star", "C1", 172, { size: "G", c: "gold" }),                                                       // sao vàng
-  A(42.6, "ring", ["L1", "C2", "R1"], [112, 168, 132], { c: "gold", inner: "red", size: "M" }),
-  A(43.6, "willow", ["L4", "R4"], 150, { size: "M" }),
-  A(44.6, "chrys", "L3", 135, { size: "M", c: "gold" }), A(44.6, "peony", "R3", 120, { size: "M", c: "red" }),
-  A(45.3, "palm", ["L1", "R1"], 140, { c: "gold" }), A(45.3, "chrys", "C1", 176, { size: "M", c: "red", core: "gold" }),
-  A(46.0, "peony", "L2", 100, { size: "M", c: "white" }), A(46.0, "chrys", "R2", 150, { size: "M", c: "gold" }),
-
-  // ===== CHƯƠNG 6 — GRAND FINALE (47–60s)
-  G(47.0, "fan", MORTARS, { rays: 5, spread: 0.5, v: 70, c: "champagne" }),
-  G(47.2, "fountain", ARC, { stagger: 0.06, dur: 4.0, h: 34, c: "gold" }),
-  G(47.4, "crowd", "C1", { dur: 6, level: 0.14 }),
-  A(48.2, "chrys", ["L3", "R3"], 160, { size: "G", c: "red", core: "gold" }),
-  A(48.5, "peony", ["L4", "R4"], 90, { size: "S", c: "gold" }),
-  A(48.8, "chrys", "C1", 192, { size: "G", c: "gold", core: "red" }),
-  A(49.4, "ring", "L2", 120, { c: "gold", inner: "red" }), A(49.65, "palm", "R2", 130, { c: "gold" }),
-  A(49.9, "peony", "L1", 95, { c: "white" }), A(50.15, "crackle", "C2", 85, { c: "gold" }),
-  A(50.4, "ring", "R1", 150, { c: "red", inner: "gold" }), A(50.65, "palm", "L3", 140, { c: "white", end: "gold" }),
-  // FINAL WALL: 10 giàn từ trái sang phải, tầng cao & cực cao cùng sáng
-  ...MORTARS.map((pad, i) => A(51.0 + i * 0.1, "chrys", pad, i % 2 ? 196 : 160, { size: "M", c: i < 3 || i > 6 ? "red" : "white", core: "gold" })),
-  ...MORTARS.map((pad, i) => A(52.0 + i * 0.07, i % 2 ? "peony" : "ring", pad, i % 2 ? 128 : 148, { size: "M", c: i < 5 ? "gold" : "red", inner: "white" })),
-  A(52.8, "crackle", ["L2", "C1", "R2"], 118, { c: "gold" }),
+  A(17, "chrys", "FC", 184, { size: "G", c: "gold", core: "red" }),
+  A(19.5, "ring", ["L3", "R3"], 140, { c: "red", inner: "gold" }),
+  // Sao tách bốn nhánh quét qua sân, khoảng cách giữa các nhịp ngắn dần.
+  ...[22, 24.4, 26.5, 28.3, 29.8, 31, 32].map((t, i) =>
+    A(t, "crossette", ["L4","L3","L2","C1","R2","R3","R4"][i], 135 + 24 * Math.sin(i * Math.PI / 6),
+      { exact: true, c: i % 2 ? "gold" : "red" })),
+  A(34.2, "ghost", "C1", 170, { exact: true }),
+  A(38.2, "ghost", ["L3", "R3"], 155, { exact: true, stagger: 0.9 }),
+  A(44, "willow", ["L4", "R4"], 160, { size: "M", exact: true }),
+  G(47.2, "fountain", ARC, { stagger: 0.10, dur: 3, h: 32, c: "champagne" }),
+  A(48, "chrys", "FC", 190, { size: "G", c: "red", core: "gold" }),
+  A(50.8, "willow", ["L4", "R4"], 148, { size: "M", exact: true }),
 
   // CÂY PHÁO HOA — hình ảnh khép màn (53.6s → 60s, còn rủ tới ~64s):
   //  thân: hàng trăm tia trắng ánh xanh bắn liên tục từ mặt đất, loe dần lên;
@@ -1087,6 +1097,7 @@ class FireworksDirector {
       });
     }
     ev.sort((a, b) => a.t - b.t);
+    for (const event of ev) event.seed = (rng() * 2 ** 32) >>> 0;
     this.events = ev; this.i = 0;
     return ev;
   }
@@ -1125,7 +1136,7 @@ const FireworksShow = {
     if (s.tr > 0) { const j = this.trails.alloc(s.b, s.life, now); if (j >= 0) this.trails.write(j, s); }
     return true;
   },
-  at(absTime, fn) { this.extra.push({ t: absTime, fn }); },
+  at(absTime, fn) { this.extra.push({ t: absTime, fn, random: FireworkEffects.random }); },
 
   // opts: { seed, at (giây, để tua nhanh kiểm thử), startTime (ms epoch, cho đồng bộ sau này), showId }
   start(opts = {}) {
@@ -1157,7 +1168,7 @@ const FireworksShow = {
   stop(natural = false) {
     this.freezeAt = 0;
     this.isRunning = false; this.isFinished = true; this.extra = [];
-    if (!natural) { this.points.clear(); this.trails.clear(); this.restoreSky(); }
+    if (!natural) { this.endAt = 0; this.lastDeath = 0; this.points.clear(); this.trails.clear(); this.restoreSky(); }
     if (this.flashLight) this.flashLight.intensity = 0;
     FireworksAudio.stopShowAmbient();
   },
@@ -1180,7 +1191,9 @@ const FireworksShow = {
     while (this.isRunning && D.i < D.events.length && D.events[D.i].t <= showT) {
       const e = D.events[D.i++], b = this.startTime + e.t, late = showT - e.t > 0.3;
       if (late) FireworksAudio.muted = true;
+      FireworkEffects.random = mulberry32(e.seed);
       this.exec(e, b, now);
+      FireworkEffects.random = Math.random;
       if (late) FireworksAudio.muted = false;
     }
     // sự kiện phụ (nổ con của multi-break, đầu sao chổi...) cũng theo đồng hồ show
@@ -1189,7 +1202,9 @@ const FireworksShow = {
       while (this.extra.length && this.extra[0].t <= now) {
         const x = this.extra.shift(), late = now - x.t > 0.3, was = FireworksAudio.muted;
         if (late) FireworksAudio.muted = true;
+        FireworkEffects.random = x.random;
         x.fn(x.t, now);
+        FireworkEffects.random = Math.random;
         FireworksAudio.muted = was;
       }
     }
@@ -1214,7 +1229,7 @@ const FireworksShow = {
         if (this.flashLight) {
           this.flashLight.position.set(e.burst[0], e.burst[1] * 0.7, e.burst[2] + 40);
           this.flashLight.color.setRGB(r.color[0], Math.min(1, r.color[1] + 0.15), Math.min(1, r.color[2] + 0.2));
-          this.flashLight.intensity = Math.min(1.6, this.flashLight.intensity + r.light);
+          this.flashLight.intensity = Math.min(1.1, this.flashLight.intensity + r.light);
         }
       }
     }
@@ -1222,9 +1237,14 @@ const FireworksShow = {
 
   update(dt, nowMs) {
     if (!this.points) return;
-    if (this.freezeAt) { this.uniforms.uTime.value = this.freezeAt; this.points.flush(); this.trails.flush(); this.points.mesh.visible = this.trails.mesh.visible = true; return; }
+    if (this.freezeAt) { this.uniforms.uTime.value = this.freezeAt; this.points.flush(this.freezeAt); this.trails.flush(this.freezeAt); this.points.mesh.visible = this.trails.mesh.visible = true; return; }
     const now = nowMs / 1000;
+    if (!this.isRunning && !this.endAt && !this.extra.length && now >= this.lastDeath) {
+      this.points.mesh.visible = this.trails.mesh.visible = false;
+      return;
+    }
     FireworksQualityManager.update(dt);
+    this.trails.dots.visible = FireworksQualityManager.currentTier !== "LOW";
     if (this.isRunning) {
       this.elapsed = now - this.startTime;
       this.runEvents(now);
@@ -1245,7 +1265,7 @@ const FireworksShow = {
       this.uniforms.uProj.value = h / (2 * Math.tan((this.camera.fov * Math.PI / 180) / 2));
     }
     this.uniforms.uTime.value = now;
-    this.points.flush(); this.trails.flush();
+    this.points.flush(now); this.trails.flush(now);
     if ((this.isRunning || this.endAt) && now - (this.lastPeak || 0) > 0.5) {   // lấy mẫu số sao đang sống mỗi 0.5s
       this.lastPeak = now;
       const a = this.points.active(now); if (a > this.stats.peakStars) this.stats.peakStars = a;
