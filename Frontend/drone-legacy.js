@@ -1,16 +1,14 @@
 /* ============================================================================
- * DRONE LIGHT SHOW — BẢN LƯU 7 ĐỘI HÌNH BLENDER (F6)
+ * DRONE LIGHT SHOW — 7 ĐỘI HÌNH TỪ BẢN F10 (F6)
  * 7 đội hình lịch sử: Đông Sơn, Lý Thái Tổ, Rồng Lý, Bác Hồ, Điện Biên, Dinh Độc Lập
- * và QUỐC KỲ VIỆT NAM NÂNG CẤP TỪ BẢN 10 CẢNH (21.285 drone, đỏ tươi, sao vàng đặc, lượn sóng)
+ * Cả 7 cảnh dùng dữ liệu v6 của F10, bao gồm QUỐC KỲ VIỆT NAM NÂNG CẤP TỪ BẢN 10 CẢNH (21.285 drone, đỏ tươi, sao vàng đặc, lượn sóng)
  * Kết thúc ở giây 150 kết nối tiếp màn pháo hoa nghệ thuật F8
  * ============================================================================ */
 (() => {
 'use strict';
 
-const N3 = 14000;
 const N = 22000;
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
-const types = { '<f4': Float32Array, '<i2': Int16Array, u1: Uint8Array, '<u4': Uint32Array };
 
 /* -------- 1. CẤU HÌNH -------- */
 const DroneLegacyConfig = {
@@ -18,10 +16,9 @@ const DroneLegacyConfig = {
   fadeOut: 4.5,
   tail: 8,
   drones: N,
-  revision: 'box-launch-landing-v3-flag-v6-2026',
-  assetTag: 'b3-flag6-22k',
-  base: 'drone-show/blender-v3/',
-  flagBase: 'drone-show/blender-v6/',
+  revision: 'seven-f10-formations-v6-2026',
+  assetTag: 'b6-seven-22k',
+  base: 'drone-show/blender-v6/',
   music: 'audio/thinh-vuong-viet-nam-sang-ngoi.mp3',
   stage: { x: 0, height: 120, z: -100, scale: 1.15, pivot: 85 },
   tiers: { LOW: { glow: false }, BALANCED: { glow: true }, HIGH: { glow: true } },
@@ -87,182 +84,57 @@ function buildFireworkCues(timeline) {
   return C;
 }
 
-/* -------- 2. TẢI DỮ LIỆU KẾT HỢP (6 CẢNH V3 + CỜ V6 21.285 DRONE) -------- */
+/* -------- 2. SEVEN F10 FORMATIONS ON THE F6 TIMELINE -------- */
+const formationKeys = ['dong_son', 'ly_thai_to', 'ly_dragon', 'ho_chi_minh_lotus', 'dien_bien', 'reunification', 'vietnam_flag'];
+
 async function loadDataset() {
-  async function fetchBuffer(base, path, dtype) {
-    const r = await fetch(base + path);
-    if (!r.ok) throw Error(path + ': HTTP ' + r.status);
-    const raw = await r.arrayBuffer();
-    return new types[dtype](raw);
-  }
-
-  const [manifest, timeline] = await Promise.all([
-    fetch(DroneLegacyConfig.base + 'export_manifest.json').then(r => r.json()),
-    fetch(DroneLegacyConfig.base + 'show_timeline.json').then(r => r.json())
-  ]);
-
-  const B = {};
-  const v3_list = [
-    ['launch.f32', '<f4'], ['launch.rgba.u8', 'u1'],
-    ['dong_son.position.f32', '<f4'], ['dong_son.motion.i16', '<i2'], ['dong_son.rgb.u8', 'u1'], ['dong_son.brightness.u8', 'u1'],
-    ['transition_00.f32', '<f4'], ['transition_00.rgba.u8', 'u1'],
-    ['ly_thai_to.position.f32', '<f4'], ['ly_thai_to.motion.i16', '<i2'], ['ly_thai_to.rgb.u8', 'u1'], ['ly_thai_to.brightness.u8', 'u1'],
-    ['transition_01.f32', '<f4'], ['transition_01.rgba.u8', 'u1'],
-    ['ly_dragon.position.f32', '<f4'], ['ly_dragon.motion.i16', '<i2'], ['ly_dragon.rgb.u8', 'u1'], ['ly_dragon.brightness.u8', 'u1'],
-    ['transition_02.f32', '<f4'], ['transition_02.rgba.u8', 'u1'],
-    ['ho_chi_minh_lotus.position.f32', '<f4'], ['ho_chi_minh_lotus.motion.i16', '<i2'], ['ho_chi_minh_lotus.rgb.u8', 'u1'], ['ho_chi_minh_lotus.brightness.u8', 'u1'],
-    ['transition_03.f32', '<f4'], ['transition_03.rgba.u8', 'u1'],
-    ['dien_bien.position.f32', '<f4'], ['dien_bien.motion.i16', '<i2'], ['dien_bien.rgb.u8', 'u1'], ['dien_bien.brightness.u8', 'u1'],
-    ['transition_04.f32', '<f4'], ['transition_04.rgba.u8', 'u1'],
-    ['reunification.position.f32', '<f4'], ['reunification.motion.i16', '<i2'], ['reunification.rgb.u8', 'u1'], ['reunification.brightness.u8', 'u1'],
-    ['transition_05.f32', '<f4'], ['transition_05.rgba.u8', 'u1']
-  ];
-
-  const v6_list = [
-    ['launch.f32', '<f4'],
-    ['vietnam_flag.position.f32', '<f4'], ['vietnam_flag.motion.i16', '<i2'], ['vietnam_flag.brightness.u8', 'u1'],
-    ['vietnam_flag.rgb.u8', 'u1'], ['vietnam_flag.color_ids.u32', '<u4'], ['vietnam_flag.color_motion.u8', 'u1']
-  ];
-
-  await Promise.all([
-    ...v3_list.map(async ([path, dtype]) => { B['v3:' + path] = await fetchBuffer(DroneLegacyConfig.base, path, dtype); }),
-    ...v6_list.map(async ([path, dtype]) => { B['v6:' + path] = await fetchBuffer(DroneLegacyConfig.flagBase, path, dtype); })
-  ]);
-
-  // Chuẩn bị sẵn vị trí và màu bắt đầu tại t = 116 (kết thúc Dinh Độc Lập) cho toàn bộ 22.000 drone
-  const reun_pos = B['v3:reunification.position.f32'], reun_mot = B['v3:reunification.motion.i16'];
-  const reun_rgb = B['v3:reunification.rgb.u8'], reun_bri = B['v3:reunification.brightness.u8'];
-  const v6_launch = B['v6:launch.f32'];
-  const flag_rgb = B['v6:vietnam_flag.rgb.u8'];
-
-  const startPos = new Float32Array(N * 3);
-  const startCol = new Float32Array(N * 4);
-  const lastFrame = 40, Q = 0.002;
-  for (let i = 0; i < N3; i++) {
-    const j = i * 3, k = i * 4, s = lastFrame * N3 * 3 + j;
-    startPos[j] = reun_pos[j] + reun_mot[s] * Q;
-    startPos[j + 1] = reun_pos[j + 1] + reun_mot[s + 1] * Q;
-    startPos[j + 2] = reun_pos[j + 2] + reun_mot[s + 2] * Q;
-    startCol[k] = reun_rgb[j] / 255;
-    startCol[k + 1] = reun_rgb[j + 1] / 255;
-    startCol[k + 2] = reun_rgb[j + 2] / 255;
-    startCol[k + 3] = reun_bri[lastFrame * N3 + i] / 255;
-  }
-  for (let i = N3; i < N; i++) {
-    const j = i * 3, k = i * 4, lj = i * 10;
-    startPos[j] = v6_launch[lj];
-    startPos[j + 1] = v6_launch[lj + 1];
-    startPos[j + 2] = v6_launch[lj + 2];
-    startCol[k] = flag_rgb[j] / 255;
-    startCol[k + 1] = flag_rgb[j + 1] / 255;
-    startCol[k + 2] = flag_rgb[j + 2] / 255;
-    startCol[k + 3] = 0; // drone mặt đất ban đầu tắt đèn
-  }
-
-  return { manifest, timeline, buffers: B, startPos, startCol, N };
+  const source = await window.DroneBlender.load(DroneLegacyConfig.base);
+  const holds = formationKeys.map((key, i) => {
+    const cue = source.timeline.formations.find(c => c.formation === key);
+    if (!cue) throw Error('Missing F10 formation: ' + key);
+    const [start, end] = DroneLegacyConfig.scenes[i];
+    // Isolate each hold so evaluating its final sample cannot enter the next transition.
+    const data = { ...source, timeline: { ...source.timeline, duration: cue.end, formations: [cue], transitions: [] } };
+    const firstPos = new Float32Array(source.N * 3), lastPos = new Float32Array(source.N * 3);
+    const firstCol = new Float32Array(source.N * 4), lastCol = new Float32Array(source.N * 4);
+    window.DroneBlender.evaluate(data, cue.start, firstPos, firstCol);
+    window.DroneBlender.evaluate(data, cue.end, lastPos, lastCol);
+    return { start, end, cue, data, firstPos, firstCol, lastPos, lastCol };
+  });
+  const groundPos = new Float32Array(source.N * 3), groundCol = new Float32Array(source.N * 4);
+  window.DroneBlender.evaluate(source, 0, groundPos, groundCol);
+  return { N: source.N, holds, groundPos, groundCol, timeline: {
+    fireworks: [
+      { name: 'FIREWORKS_START', time: 137 }, { name: 'FIREWORKS_BUILDUP', time: 141 },
+      { name: 'FIREWORKS_FINALE', time: 145 }, { name: 'FIREWORKS_END', time: 150 }
+    ]
+  } };
 }
 
-/* -------- 3. HÀM TÍNH TOÁN TOẠ ĐỘ VÀ MÀU SẮC (CPU EVALUATE) -------- */
+/* -------- 3. PLAY F10 ANIMATION; REBUILD TRANSITIONS FOR SEVEN SCENES -------- */
 function evaluateFrame(D, time, pos, rgba, pivot = 85) {
-  const t = clamp(time, 0, 150);
-  const B = D.buffers;
-
-  // Giai đoạn 1: 0 -> 116s (6 đội hình lịch sử v3)
-  if (t < 116) {
-    const hold = D.timeline.formations.find(c => t >= c.start && t < c.end && c.formation !== 'vietnam_flag');
-    if (hold) {
-      const key = hold.formation;
-      const base = B['v3:' + key + '.position.f32'], motion = B['v3:' + key + '.motion.i16'], rgb = B['v3:' + key + '.rgb.u8'], bri = B['v3:' + key + '.brightness.u8'];
-      const phase = clamp((t - hold.start) * hold.sample_hz, 0, hold.sample_count - 1);
-      const a = Math.floor(phase), b = Math.min(a + 1, hold.sample_count - 1), w = phase - a, Q = hold.position_quantum_m;
-      const a3 = a * N3 * 3, b3 = b * N3 * 3, an = a * N3, bn = b * N3;
-      for (let i = 0; i < N3; i++) {
-        const j = i * 3, k = i * 4;
-        for (let c = 0; c < 3; c++) {
-          pos[j + c] = base[j + c] + (motion[a3 + j + c] * (1 - w) + motion[b3 + j + c] * w) * Q - (c === 1 ? pivot : 0);
-          rgba[k + c] = rgb[j + c] / 255;
-        }
-        rgba[k + 3] = (bri[an + i] * (1 - w) + bri[bn + i] * w) / 255;
-      }
-      const v6_launch = B['v6:launch.f32'];
-      for (let i = N3; i < N; i++) {
-        const j = i * 3, k = i * 4, lj = i * 10;
-        pos[j] = v6_launch[lj]; pos[j + 1] = v6_launch[lj + 1] - pivot; pos[j + 2] = v6_launch[lj + 2];
-        rgba[k] = 0; rgba[k + 1] = 0; rgba[k + 2] = 0; rgba[k + 3] = 0;
-      }
-      return;
-    }
-
-    const cue = D.timeline.transitions.find(c => t >= c.start && t < c.end && c.index < 7);
-    if (cue) {
-      const g = B['v3:' + cue.geometry], colors = B['v3:' + cue.colors], duration = cue.end - cue.start;
-      for (let i = 0; i < N3; i++) {
-        const j = i * 10, k = i * 4, ci = i * 8;
-        const u = clamp((t - cue.start - g[j + 9]) / (duration - g[j + 9]), 0, 1);
-        const q = u * u * u * (u * (6 * u - 15) + 10);
-        const arc = 16 * q * q * (1 - q) * (1 - q);
-        for (let c = 0; c < 3; c++) pos[i * 3 + c] = g[j + c] + (g[j + 3 + c] - g[j + c]) * q + g[j + 6 + c] * arc - (c === 1 ? pivot : 0);
-        for (let c = 0; c < 4; c++) rgba[k + c] = (colors[ci + c] * (1 - q) + colors[ci + 4 + c] * q) / 255;
-      }
-      const v6_launch = B['v6:launch.f32'];
-      for (let i = N3; i < N; i++) {
-        const j = i * 3, k = i * 4, lj = i * 10;
-        pos[j] = v6_launch[lj]; pos[j + 1] = v6_launch[lj + 1] - pivot; pos[j + 2] = v6_launch[lj + 2];
-        rgba[k] = 0; rgba[k + 1] = 0; rgba[k + 2] = 0; rgba[k + 3] = 0;
-      }
-      return;
-    }
-  }
-
-  const flag_pos = B['v6:vietnam_flag.position.f32'];
-  const flag_rgb = B['v6:vietnam_flag.rgb.u8'];
-  const flag_bri = B['v6:vietnam_flag.brightness.u8'];
-  const flag_mot = B['v6:vietnam_flag.motion.i16'];
-  const flag_cids = B['v6:vietnam_flag.color_ids.u32'];
-  const flag_cmot = B['v6:vietnam_flag.color_motion.u8'];
-
-  // Giai đoạn 2: 116 -> 124s (Chuyển tiếp mượt mà từ Dinh Độc Lập vào Quốc kỳ 22.000 drone)
-  if (t < 124) {
-    const u = clamp((t - 116) / 8.0, 0, 1);
-    const q = u * u * u * (u * (6 * u - 15) + 10);
-    const arc = 16 * q * q * (1 - q) * (1 - q);
-    const startP = D.startPos, startC = D.startCol;
-    for (let i = 0; i < N; i++) {
-      const j = i * 3, k = i * 4;
-      const tx = flag_pos[j], ty = flag_pos[j + 1], tz = flag_pos[j + 2];
-      const tb = flag_bri[i] / 255;
-      pos[j] = startP[j] + (tx - startP[j]) * q;
-      pos[j + 1] = startP[j + 1] + (ty - startP[j + 1]) * q + (i >= N3 ? 12 : 5) * arc - pivot;
-      pos[j + 2] = startP[j + 2] + (tz - startP[j + 2]) * q;
-      for (let c = 0; c < 3; c++) rgba[k + c] = startC[k + c] * (1 - q) + (flag_rgb[j + c] / 255) * q;
-      rgba[k + 3] = startC[k + 3] * (1 - q) + tb * q;
-    }
+  const t = clamp(time, 0, DroneLegacyConfig.duration);
+  const index = D.holds.findIndex(h => t <= h.end);
+  const h = D.holds[index < 0 ? D.holds.length - 1 : index];
+  if (t >= h.start) {
+    const u = clamp((t - h.start) / (h.end - h.start), 0, 1);
+    window.DroneBlender.evaluate(h.data, h.cue.start + u * (h.cue.end - h.cue.start), pos, rgba, pivot);
     return;
   }
-
-  // Giai đoạn 3: 124 -> 150s (Lá cờ Quốc kỳ Việt Nam 21.285 drone v6 hoàn mỹ, lượn sóng tuần hoàn)
-  const elapsed = (t - 124) % 23.0;
-  const phase = clamp(elapsed * 10, 0, 230);
-  const a = Math.floor(phase), b = Math.min(a + 1, 230), w = phase - a, Q = 0.002;
-  const a3 = a * N * 3, b3 = b * N * 3, an = a * N, bn = b * N;
-  for (let i = 0; i < N; i++) {
+  const previous = index > 0 ? D.holds[index - 1] : null;
+  const fromPos = previous ? previous.lastPos : D.groundPos;
+  const fromCol = previous ? previous.lastCol : D.groundCol;
+  const start = previous ? previous.end : 0;
+  const u = clamp((t - start) / (h.start - start), 0, 1);
+  const q = u * u * u * (u * (6 * u - 15) + 10);
+  const arc = 16 * q * q * (1 - q) * (1 - q);
+  for (let i = 0; i < D.N; i++) {
     const j = i * 3, k = i * 4;
     for (let c = 0; c < 3; c++) {
-      pos[j + c] = flag_pos[j + c] + (flag_mot[a3 + j + c] * (1 - w) + flag_mot[b3 + j + c] * w) * Q - (c === 1 ? pivot : 0);
-      rgba[k + c] = flag_rgb[j + c] / 255;
+      pos[j + c] = fromPos[j + c] + (h.firstPos[j + c] - fromPos[j + c]) * q
+        + (c === 1 ? 5 * arc - pivot : 0);
     }
-    rgba[k + 3] = (flag_bri[an + i] * (1 - w) + flag_bri[bn + i] * w) / 255;
-  }
-
-  // Sóng màu 30Hz
-  const phaseC = clamp(elapsed * 30, 0, 690);
-  const aC = Math.floor(phaseC), bC = Math.min(aC + 1, 690), wC = phaseC - aC;
-  const count = 3126;
-  for (let i = 0; i < count; i++) {
-    const id = flag_cids[i];
-    for (let ch = 0; ch < 3; ch++) {
-      rgba[id * 4 + ch] = (flag_cmot[(aC * count + i) * 3 + ch] * (1 - wC) + flag_cmot[(bC * count + i) * 3 + ch] * wC) / 255;
-    }
+    for (let c = 0; c < 4; c++) rgba[k + c] = fromCol[k + c] + (h.firstCol[k + c] - fromCol[k + c]) * q;
   }
 }
 
