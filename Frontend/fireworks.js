@@ -1115,8 +1115,7 @@ const FireworkEffects = {
   flare(pad, b, now, o = {}) {
     const D = o.dur || 4, ca = col(o.c, C.red), S = this.show;
     for (let t = 0; t < D; t += 0.25) {
-      this.emit({ p: [pad[0] + (this.random() - 0.5) * 3, pad[1] + 1, pad[2]], v: [0, 3, 0], b: b + t, life: 0.5, k: 1, g: 0, size: 4, a: C.white, c: ca }, now);
-      if (S.glow) S.glow.add([pad[0], pad[1] + 4, pad[2]], [0, 0, 0], b + t, 0.6, 26, 34, ca);
+      this.emit({ p: [pad[0] + (this.random() - 0.5) * 3, pad[1] + 1, pad[2]], v: [0, 3, 0], b: b + t, life: 0.5, k: 1, g: 0, size: 1.6, a: C.white, c: ca }, now);
       S.at(b + t, () => S.light(ca, 0.5, [pad[0], 20, pad[2] + 30]));
     }
     return null;

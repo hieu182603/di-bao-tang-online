@@ -132,7 +132,7 @@
         3
       ],
       "bytes": 264000,
-      "sha256": "d438a096cafb6d27aa6104af9077e7d1f38bc766cea9b24483dfb9a8ce4f2086"
+      "sha256": "bd8fed026cdf9557b1313ff5983fd32112aec8a217950993b37357a4337cbc19"
     },
     {
       "path": "ly_dragon.rgb.u8",
@@ -171,7 +171,7 @@
         3
       ],
       "bytes": 6996000,
-      "sha256": "da6e1ef3ee20535c7eb199d9a66c94636fcb2421f202beda3990b31c979e9b14"
+      "sha256": "e389e76909a6fe862ff74dc852f54d2401396de15b19cf16026d694d381a4741"
     },
     {
       "path": "ly_dragon.brightness.u8",
@@ -368,7 +368,7 @@
         3
       ],
       "bytes": 264000,
-      "sha256": "5c40b552bf653fa4d4c7e327112f0b9388c7263eb4e92a50e7f8af216c530ca1"
+      "sha256": "b88285125733aee089b51879fbb4b2035035a997a606be033831d97230d04229"
     },
     {
       "path": "ho_chi_minh_lotus.rgb.u8",
@@ -684,7 +684,7 @@
         10
       ],
       "bytes": 880000,
-      "sha256": "bb0780555d29db4325414be343fc1227a99685b4125818bb8a4e6c55486ca663"
+      "sha256": "fae2454e6686b554c315e4d9d47e47de68c2657f40a4f6b539db9b68936cae90"
     },
     {
       "path": "transition_02.rgba.u8",
@@ -704,7 +704,7 @@
         10
       ],
       "bytes": 880000,
-      "sha256": "b0186bb2e0582dee00876ccd7027c8963041b08c600ee2c87b73b16d8632f0da"
+      "sha256": "9f534df65114527f492c41b6dddc483f941362cda81d5bd08eca40e7faf7157f"
     },
     {
       "path": "transition_03.rgba.u8",
@@ -764,7 +764,7 @@
         10
       ],
       "bytes": 880000,
-      "sha256": "fcee6847e5a2de047e7800c0116b773a7fed5c6559b25818bf0e6a65e4d20dcc"
+      "sha256": "fff917aa92be7989ed73f9ddb9fea5f598ed957a3a412ef1c7238adff16b5677"
     },
     {
       "path": "transition_06.rgba.u8",
@@ -784,7 +784,7 @@
         10
       ],
       "bytes": 880000,
-      "sha256": "6cc54d6dd92c15d1829e6e76a06197c2b6ad664c24dd180549cdb02b328b65c4"
+      "sha256": "8f08af4db40d47dc0ec0dde565117473847e3a5815246dd53a4209d0a5cf9ad0"
     },
     {
       "path": "transition_07.rgba.u8",
@@ -900,22 +900,22 @@
     "led_radius_m": 0.16,
     "emission_strength": 1.65,
     "background_linear_rgb": [
-      8e-05,
+      0.00008,
       0.0001,
       0.00018
     ],
     "camera_position": [
-      0.0,
+      0,
       1.7,
-      300.0
+      300
     ],
     "camera_target": [
-      0.0,
-      85.0,
-      -0.0
+      0,
+      85,
+      0
     ],
     "camera_up": [
-      0.0,
+      0,
       0.9635455132575453,
       0.2675444708478451
     ],
