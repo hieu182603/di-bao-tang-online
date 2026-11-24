@@ -16,8 +16,8 @@ const DroneLegacyConfig = {
   fadeOut: 4.5,
   tail: 8,
   drones: N,
-  revision: 'seven-f10-formations-v6-2026',
-  assetTag: 'b6-seven-22k',
+  revision: 'seven-f10-formations-v6-full-fleet-2026',
+  assetTag: 'b6-seven-full-fleet-22k',
   base: 'drone-show/blender-v6/',
   music: 'audio/thinh-vuong-viet-nam-sang-ngoi.mp3',
   stage: { x: 0, height: 120, z: -100, scale: 1.15, pivot: 85 },
@@ -87,6 +87,19 @@ function buildFireworkCues(timeline) {
 /* -------- 2. SEVEN F10 FORMATIONS ON THE F6 TIMELINE -------- */
 const formationKeys = ['dong_son', 'ly_thai_to', 'ly_dragon', 'ho_chi_minh_lotus', 'dien_bien', 'reunification', 'vietnam_flag'];
 
+// Use the entire fleet in every silhouette. Inactive export IDs must not remain
+// on the ground until the flag. Extra IDs thicken existing strokes in depth.
+function fillFleet(h, pos, col) {
+  for (let i = 0; i < h.assignments.length; i++) {
+    const donor = h.assignments[i];
+    if (donor < 0) continue;
+    const j = i * 3, d = donor * 3, k = i * 4, c = donor * 4;
+    pos[j] = pos[d]; pos[j + 1] = pos[d + 1];
+    pos[j + 2] = pos[d + 2] + h.depthOffsets[i];
+    for (let channel = 0; channel < 4; channel++) col[k + channel] = col[c + channel];
+  }
+}
+
 async function loadDataset() {
   const source = await window.DroneBlender.load(DroneLegacyConfig.base);
   const holds = formationKeys.map((key, i) => {
@@ -97,9 +110,25 @@ async function loadDataset() {
     const data = { ...source, timeline: { ...source.timeline, duration: cue.end, formations: [cue], transitions: [] } };
     const firstPos = new Float32Array(source.N * 3), lastPos = new Float32Array(source.N * 3);
     const firstCol = new Float32Array(source.N * 4), lastCol = new Float32Array(source.N * 4);
+    const active = source.buffers[key + '.active.u8'];
+    if (!active || active.length !== source.N) throw Error('Missing active IDs: ' + key);
+    const donors = [];
+    for (let id = 0; id < source.N; id++) if (active[id]) donors.push(id);
+    if (!donors.length) throw Error('Empty formation: ' + key);
+    const assignments = new Int32Array(source.N).fill(-1), depthOffsets = new Float32Array(source.N);
+    const copies = new Uint16Array(source.N);
+    let spare = 0;
+    for (let id = 0; id < source.N; id++) if (!active[id]) {
+      const donor = donors[spare++ % donors.length], layer = ++copies[donor];
+      assignments[id] = donor;
+      depthOffsets[id] = (layer % 2 ? 1 : -1) * Math.ceil(layer / 2) * 0.45;
+    }
+    const h = { start, end, cue, data, firstPos, firstCol, lastPos, lastCol, assignments, depthOffsets };
     window.DroneBlender.evaluate(data, cue.start, firstPos, firstCol);
     window.DroneBlender.evaluate(data, cue.end, lastPos, lastCol);
-    return { start, end, cue, data, firstPos, firstCol, lastPos, lastCol };
+    fillFleet(h, firstPos, firstCol);
+    fillFleet(h, lastPos, lastCol);
+    return h;
   });
   const groundPos = new Float32Array(source.N * 3), groundCol = new Float32Array(source.N * 4);
   window.DroneBlender.evaluate(source, 0, groundPos, groundCol);
@@ -119,6 +148,7 @@ function evaluateFrame(D, time, pos, rgba, pivot = 85) {
   if (t >= h.start) {
     const u = clamp((t - h.start) / (h.end - h.start), 0, 1);
     window.DroneBlender.evaluate(h.data, h.cue.start + u * (h.cue.end - h.cue.start), pos, rgba, pivot);
+    fillFleet(h, pos, rgba);
     return;
   }
   const previous = index > 0 ? D.holds[index - 1] : null;
